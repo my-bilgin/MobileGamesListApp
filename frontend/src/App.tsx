@@ -662,7 +662,7 @@ function PublicList() {
               </div>
               <a href={item.storeUrl} target="_blank" rel="noopener noreferrer" style={{ fontSize: 12, color: '#1976d2', wordBreak: 'break-all' }}>Store'da Aç</a>
             </div>
-          </div>
+      </div>
         )) : <Typography>Henüz oyun eklenmemiş.</Typography>}
       </div>
       {/* {snackbar} */}
