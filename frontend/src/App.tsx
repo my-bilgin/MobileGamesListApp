@@ -726,7 +726,7 @@ function ShareTarget() {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`
         },
-        body: JSON.stringify({ title, storeUrl: url })
+        body: JSON.stringify({ title: sharedData.title, storeUrl: sharedData.url })
       })
       if (!res.ok) throw new Error('Ekleme başarısız.')
       setSuccess('Oyun başarıyla eklendi!')
