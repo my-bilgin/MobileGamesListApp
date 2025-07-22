@@ -672,11 +672,32 @@ function PublicList() {
 
 function ShareTarget() {
   const location = useLocation()
-  const params = new URLSearchParams(location.search)
-  const url = params.get('url') || ''
-  const title = params.get('title') || ''
-  // Kullanıcı giriş yaptıysa, mevcut listelerden birini seçip, oyun ekleme formunu otomatik dolduracak şekilde yönlendirme yapılabilir
-  // Basitçe: Kullanıcıya hangi listeye ekleyeceğini soran bir ekran
+  const [sharedData, setSharedData] = useState({ title: '', text: '', url: '' })
+
+  useEffect(() => {
+    // Web Share Target POST payload yakalama
+    if ('launchQueue' in window && 'setConsumer' in window.launchQueue) {
+      window.launchQueue.setConsumer(launchParams => {
+        if (launchParams && launchParams.files && launchParams.files.length === 0 && launchParams.formData) {
+          const formData = launchParams.formData;
+          setSharedData({
+            title: formData.get('title') || '',
+            text: formData.get('text') || '',
+            url: formData.get('url') || ''
+          });
+        }
+      });
+    } else {
+      // Fallback: GET parametrelerinden al
+      const params = new URLSearchParams(window.location.search);
+      setSharedData({
+        title: params.get('title') || '',
+        text: params.get('text') || '',
+        url: params.get('url') || ''
+      });
+    }
+  }, []);
+
   const { token } = useAuth()
   const [lists, setLists] = useState<any[]>([])
   const [selectedList, setSelectedList] = useState('')
@@ -722,8 +743,9 @@ function ShareTarget() {
   return (
     <form onSubmit={handleAdd} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       <Typography variant="h6">Paylaşılan oyun linkini ekle</Typography>
-      <Typography>Başlık: {title}</Typography>
-      <Typography>Link: {url}</Typography>
+      <Typography>Başlık: {sharedData.title}</Typography>
+      <Typography>Metin: {sharedData.text}</Typography>
+      <Typography>URL: {sharedData.url}</Typography>
       <select value={selectedList} onChange={e => setSelectedList(e.target.value)} style={{ padding: 8, fontSize: 16 }} required>
         <option value="">Liste seç</option>
         {lists.map((l: any) => <option key={l._id} value={l._id}>{l.name}</option>)}
