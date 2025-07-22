@@ -14,7 +14,7 @@ import type { ReactNode } from 'react'
 import Collapse from '@mui/material/Collapse'
 import useMediaQuery from '@mui/material/useMediaQuery'
 
-const API_URL = 'http://localhost:5023/api'
+const API_URL = '/api'
 
 interface AuthContextType {
   user: string | null
@@ -671,13 +671,12 @@ function PublicList() {
 }
 
 function ShareTarget() {
-  const location = useLocation()
-  const [sharedData, setSharedData] = useState({ title: '', text: '', url: '' })
+  const [sharedData, setSharedData] = useState({ title: '', text: '', url: '' });
 
   useEffect(() => {
     // Web Share Target POST payload yakalama
-    if ('launchQueue' in window && 'setConsumer' in window.launchQueue) {
-      window.launchQueue.setConsumer(launchParams => {
+    if ('launchQueue' in window && typeof (window as any).launchQueue.setConsumer === 'function') {
+      (window as any).launchQueue.setConsumer((launchParams: any) => {
         if (launchParams && launchParams.files && launchParams.files.length === 0 && launchParams.formData) {
           const formData = launchParams.formData;
           setSharedData({
