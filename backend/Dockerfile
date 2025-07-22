@@ -1,9 +1,7 @@
-FROM node:18-alpine
+# backend/Dockerfile
+FROM node:22-alpine
 WORKDIR /app
-
-# Npm'i güncelle
 RUN npm install -g npm@latest
-
 COPY package*.json ./
 RUN npm install
 COPY . .
