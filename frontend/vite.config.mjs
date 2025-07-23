@@ -19,7 +19,7 @@ export default defineConfig({
       },
       injectManifest: {
         swSrc: 'src/sw-custom.js',
-        swDest: 'dist/custom-sw.js',
+        swDest: 'custom-sw.js',
       },
       manifest: {
         name: 'Oyun Listem',
