@@ -11,6 +11,10 @@ export default defineConfig({
       strategies: 'injectManifest',
       srcDir: 'public',
       filename: 'sw-custom.js',
+      injectManifest: {
+        swSrc: 'public/sw-custom.js',
+        swDest: 'sw-custom.js',
+      },
       manifest: {
         name: 'Oyun Listem',
         short_name: 'OyunListem',
