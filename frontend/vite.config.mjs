@@ -13,6 +13,7 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       strategies: 'injectManifest',
+      injectRegister: false,
       injectManifest: {
         swSrc: 'src/sw-custom.js',
         swDest: 'custom-sw.js',
