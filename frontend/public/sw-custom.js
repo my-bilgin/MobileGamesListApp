@@ -1,3 +1,4 @@
+self.__WB_MANIFEST;
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
