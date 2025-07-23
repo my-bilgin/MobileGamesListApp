@@ -1,1 +1,0 @@
-// Boş service worker dosyası. Gerçek PWA işlevi sw-custom.js ile sağlanıyor. 
