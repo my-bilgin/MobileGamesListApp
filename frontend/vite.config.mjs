@@ -14,6 +14,9 @@ export default defineConfig({
       registerType: 'autoUpdate',
       strategies: 'injectManifest',
       injectRegister: false,
+      devOptions: {
+        enabled: false
+      },
       injectManifest: {
         swSrc: 'src/sw-custom.js',
         swDest: 'custom-sw.js',
