@@ -14,7 +14,7 @@ export default defineConfig({
       registerType: 'autoUpdate',
       strategies: 'injectManifest',
       injectManifest: {
-        swSrc: path.resolve(__dirname, 'src/sw-custom.js'),
+        swSrc: 'src/sw-custom.js',
         swDest: 'sw-custom.js',
       },
       manifest: {
