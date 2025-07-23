@@ -1,0 +1,1 @@
+// Boş service worker dosyası. Sadece build hatasını önlemek için. 
