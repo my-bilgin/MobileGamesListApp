@@ -12,7 +12,7 @@ export default defineConfig({
       srcDir: 'public',
       filename: 'sw-custom.js',
       injectManifest: {
-        swSrc: 'public/sw-custom.js',
+        swSrc: 'src/sw-custom.js',
         swDest: 'sw-custom.js',
       },
       manifest: {
