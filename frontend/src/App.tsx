@@ -857,6 +857,25 @@ function StarRating({ value }: { value: number }) {
   return <span style={{ color: '#ffb400', fontSize: 22, letterSpacing: 1 }}>{stars.join('')}</span>
 }
 
+function ShareTargetView() {
+  const [sharedUrl, setSharedUrl] = useState('');
+  useEffect(() => {
+    caches.open('shared-data').then(cache => {
+      cache.match('/last-shared-url').then(res => {
+        if (res) {
+          res.text().then(setSharedUrl);
+        }
+      });
+    });
+  }, []);
+  return (
+    <Box sx={{ p: 3 }}>
+      <Typography variant="h5" sx={{ mb: 2 }}>Paylaşılan İçerik</Typography>
+      <Typography sx={{ wordBreak: 'break-all' }}>{sharedUrl || 'Veri bulunamadı.'}</Typography>
+    </Box>
+  );
+}
+
 function App() {
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)')
   const [mode, setMode] = useState<'light' | 'dark' | 'auto'>(localStorage.getItem('theme') as any || 'auto')
@@ -908,6 +927,7 @@ function App() {
           <Route path="/lists/:id" element={<ProtectedRoute><ListDetail /></ProtectedRoute>} />
           <Route path="/public/:publicId" element={<PublicList />} />
           <Route path="/share-target" element={<ShareTarget />} />
+          <Route path="/share-target-view" element={<ShareTargetView />} />
           <Route path="/profile" element={<Profile setMode={setMode} mode={mode} />} />
           {/* Diğer sayfalar buraya eklenecek */}
         </Routes>
