@@ -9,6 +9,7 @@ self.addEventListener('fetch', (event) => {
 
 async function handleShareTarget(event) {
   const formData = await event.request.formData();
+  console.log('SW: formData entries:', Array.from(formData.entries()));
   const sharedUrl = formData.get('url') || formData.get('shared_url') || '';
 
   const cache = await caches.open('shared-data');
