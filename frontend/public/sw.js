@@ -1,8 +1,8 @@
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
-  // Yalnızca POST ve /share-target ise işleme al
   if (event.request.method === 'POST' && url.pathname === '/share-target') {
+    console.log('SW: /share-target POST yakalandı!');
     event.respondWith(handleShareTarget(event));
   }
 });
@@ -11,15 +11,13 @@ async function handleShareTarget(event) {
   const formData = await event.request.formData();
   const sharedUrl = formData.get('url') || formData.get('shared_url') || '';
 
-  // Veriyi cache içine yaz (basit yöntem)
   const cache = await caches.open('shared-data');
   await cache.put('/last-shared-url', new Response(sharedUrl));
+  console.log('SW: Cache yazıldı:', sharedUrl);
 
-  // Başka sayfaya yönlendir
   return Response.redirect('/share-target-view', 303);
 }
 
-// Basit bir cache-first örneği (isteğe bağlı)
 self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
