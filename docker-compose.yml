@@ -24,9 +24,24 @@ services:
     build: ./frontend
     restart: always
     ports:
-      - 3023:80
+      - "8080:8080"
     depends_on:
       - backend
 
+  custom-nginx:
+    image: nginx:alpine
+    container_name: custom-nginx
+    ports:
+      - "8081:8080"
+    volumes:
+      - ./frontend/dist:/usr/share/nginx/html
+      - ./frontend/nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - default
+
 volumes:
+  mongo-data: 
   mongo-data: 
