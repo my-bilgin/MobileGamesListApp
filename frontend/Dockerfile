@@ -8,5 +8,5 @@ RUN ls -l /app/src
 RUN npm run build
 # Build çıktısını volume'a kopyala
 RUN cp -r dist/* /app/dist/ || true
-# Sadece build tamamlandığını belirtmek için basit bir komut
-CMD ["echo", "Build completed"] 
+# Container'ın sürekli çalışması için
+CMD ["tail", "-f", "/dev/null"] 
