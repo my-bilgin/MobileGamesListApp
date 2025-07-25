@@ -10,7 +10,19 @@ self.addEventListener('fetch', (event) => {
 async function handleShareTarget(event) {
   const formData = await event.request.formData();
   console.log('SW: formData entries:', Array.from(formData.entries()));
-  const sharedUrl = formData.get('url') || formData.get('shared_url') || '';
+  
+  // URL'yi farklı parametrelerden almaya çalış
+  let sharedUrl = formData.get('url') || formData.get('shared_url') || '';
+  
+  // Eğer url boşsa, text parametresinden URL'yi çıkar
+  if (!sharedUrl) {
+    const text = formData.get('text') || '';
+    // URL pattern'ini bul
+    const urlMatch = text.match(/https?:\/\/[^\s]+/);
+    if (urlMatch) {
+      sharedUrl = urlMatch[0];
+    }
+  }
 
   const cache = await caches.open('shared-data');
   await cache.put('/last-shared-url', new Response(sharedUrl));
