@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useRef } from 'react'
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom'
 import { AppBar, Toolbar, Typography, IconButton, Snackbar, Alert, CssBaseline, Card, CardContent, CardMedia, Button, TextField, Box, Container, Paper, Chip, Divider, Grid, FormControl, InputLabel, Select, MenuItem, CircularProgress } from '@mui/material'
 import Brightness4Icon from '@mui/icons-material/Brightness4'
@@ -1199,12 +1199,16 @@ function AppContent({ toggleTheme, realMode, navigate, setMode, mode }: {
   const { loading } = useAuth();
   const location = useLocation();
   const [routeLoading, setRouteLoading] = useState(false);
+  const isInitialMount = useRef(true);
 
   useEffect(() => {
-    if (!loading) {
+    if (!loading && !isInitialMount.current) {
       setRouteLoading(true);
       const timer = setTimeout(() => setRouteLoading(false), 400);
       return () => clearTimeout(timer);
+    }
+    if (!loading) {
+      isInitialMount.current = false;
     }
   }, [location.pathname, loading]);
 
