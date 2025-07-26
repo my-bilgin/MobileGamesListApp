@@ -955,6 +955,7 @@ function ShareTargetView() {
   const navigate = useNavigate();
   const { token, initialized } = useAuth();
   const { show } = useSnackbar();
+  const theme = useTheme();
 
   // Paylaşılan URL'yi al
   useEffect(() => {
@@ -1195,100 +1196,32 @@ function ShareTargetView() {
         </Box>
         
         {gameInfo && (
-          <Card sx={{ mb: 2, borderRadius: 3, overflow: 'hidden', boxShadow: 2 }}>
-            <Box sx={{ display: 'flex', alignItems: 'stretch' }}>
+          <Card sx={{ display: 'flex', alignItems: 'center', mb: 2, boxShadow: 3, borderRadius: 4, bgcolor: `linear-gradient(135deg, ${theme.palette.background.paper} 80%, ${theme.palette.secondary.light} 100%)`, p: 1.5 }}>
+            {gameInfo.imageUrl ? (
               <CardMedia
                 component="img"
-                sx={{ 
-                  width: 90, 
-                  height: 90, 
-                  objectFit: 'cover',
-                  flexShrink: 0
-                }}
                 image={gameInfo.imageUrl}
                 alt={gameInfo.title}
+                sx={{ width: 48, height: 48, borderRadius: 2, m: 1.5, bgcolor: '#eee', boxShadow: 1 }}
                 onError={(e) => {
                   (e.target as HTMLImageElement).src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCA4MCA4MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjgwIiBoZWlnaHQ9IjgwIiBmaWxsPSIjRjVGNUY1Ii8+CjxwYXRoIGQ9Ik00MCAyMEMyOC45NTQzIDIwIDIwIDI4Ljk1NDMgMjAgNDBDMjAgNTEuMDQ1NyAyOC45NTQzIDYwIDQwIDYwQzUxLjA0NTcgNjAgNjAgNTEuMDQ1NyA2MCA0MEM2MCAyOC45NTQzIDUxLjA0NTcgMjAgNDAgMjBaIiBmaWxsPSIjQ0NDIi8+Cjwvc3ZnPgo=';
                 }}
               />
-              <CardContent sx={{ p: 3, flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                <Box>
-                  <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', mb: 1.5 }}>
-                    <Typography 
-                      variant="h6" 
-                      sx={{ 
-                        fontWeight: 700, 
-                        flexGrow: 1, 
-                        mr: 1,
-                        fontSize: '1.1rem',
-                        lineHeight: 1.3
-                      }}
-                    >
-                      {gameInfo.title}
-                    </Typography>
-                    <Chip 
-                      label="Oyun" 
-                      size="small" 
-                      color="primary" 
-                      sx={{ 
-                        fontSize: '0.7rem',
-                        height: 20,
-                        '& .MuiChip-label': { px: 1 }
-                      }} 
-                    />
-                  </Box>
-                  <Typography 
-                    variant="body2" 
-                    color="text.secondary" 
-                    sx={{ 
-                      mb: 1.5,
-                      fontSize: '0.85rem',
-                      fontWeight: 500
-                    }}
-                  >
-                    {gameInfo.developer}
-                  </Typography>
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 1.5 }}>
-                    <StarRating value={gameInfo.rating} />
-                    <Typography 
-                      variant="body2" 
-                      color="text.secondary" 
-                      sx={{ 
-                        ml: 1,
-                        fontSize: '0.8rem',
-                        fontWeight: 600
-                      }}
-                    >
-                      {gameInfo.rating > 0 ? `${gameInfo.rating.toFixed(1)}/5` : 'Puan yok'}
-                    </Typography>
-                    {gameInfo.reviewCount > 0 && (
-                      <Typography 
-                        variant="body2" 
-                        color="text.secondary" 
-                        sx={{ 
-                          ml: 1,
-                          fontSize: '0.75rem'
-                        }}
-                      >
-                        ({gameInfo.reviewCount} yorum)
-                      </Typography>
-                    )}
-                  </Box>
-                </Box>
-                <Typography 
-                  variant="body2" 
-                  color="text.secondary" 
-                  sx={{ 
-                    wordBreak: 'break-all', 
-                    fontSize: '0.7rem',
-                    opacity: 0.7,
-                    mt: 1
-                  }}
-                >
-                  {sharedUrl}
-                </Typography>
-              </CardContent>
-            </Box>
+            ) : (
+              <Box sx={{ width: 48, height: 48, borderRadius: 2, m: 1.5, bgcolor: '#eee', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, color: '#bbb', boxShadow: 1 }}>🎮</Box>
+            )}
+            <CardContent sx={{ flex: 1, p: 1, minWidth: 0 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
+                <Typography variant="h6" sx={{ fontWeight: 700, fontSize: 15, color: theme.palette.text.primary, flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{gameInfo.title}</Typography>
+              </Box>
+              <Typography variant="body2" color="text.secondary" sx={{ fontSize: 12, mb: 0.5 }}>{gameInfo.developer}</Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5, mb: 0.5 }}>
+                <StarRating value={Number(gameInfo.rating) || 0} />
+                <Typography variant="body2" sx={{ fontWeight: 500, fontSize: 13 }}>{gameInfo.rating || '-'}</Typography>
+                <Typography variant="caption" color="text.secondary">({gameInfo.reviewCount || 0} yorum)</Typography>
+              </Box>
+              <Typography variant="body2" color="text.secondary" sx={{ fontSize: 11, wordBreak: 'break-all', opacity: 0.7, mt: 0.5 }}>{sharedUrl}</Typography>
+            </CardContent>
           </Card>
         )}
       </Paper>
