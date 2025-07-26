@@ -95,22 +95,14 @@ function useAuth() {
 }
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
-  const { token, loading } = useAuth()
+  const { token } = useAuth()
   const navigate = useNavigate()
   
   useEffect(() => {
-    if (!loading && !token) {
+    if (!token) {
       navigate('/login')
     }
-  }, [token, loading, navigate])
-  
-  if (loading) {
-    return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
-        <CircularProgress />
-      </Box>
-    )
-  }
+  }, [token, navigate])
   
   if (!token) return null
   return <>{children}</>
@@ -1176,31 +1168,65 @@ function App() {
     <AuthProvider>
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        <AppBar position="sticky">
-          <Toolbar>
-            <Typography variant="h6" sx={{ flexGrow: 1, cursor: 'pointer' }} onClick={() => navigate('/')}>Oyun Listem</Typography>
-            <IconButton color="inherit" onClick={toggleTheme} size="large">
-              {realMode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
-            </IconButton>
-            <IconButton color="inherit" onClick={() => navigate('/profile')} size="large">
-              <AccountCircleIcon />
-            </IconButton>
-          </Toolbar>
-        </AppBar>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/lists" element={<ProtectedRoute><Lists /></ProtectedRoute>} />
-          <Route path="/lists/:id" element={<ProtectedRoute><ListDetail /></ProtectedRoute>} />
-          <Route path="/public/:publicId" element={<PublicList />} />
-          <Route path="/share-target" element={<ShareTarget />} />
-          <Route path="/share-target-view" element={<ShareTargetView />} />
-          <Route path="/profile" element={<Profile setMode={setMode} mode={mode} />} />
-          {/* Diğer sayfalar buraya eklenecek */}
-        </Routes>
+        <AppContent toggleTheme={toggleTheme} realMode={realMode} navigate={navigate} setMode={setMode} mode={mode} />
       </ThemeProvider>
     </AuthProvider>
+  )
+}
+
+function AppContent({ toggleTheme, realMode, navigate, setMode, mode }: { 
+  toggleTheme: () => void, 
+  realMode: string, 
+  navigate: any, 
+  setMode: any, 
+  mode: string 
+}) {
+  const { loading } = useAuth()
+
+  if (loading) {
+    return (
+      <Box sx={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        minHeight: '100vh',
+        flexDirection: 'column',
+        gap: 2
+      }}>
+        <CircularProgress size={60} />
+        <Typography variant="h6" color="text.secondary">
+          Yükleniyor...
+        </Typography>
+      </Box>
+    )
+  }
+
+  return (
+    <>
+      <AppBar position="sticky">
+        <Toolbar>
+          <Typography variant="h6" sx={{ flexGrow: 1, cursor: 'pointer' }} onClick={() => navigate('/')}>Oyun Listem</Typography>
+          <IconButton color="inherit" onClick={toggleTheme} size="large">
+            {realMode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
+          </IconButton>
+          <IconButton color="inherit" onClick={() => navigate('/profile')} size="large">
+            <AccountCircleIcon />
+          </IconButton>
+        </Toolbar>
+      </AppBar>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/lists" element={<ProtectedRoute><Lists /></ProtectedRoute>} />
+        <Route path="/lists/:id" element={<ProtectedRoute><ListDetail /></ProtectedRoute>} />
+        <Route path="/public/:publicId" element={<PublicList />} />
+        <Route path="/share-target" element={<ShareTarget />} />
+        <Route path="/share-target-view" element={<ShareTargetView />} />
+        <Route path="/profile" element={<Profile setMode={setMode} mode={mode} />} />
+        {/* Diğer sayfalar buraya eklenecek */}
+      </Routes>
+    </>
   )
 }
 
