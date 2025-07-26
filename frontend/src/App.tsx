@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useMemo, useState, useRef } from 'react'
+import React, { useMemo, useState, useRef } from 'react'
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom'
 import { AppBar, Toolbar, Typography, IconButton, Snackbar, Alert, CssBaseline, Card, CardContent, CardMedia, Button, TextField, Box, Container, Paper, Chip, Divider, Grid, FormControl, InputLabel, Select, MenuItem, CircularProgress } from '@mui/material'
 import Brightness4Icon from '@mui/icons-material/Brightness4'
@@ -13,13 +13,10 @@ import LinkIcon from '@mui/icons-material/Link'
 import CheckIcon from '@mui/icons-material/Check'
 import CloseIcon from '@mui/icons-material/Close'
 import { createTheme, ThemeProvider, useTheme } from '@mui/material/styles'
-import { createContext as createContext2, useContext as useContext2, useEffect } from 'react'
+import { createContext, useContext, useEffect } from 'react'
 import type { ReactNode } from 'react'
 import Collapse from '@mui/material/Collapse'
 import useMediaQuery from '@mui/material/useMediaQuery'
-
-const RouteLoadingContext = createContext(false);
-export const useRouteLoading = () => useContext(RouteLoadingContext);
 
 const API_URL = '/api'
 
@@ -891,29 +888,23 @@ function ShareTargetView() {
   const navigate = useNavigate();
   const { token, initialized } = useAuth();
   const { show } = useSnackbar();
-  const routeLoading = useRouteLoading();
-
-  // Route loading bitmeden hiçbir şey render etme
-  if (routeLoading) return null;
 
   // Paylaşılan URL'yi al
   useEffect(() => {
-    caches.open('shared-data').then(cache => {
-      cache.match('/last-shared-url').then(res => {
-        if (res) {
-          res.text().then(setSharedUrl);
-        }
-        setLoading(false);
-      });
-    });
+    const urlParams = new URLSearchParams(window.location.search);
+    const sharedUrlParam = urlParams.get('url');
+    if (sharedUrlParam) {
+      setSharedUrl(decodeURIComponent(sharedUrlParam));
+    }
+    setLoading(false);
   }, []);
 
   // Kullanıcının listelerini al
   useEffect(() => {
-    if (token && !loading && initialized) {
+    if (token && initialized) {
       fetchLists();
     }
-  }, [token, loading, initialized]);
+  }, [token, initialized]);
 
   const fetchLists = async () => {
     try {
@@ -929,6 +920,8 @@ function ShareTargetView() {
       }
     } catch (error) {
       console.error('Listeler alınamadı:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -1201,7 +1194,7 @@ function AppContent({ toggleTheme, realMode, navigate, setMode, mode }: {
   const showLoading = routeLoading;
 
   return (
-    <RouteLoadingContext.Provider value={routeLoading}>
+    <>
       {showLoading && (
         <Box sx={{ 
           position: 'fixed',
@@ -1254,7 +1247,7 @@ function AppContent({ toggleTheme, realMode, navigate, setMode, mode }: {
           <Route path="/profile" element={<Profile setMode={setMode} mode={mode} />} />
         </Routes>
       </Box>
-    </RouteLoadingContext.Provider>
+    </>
   );
 }
 
