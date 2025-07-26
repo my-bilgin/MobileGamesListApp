@@ -592,38 +592,44 @@ function ListDetail() {
         </form>
       </Collapse>
       <Collapse in={showShare} timeout={350} unmountOnExit>
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 14, marginBottom: 18, background: `linear-gradient(135deg, ${theme.palette.background.paper} 80%, ${theme.palette.info.light} 100%)`, borderRadius: 4, boxShadow: '0 2px 12px #0002', padding: 14, maxWidth: '100%' }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <Typography variant="body2" sx={{ flex: 1, wordBreak: 'break-all', fontSize: 13, bgcolor: theme.palette.background.default, p: 1.5, borderRadius: 2, border: `1px solid ${theme.palette.divider}`, fontFamily: 'monospace' }}>
-              {shareUrl}
-            </Typography>
-            <Button
-              variant="outlined"
-              size="small"
-              onClick={() => {
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2, p: 1.5, bgcolor: theme.palette.background.paper, borderRadius: 2, boxShadow: 1, border: `1px solid ${theme.palette.divider}` }}>
+          <Typography variant="body2" sx={{ flex: 1, wordBreak: 'break-all', fontSize: 12, color: theme.palette.text.secondary, fontFamily: 'monospace' }}>
+            {shareUrl}
+          </Typography>
+          <IconButton
+            size="small"
+            onClick={() => {
+              if (navigator.share) {
+                navigator.share({
+                  title: `${list.name} - Oyun Listesi`,
+                  text: `${list.name} oyun listesini paylaşıyorum:`,
+                  url: shareUrl
+                }).catch(() => {
+                  // Fallback: kopyala
+                  navigator.clipboard.writeText(shareUrl).then(() => {
+                    show('Link kopyalandı!', 'success')
+                  }).catch(() => {
+                    show('Paylaşım başarısız', 'error')
+                  })
+                })
+              } else {
+                // Fallback: kopyala
                 navigator.clipboard.writeText(shareUrl).then(() => {
                   show('Link kopyalandı!', 'success')
                 }).catch(() => {
                   show('Kopyalama başarısız', 'error')
                 })
-              }}
-              sx={{ minWidth: 'auto', px: 2, py: 1, fontSize: 13, fontWeight: 600, borderRadius: 2, borderColor: theme.palette.info.main, color: theme.palette.info.main, ':hover': { bgcolor: theme.palette.info.light, borderColor: theme.palette.info.dark } }}
-            >
-              Kopyala
-            </Button>
-          </Box>
-          <Button
-            href={shareUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            variant="contained"
-            color="info"
-            fullWidth
-            disabled={!shareUrl}
-            sx={{ fontWeight: 700, borderRadius: 2, py: 1.2, fontSize: 16, boxShadow: 1, textTransform: 'none', letterSpacing: 1, transition: 'all 0.2s', ':hover': { bgcolor: theme.palette.info.dark, boxShadow: 2 } }}
+              }
+            }}
+            sx={{ 
+              minWidth: 'auto', 
+              p: 0.5, 
+              bgcolor: theme.palette.info.light, 
+              ':hover': { bgcolor: theme.palette.info.main } 
+            }}
           >
-            Linki Aç
-          </Button>
+            <img src="/share.png" alt="Paylaş" style={{ width: 16, height: 16, filter: theme.palette.mode === 'dark' ? 'invert(1)' : 'none' }} />
+          </IconButton>
         </Box>
       </Collapse>
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1, mb: 2, mx: { xs: 1, sm: 0 } }}>
