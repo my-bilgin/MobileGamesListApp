@@ -796,30 +796,36 @@ function useSnackbar() {
 }
 
 function Profile({ setMode, mode }: { setMode: (m: any) => void, mode: string }) {
-  const { user, logout } = useAuth()
+  const { user, logout, token } = useAuth()
   const { show, snackbar } = useSnackbar()
   const theme = useTheme()
   // Kullanıcı adı (displayName)
   const displayName = user || 'Kullanıcı'
 
-  // Listeler ve oyun sayısı için localStorage veya context kullanılabilir, burada örnek olarak localStorage'dan çekiyoruz
+  // Listeler ve oyun sayısı için API'den veri al
   const [stats, setStats] = useState({ listCount: 0, gameCount: 0 })
+  
   useEffect(() => {
-    // Listeler sayfasında da aynı veri yapısı kullanılıyor
-    const listsRaw = localStorage.getItem('lists')
-    let listCount = 0
-    let gameCount = 0
-    if (listsRaw) {
-      try {
-        const lists = JSON.parse(listsRaw)
-        if (Array.isArray(lists)) {
-          listCount = lists.length
-          gameCount = lists.reduce((acc, l) => acc + (l.items?.length || 0), 0)
-        }
-      } catch {}
+    if (token) {
+      fetchStats()
     }
-    setStats({ listCount, gameCount })
-  }, [])
+  }, [token])
+
+  const fetchStats = async () => {
+    try {
+      const res = await fetch(`${API_URL}/lists`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+      if (res.ok) {
+        const lists = await res.json()
+        const listCount = lists.length
+        const gameCount = lists.reduce((acc: number, list: any) => acc + (list.items?.length || 0), 0)
+        setStats({ listCount, gameCount })
+      }
+    } catch (error) {
+      console.error('İstatistikler alınamadı:', error)
+    }
+  }
 
   const handleThemeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setMode(e.target.value)
