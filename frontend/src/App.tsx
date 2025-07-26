@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Routes, Route, useNavigate } from 'react-router-dom'
+import { Routes, Route, useNavigate, useLocation } from 'react-router-dom'
 import { AppBar, Toolbar, Typography, IconButton, Snackbar, Alert, CssBaseline, Card, CardContent, CardMedia, Button, TextField, Box, Container, Paper, Chip, Divider, Grid, FormControl, InputLabel, Select, MenuItem, CircularProgress } from '@mui/material'
 import Brightness4Icon from '@mui/icons-material/Brightness4'
 import Brightness7Icon from '@mui/icons-material/Brightness7'
@@ -178,6 +178,11 @@ function Login() {
     }
   }
 
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) navigate('/');
+  }, [navigate]);
+
   return (
     <Box sx={{ minHeight: '100vh', width: '100vw', bgcolor: theme.palette.background.default, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', boxSizing: 'border-box' }}>
       <Box sx={{
@@ -229,6 +234,11 @@ function Register() {
       setLoading(false)
     }
   }
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) navigate('/');
+  }, [navigate]);
 
   return (
     <Box sx={{ minHeight: '100vh', width: '100vw', bgcolor: theme.palette.background.default, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', boxSizing: 'border-box' }}>
@@ -1186,12 +1196,21 @@ function AppContent({ toggleTheme, realMode, navigate, setMode, mode }: {
   setMode: any, 
   mode: string 
 }) {
-  const { loading } = useAuth()
+  const { loading } = useAuth();
+  const location = useLocation();
+  const [routeLoading, setRouteLoading] = useState(false);
+
+  useEffect(() => {
+    setRouteLoading(true);
+    const timer = setTimeout(() => setRouteLoading(false), 400);
+    return () => clearTimeout(timer);
+  }, [location.pathname]);
+
+  const showLoading = loading || routeLoading;
 
   return (
     <>
-      {/* Loading Spinner - Sadece loading durumunda görünür */}
-      {loading && (
+      {showLoading && (
         <Box sx={{ 
           position: 'fixed',
           top: 0,
@@ -1215,12 +1234,10 @@ function AppContent({ toggleTheme, realMode, navigate, setMode, mode }: {
           </Typography>
         </Box>
       )}
-
-      {/* Ana İçerik - Her zaman render edilir ama loading sırasında görünmez */}
       <Box sx={{ 
-        opacity: loading ? 0 : 1, 
+        opacity: showLoading ? 0 : 1, 
         transition: 'opacity 0.3s ease-in-out',
-        visibility: loading ? 'hidden' : 'visible'
+        visibility: showLoading ? 'hidden' : 'visible'
       }}>
         <AppBar position="sticky">
           <Toolbar>
@@ -1243,11 +1260,10 @@ function AppContent({ toggleTheme, realMode, navigate, setMode, mode }: {
           <Route path="/share-target" element={<ShareTarget />} />
           <Route path="/share-target-view" element={<ShareTargetView />} />
           <Route path="/profile" element={<Profile setMode={setMode} mode={mode} />} />
-          {/* Diğer sayfalar buraya eklenecek */}
         </Routes>
       </Box>
     </>
-  )
+  );
 }
 
 export default App
