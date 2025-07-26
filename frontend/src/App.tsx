@@ -881,6 +881,7 @@ function StarRating({ value }: { value: number }) {
 
 function ShareTargetView() {
   const [sharedUrl, setSharedUrl] = useState('');
+  const [gameInfo, setGameInfo] = useState<any>(null);
   const [lists, setLists] = useState<Array<{ _id: string; name: string; games: any[] }>>([]);
   const [selectedList, setSelectedList] = useState('');
   const [loading, setLoading] = useState(true);
@@ -919,6 +920,51 @@ function ShareTargetView() {
       });
     }
   }, []);
+
+  // sharedUrl değiştiğinde oyun bilgilerini al
+  useEffect(() => {
+    if (sharedUrl) {
+      fetchGameInfo();
+    }
+  }, [sharedUrl]);
+
+  const fetchGameInfo = async () => {
+    try {
+      const res = await fetch(`${API_URL}/fetch-game-info`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: sharedUrl })
+      });
+      
+      if (res.ok) {
+        const data = await res.json();
+        setGameInfo(data);
+      } else {
+        // Fallback - basit bilgiler
+        const gameId = sharedUrl.match(/id=([^&]+)/)?.[1] || '';
+        setGameInfo({
+          title: gameId ? gameId.replace(/\./g, ' ').replace(/([A-Z])/g, ' $1').trim() : 'Bilinmeyen Oyun',
+          storeUrl: sharedUrl,
+          imageUrl: `https://play.google.com/store/apps/details?id=${gameId}`,
+          developer: 'Bilinmeyen Geliştirici',
+          rating: 0,
+          reviewCount: 0
+        });
+      }
+    } catch (error) {
+      console.error('Oyun bilgileri alınamadı:', error);
+      // Fallback
+      const gameId = sharedUrl.match(/id=([^&]+)/)?.[1] || '';
+      setGameInfo({
+        title: gameId ? gameId.replace(/\./g, ' ').replace(/([A-Z])/g, ' $1').trim() : 'Bilinmeyen Oyun',
+        storeUrl: sharedUrl,
+        imageUrl: `https://play.google.com/store/apps/details?id=${gameId}`,
+        developer: 'Bilinmeyen Geliştirici',
+        rating: 0,
+        reviewCount: 0
+      });
+    }
+  };
 
   // Kullanıcının listelerini al
   useEffect(() => {
@@ -996,42 +1042,6 @@ function ShareTargetView() {
   const getGameInfo = (url: string) => {
     const gameId = url.match(/id=([^&]+)/)?.[1] || '';
     
-    // Google Play Store'dan oyun bilgilerini al
-    const fetchGameInfo = async () => {
-      try {
-        // Google Play Store API'si yok, bu yüzden basit bir çözüm kullanıyoruz
-        const response = await fetch(`https://play.google.com/store/apps/details?id=${gameId}`);
-        const html = await response.text();
-        
-        // HTML'den oyun adını çıkar
-        const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/);
-        const name = titleMatch ? titleMatch[1].replace(' - Google Play', '').trim() : 'Bilinmeyen Oyun';
-        
-        // Rating bilgisini çıkar
-        const ratingMatch = html.match(/"ratingValue":\s*([0-9.]+)/);
-        const rating = ratingMatch ? parseFloat(ratingMatch[1]) : 0;
-        
-        return {
-          id: gameId,
-          name: name,
-          url: url,
-          image: `https://play.google.com/store/apps/details?id=${gameId}`,
-          rating: rating,
-          genre: 'Oyun'
-        };
-      } catch (error) {
-        console.error('Oyun bilgileri alınamadı:', error);
-        return {
-          id: gameId,
-          name: gameId || 'Bilinmeyen Oyun',
-          url: url,
-          image: `https://play.google.com/store/apps/details?id=${gameId}`,
-          rating: 0,
-          genre: 'Oyun'
-        };
-      }
-    };
-    
     // Basit çözüm - gameId'yi kullan
     return {
       id: gameId,
@@ -1043,7 +1053,7 @@ function ShareTargetView() {
     };
   };
 
-  const gameInfo = sharedUrl ? getGameInfo(sharedUrl) : null;
+  // gameInfo artık state'den geliyor, bu satırı kaldırıyoruz
 
   console.log('ShareTargetView render - loading:', loading, 'initialized:', initialized, 'sharedUrl:', sharedUrl);
   
@@ -1124,24 +1134,32 @@ function ShareTargetView() {
               <CardMedia
                 component="img"
                 sx={{ width: 80, height: 80, objectFit: 'cover' }}
-                image={`https://play.google.com/store/apps/details?id=${gameInfo.id}`}
-                alt={gameInfo.name}
+                image={gameInfo.imageUrl}
+                alt={gameInfo.title}
                 onError={(e) => {
-                  e.currentTarget.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCA4MCA4MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjgwIiBoZWlnaHQ9IjgwIiBmaWxsPSIjRjVGNUY1Ii8+CjxwYXRoIGQ9Ik00MCAyMEMyOC45NTQzIDIwIDIwIDI4Ljk1NDMgMjAgNDBDMjAgNTEuMDQ1NyAyOC45NTQzIDYwIDQwIDYwQzUxLjA0NTcgNjAgNjAgNTEuMDQ1NyA2MCA0MEM2MCAyOC45NTQzIDUxLjA0NTcgMjAgNDAgMjBaIiBmaWxsPSIjQ0NDIi8+Cjwvc3ZnPgo=';
+                  (e.target as HTMLImageElement).src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCA4MCA4MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjgwIiBoZWlnaHQ9IjgwIiBmaWxsPSIjRjVGNUY1Ii8+CjxwYXRoIGQ9Ik00MCAyMEMyOC45NTQzIDIwIDIwIDI4Ljk1NDMgMjAgNDBDMjAgNTEuMDQ1NyAyOC45NTQzIDYwIDQwIDYwQzUxLjA0NTcgNjAgNjAgNTEuMDQ1NyA2MCA0MEM2MCAyOC45NTQzIDUxLjA0NTcgMjAgNDAgMjBaIiBmaWxsPSIjQ0NDIi8+Cjwvc3ZnPgo=';
                 }}
               />
               <CardContent sx={{ p: 2, flexGrow: 1 }}>
                 <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', mb: 1 }}>
                   <Typography variant="h6" sx={{ fontWeight: 600, flexGrow: 1, mr: 1 }}>
-                    {gameInfo.name}
+                    {gameInfo.title}
                   </Typography>
-                  <Chip label={gameInfo.genre} size="small" color="primary" />
+                  <Chip label="Oyun" size="small" color="primary" />
                 </Box>
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                  {gameInfo.developer}
+                </Typography>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                   <StarRating value={gameInfo.rating} />
                   <Typography variant="body2" color="text.secondary" sx={{ ml: 1 }}>
                     {gameInfo.rating > 0 ? `${gameInfo.rating}/5` : 'Puan yok'}
                   </Typography>
+                  {gameInfo.reviewCount > 0 && (
+                    <Typography variant="body2" color="text.secondary" sx={{ ml: 1 }}>
+                      ({gameInfo.reviewCount} yorum)
+                    </Typography>
+                  )}
                 </Box>
                 <Typography variant="body2" color="text.secondary" sx={{ wordBreak: 'break-all', fontSize: '0.75rem' }}>
                   {sharedUrl}
