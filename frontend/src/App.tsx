@@ -23,6 +23,7 @@ const API_URL = '/api'
 interface AuthContextType {
   user: string | null
   token: string | null
+  loading: boolean
   login: (email: string, password: string) => Promise<void>
   register: (email: string, password: string, displayName: string) => Promise<void>
   logout: () => void
@@ -33,6 +34,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<string | null>(null)
   const [token, setToken] = useState<string | null>(null)
+  const [loading, setLoading] = useState(true)
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -42,6 +44,7 @@ function AuthProvider({ children }: { children: ReactNode }) {
       setToken(t)
       setUser(u)
     }
+    setLoading(false)
   }, [])
 
   const login = async (email: string, password: string) => {
@@ -79,7 +82,7 @@ function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, token, login, register, logout }}>
+    <AuthContext.Provider value={{ user, token, loading, login, register, logout }}>
       {children}
     </AuthContext.Provider>
   )
@@ -92,11 +95,23 @@ function useAuth() {
 }
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
-  const { token } = useAuth()
+  const { token, loading } = useAuth()
   const navigate = useNavigate()
+  
   useEffect(() => {
-    if (!token) navigate('/login')
-  }, [token, navigate])
+    if (!loading && !token) {
+      navigate('/login')
+    }
+  }, [token, loading, navigate])
+  
+  if (loading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
+        <CircularProgress />
+      </Box>
+    )
+  }
+  
   if (!token) return null
   return <>{children}</>
 }
@@ -875,6 +890,7 @@ function ShareTargetView() {
   useEffect(() => {
     const token = localStorage.getItem('token');
     setIsAuthenticated(!!token);
+    setLoading(false);
   }, []);
 
   // Paylaşılan URL'yi al
