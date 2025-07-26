@@ -1194,15 +1194,11 @@ function AppContent({ toggleTheme, realMode, navigate, setMode, mode }: {
 }) {
   const location = useLocation();
   const [routeLoading, setRouteLoading] = useState(false);
-  const isInitialMount = useRef(true);
 
   useEffect(() => {
-    if (!isInitialMount.current) {
-      setRouteLoading(true);
-      const timer = setTimeout(() => setRouteLoading(false), 400);
-      return () => clearTimeout(timer);
-    }
-    isInitialMount.current = false;
+    setRouteLoading(true);
+    const timer = setTimeout(() => setRouteLoading(false), 400);
+    return () => clearTimeout(timer);
   }, [location.pathname]);
 
   const showLoading = routeLoading;
