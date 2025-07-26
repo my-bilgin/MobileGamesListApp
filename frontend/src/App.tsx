@@ -592,7 +592,7 @@ function ListDetail() {
         </form>
       </Collapse>
       <Collapse in={showShare} timeout={350} unmountOnExit>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2, p: 1.5, bgcolor: theme.palette.background.paper, borderRadius: 2, boxShadow: 1, border: `1px solid ${theme.palette.divider}` }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2, p: 1.5, bgcolor: theme.palette.background.paper, borderRadius: 2, boxShadow: 1, border: `1px solid ${theme.palette.divider}`, mx: { xs: 1, sm: 0 } }}>
           <Typography variant="body2" sx={{ flex: 1, wordBreak: 'break-all', fontSize: 12, color: theme.palette.text.secondary, fontFamily: 'monospace' }}>
             {shareUrl}
           </Typography>
@@ -623,12 +623,12 @@ function ListDetail() {
             }}
             sx={{ 
               minWidth: 'auto', 
-              p: 0.5, 
-              bgcolor: theme.palette.info.light, 
-              ':hover': { bgcolor: theme.palette.info.main } 
+              p: 1, 
+              bgcolor: 'transparent',
+              ':hover': { bgcolor: theme.palette.action.hover } 
             }}
           >
-            <img src="/share.png" alt="Paylaş" style={{ width: 16, height: 16, filter: theme.palette.mode === 'dark' ? 'invert(1)' : 'none' }} />
+            <img src="/share.png" alt="Paylaş" style={{ width: 24, height: 24, filter: theme.palette.mode === 'dark' ? 'invert(1)' : 'none' }} />
           </IconButton>
         </Box>
       </Collapse>
