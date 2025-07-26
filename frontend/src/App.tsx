@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { Routes, Route, useNavigate } from 'react-router-dom'
-import { AppBar, Toolbar, Typography, IconButton, Snackbar, Alert, CssBaseline, Card, CardContent, CardMedia, Button, TextField, Box } from '@mui/material'
+import { AppBar, Toolbar, Typography, IconButton, Snackbar, Alert, CssBaseline, Card, CardContent, CardMedia, Button, TextField, Box, Container, Paper, Chip, Divider, Grid, FormControl, InputLabel, Select, MenuItem, CircularProgress } from '@mui/material'
 import Brightness4Icon from '@mui/icons-material/Brightness4'
 import Brightness7Icon from '@mui/icons-material/Brightness7'
 import AccountCircleIcon from '@mui/icons-material/AccountCircle'
@@ -8,6 +8,10 @@ import DeleteIcon from '@mui/icons-material/Delete'
 import EditIcon from '@mui/icons-material/Edit'
 import AddIcon from '@mui/icons-material/Add'
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever'
+import ArrowBackIcon from '@mui/icons-material/ArrowBack'
+import LinkIcon from '@mui/icons-material/Link'
+import CheckIcon from '@mui/icons-material/Check'
+import CloseIcon from '@mui/icons-material/Close'
 import { createTheme, ThemeProvider, useTheme } from '@mui/material/styles'
 import { createContext, useContext, useEffect } from 'react'
 import type { ReactNode } from 'react'
@@ -859,20 +863,238 @@ function StarRating({ value }: { value: number }) {
 
 function ShareTargetView() {
   const [sharedUrl, setSharedUrl] = useState('');
+  const [lists, setLists] = useState<Array<{ _id: string; name: string; games: any[] }>>([]);
+  const [selectedList, setSelectedList] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [adding, setAdding] = useState(false);
+  const navigate = useNavigate();
+  const { token } = useAuth();
+  const { show } = useSnackbar();
+
+  // Paylaşılan URL'yi al
   useEffect(() => {
     caches.open('shared-data').then(cache => {
       cache.match('/last-shared-url').then(res => {
         if (res) {
           res.text().then(setSharedUrl);
         }
+        setLoading(false);
       });
     });
   }, []);
+
+  // Kullanıcının listelerini al
+  useEffect(() => {
+    if (token && !loading) {
+      fetchLists();
+    }
+  }, [token, loading]);
+
+  const fetchLists = async () => {
+    try {
+      const res = await fetch(`${API_URL}/lists`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setLists(data);
+        if (data.length > 0) {
+          setSelectedList(data[0]._id);
+        }
+      }
+    } catch (error) {
+      console.error('Listeler alınamadı:', error);
+    }
+  };
+
+  const handleAddToList = async () => {
+    if (!selectedList || !sharedUrl) return;
+    
+    setAdding(true);
+    try {
+      const res = await fetch(`${API_URL}/lists/${selectedList}/games`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ url: sharedUrl })
+      });
+
+      if (res.ok) {
+        show('Oyun başarıyla listeye eklendi!', 'success');
+        navigate('/lists');
+      } else {
+        const data = await res.json();
+        show(data.message || 'Oyun eklenirken hata oluştu', 'error');
+      }
+    } catch (error) {
+      show('Bağlantı hatası', 'error');
+    } finally {
+      setAdding(false);
+    }
+  };
+
+  const handleCancel = () => {
+    navigate('/');
+  };
+
+  // URL'den oyun bilgilerini çıkar
+  const getGameInfo = (url: string) => {
+    const gameId = url.match(/id=([^&]+)/)?.[1] || '';
+    const gameName = url.match(/details\/([^?]+)/)?.[1]?.replace(/-/g, ' ') || 'Bilinmeyen Oyun';
+    
+    return {
+      id: gameId,
+      name: gameName,
+      url: url,
+      image: `https://play.google.com/store/apps/details?id=${gameId}`,
+      rating: 0,
+      genre: 'Oyun'
+    };
+  };
+
+  const gameInfo = sharedUrl ? getGameInfo(sharedUrl) : null;
+
+  if (loading) {
+    return (
+      <Container maxWidth="sm" sx={{ py: 4 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
+          <CircularProgress />
+        </Box>
+      </Container>
+    );
+  }
+
+  if (!sharedUrl) {
+    return (
+      <Container maxWidth="sm" sx={{ py: 4 }}>
+        <Paper sx={{ p: 3, textAlign: 'center' }}>
+          <Typography variant="h6" color="error" sx={{ mb: 2 }}>
+            Paylaşılan içerik bulunamadı
+          </Typography>
+          <Button variant="contained" onClick={handleCancel} sx={{ borderRadius: 2 }}>
+            Ana Sayfaya Dön
+          </Button>
+        </Paper>
+      </Container>
+    );
+  }
+
   return (
-    <Box sx={{ p: 3 }}>
-      <Typography variant="h5" sx={{ mb: 2 }}>Paylaşılan İçerik</Typography>
-      <Typography sx={{ wordBreak: 'break-all' }}>{sharedUrl || 'Veri bulunamadı.'}</Typography>
-    </Box>
+    <Container maxWidth="sm" sx={{ py: 2 }}>
+      {/* Header */}
+      <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+        <IconButton onClick={handleCancel} sx={{ mr: 2 }}>
+          <ArrowBackIcon />
+        </IconButton>
+        <Typography variant="h5" sx={{ fontWeight: 600 }}>
+          Oyun Ekle
+        </Typography>
+      </Box>
+
+      {/* Oyun Kartı */}
+      <Paper sx={{ p: 3, mb: 3, borderRadius: 3 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+          <LinkIcon sx={{ mr: 1, color: 'primary.main' }} />
+          <Typography variant="h6" sx={{ fontWeight: 600 }}>
+            Eklenecek Oyun
+          </Typography>
+        </Box>
+        
+        {gameInfo && (
+          <Card sx={{ mb: 2, borderRadius: 2 }}>
+            <CardContent sx={{ p: 2 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                <Typography variant="subtitle1" sx={{ fontWeight: 600, flexGrow: 1 }}>
+                  {gameInfo.name}
+                </Typography>
+                <Chip label={gameInfo.genre} size="small" color="primary" />
+              </Box>
+              <Typography variant="body2" color="text.secondary" sx={{ wordBreak: 'break-all' }}>
+                {sharedUrl}
+              </Typography>
+            </CardContent>
+          </Card>
+        )}
+      </Paper>
+
+      {/* Liste Seçimi */}
+      <Paper sx={{ p: 3, mb: 3, borderRadius: 3 }}>
+        <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
+          Hangi Listeye Eklensin?
+        </Typography>
+        
+        {lists.length === 0 ? (
+          <Box sx={{ textAlign: 'center', py: 2 }}>
+            <Typography color="text.secondary" sx={{ mb: 2 }}>
+              Henüz liste oluşturmamışsınız
+            </Typography>
+            <Button 
+              variant="outlined" 
+              onClick={() => navigate('/lists')}
+              sx={{ borderRadius: 2 }}
+            >
+              Liste Oluştur
+            </Button>
+          </Box>
+        ) : (
+          <FormControl fullWidth>
+            <InputLabel>Liste Seçin</InputLabel>
+            <Select
+              value={selectedList}
+              onChange={(e) => setSelectedList(e.target.value)}
+              label="Liste Seçin"
+              sx={{ borderRadius: 2 }}
+            >
+              {lists.map((list) => (
+                <MenuItem key={list._id} value={list._id}>
+                  {list.name} ({list.games.length} oyun)
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        )}
+      </Paper>
+
+      {/* Butonlar */}
+      <Box sx={{ display: 'flex', gap: 2 }}>
+        <Button
+          variant="outlined"
+          onClick={handleCancel}
+          startIcon={<CloseIcon />}
+          fullWidth
+          sx={{ 
+            borderRadius: 2, 
+            py: 1.5,
+            borderColor: 'error.main',
+            color: 'error.main',
+            '&:hover': {
+              borderColor: 'error.dark',
+              backgroundColor: 'error.light',
+              color: 'error.dark'
+            }
+          }}
+        >
+          Vazgeç
+        </Button>
+        
+        <Button
+          variant="contained"
+          onClick={handleAddToList}
+          startIcon={adding ? <CircularProgress size={20} /> : <CheckIcon />}
+          disabled={!selectedList || adding}
+          fullWidth
+          sx={{ 
+            borderRadius: 2, 
+            py: 1.5,
+            fontWeight: 600
+          }}
+        >
+          {adding ? 'Ekleniyor...' : 'Listeye Ekle'}
+        </Button>
+      </Box>
+    </Container>
   );
 }
 
