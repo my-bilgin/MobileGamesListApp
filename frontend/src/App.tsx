@@ -92,38 +92,22 @@ function useAuth() {
 }
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
-  const { token } = useAuth()
-  const navigate = useNavigate()
-  const [isChecking, setIsChecking] = useState(true)
-  
-  useEffect(() => {
-    // Token kontrolü için kısa bir süre bekle
-    const timer = setTimeout(() => {
-      if (!token) {
-        navigate('/login')
-      }
-      setIsChecking(false)
-    }, 100)
-    
-    return () => clearTimeout(timer)
-  }, [token, navigate])
-  
-  // Token kontrolü sırasında loading göster
-  if (isChecking) {
-    return (
-      <Box sx={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        minHeight: '50vh' 
-      }}>
-        <CircularProgress />
-      </Box>
-    )
+  const { token } = useAuth();
+  const navigate = useNavigate();
+
+  // Eğer token state'i null ama localStorage'da token varsa, bekle (null dön)
+  if (token === null && localStorage.getItem('token')) {
+    return null;
   }
-  
-  if (!token) return null
-  return <>{children}</>
+
+  useEffect(() => {
+    if (!token) {
+      navigate('/login');
+    }
+  }, [token, navigate]);
+
+  if (!token) return null;
+  return <>{children}</>;
 }
 
 function Home() {
