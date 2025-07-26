@@ -623,12 +623,17 @@ function ListDetail() {
             }}
             sx={{ 
               minWidth: 'auto', 
-              p: 1, 
+              p: 0, 
               bgcolor: 'transparent',
+              width: 70,
+              height: 70,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
               ':hover': { bgcolor: theme.palette.action.hover } 
             }}
           >
-            <img src="/share.png" alt="Paylaş" style={{ width: 24, height: 24, filter: theme.palette.mode === 'dark' ? 'invert(1)' : 'none' }} />
+            <img src="/share.png" alt="Paylaş" style={{ width: 70, height: 70, filter: theme.palette.mode === 'dark' ? 'invert(1)' : 'none' }} />
           </IconButton>
         </Box>
       </Collapse>
