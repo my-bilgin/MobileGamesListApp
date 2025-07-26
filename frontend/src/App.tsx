@@ -1123,7 +1123,7 @@ function ShareTargetView() {
             >
               {lists.map((list) => (
                 <MenuItem key={list._id} value={list._id}>
-                  {list.name} ({list.games.length} oyun)
+                  {list.name} ({list.games?.length || 0} oyun)
                 </MenuItem>
               ))}
             </Select>
