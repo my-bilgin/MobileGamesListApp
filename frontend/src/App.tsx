@@ -23,7 +23,6 @@ const API_URL = '/api'
 interface AuthContextType {
   user: string | null
   token: string | null
-  loading: boolean
   login: (email: string, password: string) => Promise<void>
   register: (email: string, password: string, displayName: string) => Promise<void>
   logout: () => void
@@ -34,22 +33,15 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<string | null>(null)
   const [token, setToken] = useState<string | null>(null)
-  const [loading, setLoading] = useState(true)
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Minimum loading süresi için setTimeout kullan
-    const timer = setTimeout(() => {
-      const t = localStorage.getItem('token')
-      const u = localStorage.getItem('user')
-      if (t && u) {
-        setToken(t)
-        setUser(u)
-      }
-      setLoading(false)
-    }, 200) // 200ms minimum loading süresi
-
-    return () => clearTimeout(timer)
+    const t = localStorage.getItem('token')
+    const u = localStorage.getItem('user')
+    if (t && u) {
+      setToken(t)
+      setUser(u)
+    }
   }, [])
 
   const login = async (email: string, password: string) => {
@@ -87,7 +79,7 @@ function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, token, login, register, logout }}>
       {children}
     </AuthContext.Provider>
   )
@@ -1196,25 +1188,20 @@ function AppContent({ toggleTheme, realMode, navigate, setMode, mode }: {
   setMode: any, 
   mode: string 
 }) {
-  const { loading } = useAuth();
   const location = useLocation();
   const [routeLoading, setRouteLoading] = useState(false);
   const isInitialMount = useRef(true);
 
   useEffect(() => {
-    // Sadece gerçek sayfa geçişlerinde route loading göster
-    if (!loading && !isInitialMount.current && location.pathname !== '/') {
+    if (!isInitialMount.current) {
       setRouteLoading(true);
-      const timer = setTimeout(() => setRouteLoading(false), 200);
+      const timer = setTimeout(() => setRouteLoading(false), 400);
       return () => clearTimeout(timer);
     }
-    if (!loading) {
-      isInitialMount.current = false;
-    }
-  }, [location.pathname, loading]);
+    isInitialMount.current = false;
+  }, [location.pathname]);
 
-  // Sadece loading false olduktan sonra route spinner devreye girsin
-  const showLoading = loading ? true : routeLoading;
+  const showLoading = routeLoading;
 
   return (
     <>
