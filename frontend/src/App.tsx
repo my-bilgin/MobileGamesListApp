@@ -47,7 +47,7 @@ function AuthProvider({ children }: { children: ReactNode }) {
         setUser(u)
       }
       setLoading(false)
-    }, 500) // 500ms minimum loading süresi
+    }, 200) // 200ms minimum loading süresi
 
     return () => clearTimeout(timer)
   }, [])
@@ -1202,9 +1202,10 @@ function AppContent({ toggleTheme, realMode, navigate, setMode, mode }: {
   const isInitialMount = useRef(true);
 
   useEffect(() => {
-    if (!loading && !isInitialMount.current) {
+    // Sadece gerçek sayfa geçişlerinde route loading göster
+    if (!loading && !isInitialMount.current && location.pathname !== '/') {
       setRouteLoading(true);
-      const timer = setTimeout(() => setRouteLoading(false), 400);
+      const timer = setTimeout(() => setRouteLoading(false), 200);
       return () => clearTimeout(timer);
     }
     if (!loading) {
