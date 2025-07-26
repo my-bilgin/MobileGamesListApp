@@ -1226,7 +1226,7 @@ function AppContent({ toggleTheme, realMode, navigate, setMode, mode }: {
     return () => clearTimeout(timer);
   }, [location.pathname]);
 
-  const showLoading = routeLoading;
+  const showLoading = routeLoading && !location.pathname.includes('share-target-view');
 
   return (
     <>
