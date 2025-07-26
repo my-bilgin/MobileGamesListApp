@@ -592,7 +592,7 @@ function ListDetail() {
               <Typography variant="body2" color="text.secondary" sx={{ fontSize: 12, mb: 0.5 }}>{item.developer}</Typography>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5, mb: 0.5 }}>
                 <StarRating value={Number(item.rating) || 0} />
-                <Typography variant="body2" sx={{ fontWeight: 500, fontSize: 13 }}>{item.rating || '-'}</Typography>
+                <Typography variant="body2" sx={{ fontWeight: 500, fontSize: 13 }}>{item.rating ? Math.round(item.rating * 10) / 10 : '-'}</Typography>
                 <Typography variant="caption" color="text.secondary">({item.reviewCount || 0} yorum)</Typography>
               </Box>
               <Button href={item.storeUrl} target="_blank" rel="noopener noreferrer" size="small" variant="text" sx={{ mt: 0.5, color: '#1976d2', fontWeight: 600, textTransform: 'none', fontSize: 12 }}>Store'da Aç</Button>
@@ -948,7 +948,7 @@ function StarRating({ value }: { value: number }) {
 function ShareTargetView() {
   const [sharedUrl, setSharedUrl] = useState('');
   const [gameInfo, setGameInfo] = useState<any>(null);
-  const [lists, setLists] = useState<Array<{ _id: string; name: string; games: any[] }>>([]);
+  const [lists, setLists] = useState<Array<{ _id: string; name: string; items: any[] }>>([]);
   const [selectedList, setSelectedList] = useState('');
   const [loading, setLoading] = useState(true);
   const [adding, setAdding] = useState(false);
@@ -1217,7 +1217,7 @@ function ShareTargetView() {
               <Typography variant="body2" color="text.secondary" sx={{ fontSize: 12, mb: 0.5 }}>{gameInfo.developer}</Typography>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5, mb: 0.5 }}>
                 <StarRating value={Number(gameInfo.rating) || 0} />
-                <Typography variant="body2" sx={{ fontWeight: 500, fontSize: 13 }}>{gameInfo.rating || '-'}</Typography>
+                <Typography variant="body2" sx={{ fontWeight: 500, fontSize: 13 }}>{gameInfo.rating ? Math.round(gameInfo.rating * 10) / 10 : '-'}</Typography>
                 <Typography variant="caption" color="text.secondary">({gameInfo.reviewCount || 0} yorum)</Typography>
               </Box>
               <Typography variant="body2" color="text.secondary" sx={{ fontSize: 11, wordBreak: 'break-all', opacity: 0.7, mt: 0.5 }}>{sharedUrl}</Typography>
@@ -1256,7 +1256,7 @@ function ShareTargetView() {
             >
               {lists.map((list) => (
                 <MenuItem key={list._id} value={list._id}>
-                  {list.name} ({list.games?.length || 0} oyun)
+                  {list.name} ({list.items?.length || 0} oyun)
                 </MenuItem>
               ))}
             </Select>
