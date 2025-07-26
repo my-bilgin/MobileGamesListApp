@@ -891,12 +891,15 @@ function ShareTargetView() {
 
   // Paylaşılan URL'yi al
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const sharedUrlParam = urlParams.get('url');
-    if (sharedUrlParam) {
-      setSharedUrl(decodeURIComponent(sharedUrlParam));
-    }
-    setLoading(false);
+    // Önce cache'den dene
+    caches.open('shared-data').then(cache => {
+      cache.match('/last-shared-url').then(res => {
+        if (res) {
+          res.text().then(setSharedUrl);
+        }
+        setLoading(false);
+      });
+    });
   }, []);
 
   // Kullanıcının listelerini al
