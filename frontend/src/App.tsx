@@ -951,13 +951,27 @@ function ShareTargetView() {
     
     setAdding(true);
     try {
-      const res = await fetch(`${API_URL}/lists/${selectedList}/games`, {
+      // Önce oyun bilgilerini al
+      const gameInfoRes = await fetch(`${API_URL}/fetch-game-info`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: sharedUrl })
+      });
+      
+      if (!gameInfoRes.ok) {
+        throw new Error('Oyun bilgileri alınamadı');
+      }
+      
+      const gameData = await gameInfoRes.json();
+      
+      // Listeye ekle
+      const res = await fetch(`${API_URL}/lists/${selectedList}/items`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ url: sharedUrl })
+        body: JSON.stringify(gameData)
       });
 
       if (res.ok) {
@@ -981,11 +995,47 @@ function ShareTargetView() {
   // URL'den oyun bilgilerini çıkar
   const getGameInfo = (url: string) => {
     const gameId = url.match(/id=([^&]+)/)?.[1] || '';
-    const gameName = url.match(/details\/([^?]+)/)?.[1]?.replace(/-/g, ' ') || 'Bilinmeyen Oyun';
     
+    // Google Play Store'dan oyun bilgilerini al
+    const fetchGameInfo = async () => {
+      try {
+        // Google Play Store API'si yok, bu yüzden basit bir çözüm kullanıyoruz
+        const response = await fetch(`https://play.google.com/store/apps/details?id=${gameId}`);
+        const html = await response.text();
+        
+        // HTML'den oyun adını çıkar
+        const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/);
+        const name = titleMatch ? titleMatch[1].replace(' - Google Play', '').trim() : 'Bilinmeyen Oyun';
+        
+        // Rating bilgisini çıkar
+        const ratingMatch = html.match(/"ratingValue":\s*([0-9.]+)/);
+        const rating = ratingMatch ? parseFloat(ratingMatch[1]) : 0;
+        
+        return {
+          id: gameId,
+          name: name,
+          url: url,
+          image: `https://play.google.com/store/apps/details?id=${gameId}`,
+          rating: rating,
+          genre: 'Oyun'
+        };
+      } catch (error) {
+        console.error('Oyun bilgileri alınamadı:', error);
+        return {
+          id: gameId,
+          name: gameId || 'Bilinmeyen Oyun',
+          url: url,
+          image: `https://play.google.com/store/apps/details?id=${gameId}`,
+          rating: 0,
+          genre: 'Oyun'
+        };
+      }
+    };
+    
+    // Basit çözüm - gameId'yi kullan
     return {
       id: gameId,
-      name: gameName,
+      name: gameId ? gameId.replace(/\./g, ' ').replace(/([A-Z])/g, ' $1').trim() : 'Bilinmeyen Oyun',
       url: url,
       image: `https://play.google.com/store/apps/details?id=${gameId}`,
       rating: 0,
@@ -1049,14 +1099,6 @@ function ShareTargetView() {
   console.log('Ana render bloğu çalışıyor');
   return (
     <Container maxWidth="sm" sx={{ py: 2 }}>
-      {/* Test içeriği */}
-      <Box sx={{ p: 2, bgcolor: 'red', color: 'white', mb: 2 }}>
-        <Typography>TEST: Bu içerik görünüyor mu?</Typography>
-        <Typography>sharedUrl: {sharedUrl}</Typography>
-        <Typography>loading: {loading.toString()}</Typography>
-        <Typography>initialized: {initialized.toString()}</Typography>
-      </Box>
-      
       {/* Header */}
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
         <IconButton onClick={handleCancel} sx={{ mr: 2 }}>
@@ -1077,18 +1119,35 @@ function ShareTargetView() {
         </Box>
         
         {gameInfo && (
-          <Card sx={{ mb: 2, borderRadius: 2 }}>
-            <CardContent sx={{ p: 2 }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                <Typography variant="subtitle1" sx={{ fontWeight: 600, flexGrow: 1 }}>
-                  {gameInfo.name}
+          <Card sx={{ mb: 2, borderRadius: 2, overflow: 'hidden' }}>
+            <Box sx={{ display: 'flex' }}>
+              <CardMedia
+                component="img"
+                sx={{ width: 80, height: 80, objectFit: 'cover' }}
+                image={`https://play.google.com/store/apps/details?id=${gameInfo.id}`}
+                alt={gameInfo.name}
+                onError={(e) => {
+                  e.currentTarget.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCA4MCA4MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjgwIiBoZWlnaHQ9IjgwIiBmaWxsPSIjRjVGNUY1Ii8+CjxwYXRoIGQ9Ik00MCAyMEMyOC45NTQzIDIwIDIwIDI4Ljk1NDMgMjAgNDBDMjAgNTEuMDQ1NyAyOC45NTQzIDYwIDQwIDYwQzUxLjA0NTcgNjAgNjAgNTEuMDQ1NyA2MCA0MEM2MCAyOC45NTQzIDUxLjA0NTcgMjAgNDAgMjBaIiBmaWxsPSIjQ0NDIi8+Cjwvc3ZnPgo=';
+                }}
+              />
+              <CardContent sx={{ p: 2, flexGrow: 1 }}>
+                <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', mb: 1 }}>
+                  <Typography variant="h6" sx={{ fontWeight: 600, flexGrow: 1, mr: 1 }}>
+                    {gameInfo.name}
+                  </Typography>
+                  <Chip label={gameInfo.genre} size="small" color="primary" />
+                </Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                  <StarRating value={gameInfo.rating} />
+                  <Typography variant="body2" color="text.secondary" sx={{ ml: 1 }}>
+                    {gameInfo.rating > 0 ? `${gameInfo.rating}/5` : 'Puan yok'}
+                  </Typography>
+                </Box>
+                <Typography variant="body2" color="text.secondary" sx={{ wordBreak: 'break-all', fontSize: '0.75rem' }}>
+                  {sharedUrl}
                 </Typography>
-                <Chip label={gameInfo.genre} size="small" color="primary" />
-              </Box>
-              <Typography variant="body2" color="text.secondary" sx={{ wordBreak: 'break-all' }}>
-                {sharedUrl}
-              </Typography>
-            </CardContent>
+              </CardContent>
+            </Box>
           </Card>
         )}
       </Paper>
@@ -1226,7 +1285,7 @@ function AppContent({ toggleTheme, realMode, navigate, setMode, mode }: {
     return () => clearTimeout(timer);
   }, [location.pathname]);
 
-  const showLoading = routeLoading && !location.pathname.includes('share-target-view');
+  const showLoading = routeLoading;
 
   return (
     <>
