@@ -94,12 +94,33 @@ function useAuth() {
 function ProtectedRoute({ children }: { children: ReactNode }) {
   const { token } = useAuth()
   const navigate = useNavigate()
+  const [isChecking, setIsChecking] = useState(true)
   
   useEffect(() => {
-    if (!token) {
-      navigate('/login')
-    }
+    // Token kontrolü için kısa bir süre bekle
+    const timer = setTimeout(() => {
+      if (!token) {
+        navigate('/login')
+      }
+      setIsChecking(false)
+    }, 100)
+    
+    return () => clearTimeout(timer)
   }, [token, navigate])
+  
+  // Token kontrolü sırasında loading göster
+  if (isChecking) {
+    return (
+      <Box sx={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        minHeight: '50vh' 
+      }}>
+        <CircularProgress />
+      </Box>
+    )
+  }
   
   if (!token) return null
   return <>{children}</>
