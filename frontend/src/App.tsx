@@ -38,13 +38,18 @@ function AuthProvider({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const t = localStorage.getItem('token')
-    const u = localStorage.getItem('user')
-    if (t && u) {
-      setToken(t)
-      setUser(u)
-    }
-    setLoading(false)
+    // Minimum loading süresi için setTimeout kullan
+    const timer = setTimeout(() => {
+      const t = localStorage.getItem('token')
+      const u = localStorage.getItem('user')
+      if (t && u) {
+        setToken(t)
+        setUser(u)
+      }
+      setLoading(false)
+    }, 500) // 500ms minimum loading süresi
+
+    return () => clearTimeout(timer)
   }, [])
 
   const login = async (email: string, password: string) => {
@@ -1191,11 +1196,15 @@ function AppContent({ toggleTheme, realMode, navigate, setMode, mode }: {
         alignItems: 'center', 
         minHeight: '100vh',
         flexDirection: 'column',
-        gap: 2
+        gap: 3,
+        backgroundColor: 'background.default'
       }}>
-        <CircularProgress size={60} />
-        <Typography variant="h6" color="text.secondary">
-          Yükleniyor...
+        <CircularProgress size={80} thickness={4} />
+        <Typography variant="h5" color="text.secondary" sx={{ fontWeight: 500 }}>
+          Oyun Listem Yükleniyor...
+        </Typography>
+        <Typography variant="body2" color="text.secondary">
+          Lütfen bekleyin
         </Typography>
       </Box>
     )
