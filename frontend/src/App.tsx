@@ -23,6 +23,7 @@ const API_URL = '/api'
 interface AuthContextType {
   user: string | null
   token: string | null
+  initialized: boolean
   login: (email: string, password: string) => Promise<void>
   register: (email: string, password: string, displayName: string) => Promise<void>
   logout: () => void
@@ -33,6 +34,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<string | null>(null)
   const [token, setToken] = useState<string | null>(null)
+  const [initialized, setInitialized] = useState(false)
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -42,6 +44,7 @@ function AuthProvider({ children }: { children: ReactNode }) {
       setToken(t)
       setUser(u)
     }
+    setInitialized(true)
   }, [])
 
   const login = async (email: string, password: string) => {
@@ -79,7 +82,7 @@ function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, token, login, register, logout }}>
+    <AuthContext.Provider value={{ user, token, initialized, login, register, logout }}>
       {children}
     </AuthContext.Provider>
   )
@@ -92,20 +95,16 @@ function useAuth() {
 }
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
-  const { token } = useAuth();
+  const { token, initialized } = useAuth();
   const navigate = useNavigate();
 
-  // Eğer token state'i null ama localStorage'da token varsa, bekle (null dön)
-  if (token === null && localStorage.getItem('token')) {
-    return null;
-  }
-
   useEffect(() => {
-    if (!token) {
+    if (initialized && !token) {
       navigate('/login');
     }
-  }, [token, navigate]);
+  }, [token, initialized, navigate]);
 
+  if (!initialized) return null;
   if (!token) return null;
   return <>{children}</>;
 }
