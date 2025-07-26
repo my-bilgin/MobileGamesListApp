@@ -616,8 +616,13 @@ function PublicList() {
   const [list, setList] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const { token } = useAuth()
-  // show ve snackbar kaldırıldı
+  const [editingName, setEditingName] = useState(false)
+  const [newName, setNewName] = useState('')
+  const [saving, setSaving] = useState(false)
+  const { token, initialized } = useAuth()
+  const { show, snackbar } = useSnackbar()
+  const theme = useTheme()
+  const navigate = useNavigate()
 
   useEffect(() => {
     const fetchList = async () => {
@@ -628,6 +633,7 @@ function PublicList() {
         const data = await res.json()
         if (!res.ok) throw new Error(data.message)
         setList(data)
+        setNewName(`${data.name} Kopyası`)
       } catch (err: any) {
         setError(err.message)
       } finally {
@@ -638,10 +644,22 @@ function PublicList() {
     // eslint-disable-next-line
   }, [publicId])
 
+  const handleEditName = () => {
+    setEditingName(true)
+  }
+
+  const handleSaveName = async () => {
+    if (!newName.trim()) return
+    setEditingName(false)
+  }
+
   const handleCopyToMyLists = async () => {
-    if (!token) {
+    if (!token || !initialized) {
+      show('Listeyi kaydetmek için giriş yapmanız gerekiyor', 'error')
       return
     }
+    
+    setSaving(true)
     try {
       const res = await fetch(`${API_URL}/lists`, {
         method: 'POST',
@@ -649,46 +667,137 @@ function PublicList() {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`
         },
-        body: JSON.stringify({ name: list.name, items: list.items })
+        body: JSON.stringify({ name: newName, items: list.items })
       })
-      if (!res.ok) throw new Error('Kopyalama başarısız.')
-    } catch {
-      // hata yönetimi
+      
+      if (res.ok) {
+        show('Liste başarıyla kaydedildi!', 'success')
+        navigate('/lists')
+      } else {
+        const data = await res.json()
+        show(data.message || 'Liste kaydedilemedi', 'error')
+      }
+    } catch (error) {
+      show('Bağlantı hatası', 'error')
+    } finally {
+      setSaving(false)
     }
   }
 
-  if (loading) return <Typography>Yükleniyor...</Typography>
-  if (error) return <Typography color="error">{error}</Typography>
-  if (!list) return <Typography>Liste bulunamadı.</Typography>
+  const handleCancel = () => {
+    navigate('/')
+  }
+
+  if (loading) return (
+    <Box sx={{ width: '100vw', maxWidth: { xs: '100vw', sm: 480 }, mx: 'auto', p: { xs: 0, sm: 2 }, pt: { xs: 0, sm: 2 }, pb: { xs: 2, sm: 3 }, minHeight: '100vh', bgcolor: theme.palette.background.default, overflowX: 'hidden' }}>
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
+        <CircularProgress />
+      </Box>
+    </Box>
+  )
+  
+  if (error) return (
+    <Box sx={{ width: '100vw', maxWidth: { xs: '100vw', sm: 480 }, mx: 'auto', p: { xs: 0, sm: 2 }, pt: { xs: 0, sm: 2 }, pb: { xs: 2, sm: 3 }, minHeight: '100vh', bgcolor: theme.palette.background.default, overflowX: 'hidden' }}>
+      <Typography color="error" sx={{ textAlign: 'center', mt: 4 }}>{error}</Typography>
+    </Box>
+  )
+  
+  if (!list) return (
+    <Box sx={{ width: '100vw', maxWidth: { xs: '100vw', sm: 480 }, mx: 'auto', p: { xs: 0, sm: 2 }, pt: { xs: 0, sm: 2 }, pb: { xs: 2, sm: 3 }, minHeight: '100vh', bgcolor: theme.palette.background.default, overflowX: 'hidden' }}>
+      <Typography sx={{ textAlign: 'center', mt: 4 }}>Liste bulunamadı.</Typography>
+    </Box>
+  )
 
   return (
-    <>
-      <Typography variant="h5">{list.name}</Typography>
-      <button onClick={handleCopyToMyLists} style={{ alignSelf: 'flex-end', background: '#eee', color: '#1976d2', border: 'none', borderRadius: 8, padding: 8 }}>Kendi listeme ekle</button>
-      {/* {copyMsg && <Typography color="primary">{copyMsg}</Typography>} */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+    <Box sx={{ width: '100vw', maxWidth: { xs: '100vw', sm: 480 }, mx: 'auto', p: { xs: 0, sm: 2 }, pt: { xs: 0, sm: 2 }, pb: { xs: 2, sm: 3 }, minHeight: '100vh', bgcolor: theme.palette.background.default, overflowX: 'hidden' }}>
+      {/* AppBar tarzı başlık ve aksiyonlar */}
+      <Box sx={{ width: '100%', position: 'sticky', top: 0, zIndex: 10, mb: 2 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', px: 2, py: 2, bgcolor: theme.palette.background.paper, boxShadow: 3, borderRadius: '0 0 18px 18px', minHeight: 64 }}>
+          <IconButton onClick={handleCancel} sx={{ mr: 2 }}>
+            <ArrowBackIcon />
+          </IconButton>
+          <Typography variant="h4" sx={{ fontWeight: 900, fontSize: 28, color: theme.palette.primary.main, letterSpacing: 0.5, flex: 1 }}>Paylaşılan Liste</Typography>
+        </Box>
+      </Box>
+
+      {/* Liste adı ve düzenleme */}
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2, px: { xs: 2, sm: 0 } }}>
+        {editingName ? (
+          <Box sx={{ display: 'flex', justifyContent: 'flex-start', gap: 1, flex: 1 }}>
+            <TextField
+              value={newName}
+              onChange={e => setNewName(e.target.value)}
+              variant="outlined"
+              size="small"
+              sx={{ flex: 1, maxWidth: 300 }}
+            />
+            <Button onClick={handleSaveName} variant="contained" color="primary" sx={{ borderRadius: 2, fontWeight: 600, px: 2, py: 1 }}>Kaydet</Button>
+            <Button onClick={() => setEditingName(false)} variant="outlined" color="primary" sx={{ borderRadius: 2, fontWeight: 600, px: 2, py: 1 }}>İptal</Button>
+          </Box>
+        ) : (
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flex: 1 }}>
+            <Typography variant="h5" sx={{ fontWeight: 700, fontSize: 24, color: theme.palette.text.primary }}>{newName}</Typography>
+            <IconButton onClick={handleEditName} size="small">
+              <EditIcon fontSize="small" />
+            </IconButton>
+          </Box>
+        )}
+      </Box>
+
+      {/* Oyunlar listesi */}
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, px: { xs: 2, sm: 0 } }}>
         {list.items && list.items.length > 0 ? list.items.map((item: any, i: number) => (
-          <div key={i} style={{ padding: 12, borderRadius: 14, background: '#fff', boxShadow: '0 2px 8px #0001', display: 'flex', alignItems: 'center', gap: 12, marginBottom: 4, cursor: 'pointer', minHeight: 72 }}>
+          <Card key={i} sx={{ display: 'flex', alignItems: 'center', mb: 2, boxShadow: 3, borderRadius: 4, bgcolor: `linear-gradient(135deg, ${theme.palette.background.paper} 80%, ${theme.palette.secondary.light} 100%)`, p: 1.5 }}>
             {item.imageUrl ? (
-              <img src={item.imageUrl} alt={item.title} style={{ width: 56, height: 56, borderRadius: 8, objectFit: 'cover', background: '#eee' }} />
+              <CardMedia
+                component="img"
+                image={item.imageUrl}
+                alt={item.title}
+                sx={{ width: 48, height: 48, borderRadius: 2, m: 1.5, bgcolor: '#eee', boxShadow: 1 }}
+              />
             ) : (
-              <div style={{ width: 56, height: 56, borderRadius: 8, background: '#eee', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28, color: '#bbb' }}>🎮</div>
+              <Box sx={{ width: 48, height: 48, borderRadius: 2, m: 1.5, bgcolor: '#eee', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, color: '#bbb', boxShadow: 1 }}>🎮</Box>
             )}
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
-              <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>{item.title}</Typography>
-              <Typography variant="caption" color="text.secondary">{item.developer}</Typography>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <CardContent sx={{ flex: 1, p: 1, minWidth: 0 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
+                <Typography variant="h6" sx={{ fontWeight: 700, fontSize: 15, color: theme.palette.text.primary, flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.title}</Typography>
+              </Box>
+              <Typography variant="body2" color="text.secondary" sx={{ fontSize: 12, mb: 0.5 }}>{item.developer}</Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5, mb: 0.5 }}>
                 <StarRating value={Number(item.rating) || 0} />
-                <Typography variant="body2">{item.rating || '-'} / 5</Typography>
+                <Typography variant="body2" sx={{ fontWeight: 500, fontSize: 13 }}>{item.rating ? Math.round(item.rating * 10) / 10 : '-'}</Typography>
                 <Typography variant="caption" color="text.secondary">({item.reviewCount || 0} yorum)</Typography>
-              </div>
-              <a href={item.storeUrl} target="_blank" rel="noopener noreferrer" style={{ fontSize: 12, color: '#1976d2', wordBreak: 'break-all' }}>Store'da Aç</a>
-            </div>
-      </div>
-        )) : <Typography>Henüz oyun eklenmemiş.</Typography>}
-      </div>
-      {/* {snackbar} */}
-    </>
+              </Box>
+              <Button href={item.storeUrl} target="_blank" rel="noopener noreferrer" size="small" variant="text" sx={{ mt: 0.5, color: '#1976d2', fontWeight: 600, textTransform: 'none', fontSize: 12 }}>Store'da Aç</Button>
+            </CardContent>
+          </Card>
+        )) : <Typography sx={{ textAlign: 'center', mt: 4 }}>Henüz oyun eklenmemiş.</Typography>}
+      </Box>
+
+      {/* Listeyi Kaydet butonu */}
+      <Box sx={{ position: 'fixed', bottom: 0, left: 0, right: 0, p: 2, bgcolor: theme.palette.background.default, borderTop: `1px solid ${theme.palette.divider}`, zIndex: 1000 }}>
+        <Button
+          variant="contained"
+          onClick={handleCopyToMyLists}
+          disabled={saving || !token}
+          fullWidth
+          sx={{ 
+            borderRadius: 3, 
+            py: 2,
+            fontWeight: 700,
+            fontSize: '1rem',
+            boxShadow: 2,
+            '&:hover': {
+              boxShadow: 4
+            }
+          }}
+        >
+          {saving ? 'Kaydediliyor...' : token ? 'Listeyi Kaydet' : 'Giriş Yapın'}
+        </Button>
+      </Box>
+
+      {snackbar}
+    </Box>
   )
 }
 
