@@ -1049,6 +1049,14 @@ function ShareTargetView() {
   console.log('Ana render bloğu çalışıyor');
   return (
     <Container maxWidth="sm" sx={{ py: 2 }}>
+      {/* Test içeriği */}
+      <Box sx={{ p: 2, bgcolor: 'red', color: 'white', mb: 2 }}>
+        <Typography>TEST: Bu içerik görünüyor mu?</Typography>
+        <Typography>sharedUrl: {sharedUrl}</Typography>
+        <Typography>loading: {loading.toString()}</Typography>
+        <Typography>initialized: {initialized.toString()}</Typography>
+      </Box>
+      
       {/* Header */}
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
         <IconButton onClick={handleCancel} sx={{ mr: 2 }}>
