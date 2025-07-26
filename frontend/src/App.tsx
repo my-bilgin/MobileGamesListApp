@@ -401,6 +401,7 @@ function ListDetail() {
   const [fetching, setFetching] = useState(false)
   const theme = useTheme()
   const [showAdd, setShowAdd] = useState(false)
+  const [showShare, setShowShare] = useState(false)
 
   const handleEditName = () => {
     setEditingName(true)
@@ -470,9 +471,28 @@ function ListDetail() {
       })
       const data = await res.json()
       if (res.ok && data.publicId) {
-        setShareUrl(`${window.location.origin}/public/${data.publicId}`)
+        const url = `${window.location.origin}/public/${data.publicId}`
+        setShareUrl(url)
+        setShowShare(true)
+        
+        // Linki otomatik kopyala
+        try {
+          await navigator.clipboard.writeText(url)
+          show('Paylaşım linki kopyalandı!', 'success')
+        } catch (err) {
+          // Fallback: manuel kopyalama
+          const textArea = document.createElement('textarea')
+          textArea.value = url
+          document.body.appendChild(textArea)
+          textArea.select()
+          document.execCommand('copy')
+          document.body.removeChild(textArea)
+          show('Paylaşım linki kopyalandı!', 'success')
+        }
       }
-    } catch {}
+    } catch (error) {
+      show('Paylaşım linki alınamadı', 'error')
+    }
   }
 
   const handleAddGame = async (e: React.FormEvent) => {
@@ -571,6 +591,43 @@ function ListDetail() {
           </Button>
         </form>
       </Collapse>
+      <Collapse in={showShare} timeout={350} unmountOnExit>
+        <Box sx={{ background: `linear-gradient(135deg, ${theme.palette.background.paper} 80%, ${theme.palette.info.light} 100%)`, borderRadius: 4, boxShadow: '0 2px 12px #0002', padding: 14, marginBottom: 18, maxWidth: '100%' }}>
+          <Typography variant="h6" sx={{ fontWeight: 700, mb: 2, color: theme.palette.info.main }}>
+            Paylaşım Linki
+          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+            <Typography variant="body2" sx={{ flex: 1, wordBreak: 'break-all', fontSize: 13, bgcolor: theme.palette.background.default, p: 1.5, borderRadius: 2, border: `1px solid ${theme.palette.divider}` }}>
+              {shareUrl}
+            </Typography>
+            <Button
+              variant="outlined"
+              size="small"
+              onClick={() => {
+                navigator.clipboard.writeText(shareUrl).then(() => {
+                  show('Link kopyalandı!', 'success')
+                }).catch(() => {
+                  show('Kopyalama başarısız', 'error')
+                })
+              }}
+              sx={{ minWidth: 'auto', px: 2 }}
+            >
+              Kopyala
+            </Button>
+          </Box>
+          <Button
+            href={shareUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            variant="contained"
+            color="info"
+            fullWidth
+            sx={{ fontWeight: 600, borderRadius: 2, py: 1 }}
+          >
+            Linki Aç
+          </Button>
+        </Box>
+      </Collapse>
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1, mb: 2, mx: { xs: 1, sm: 0 } }}>
         {list.items && list.items.length > 0 ? list.items.map((item: any, i: number) => (
           <Card key={i} sx={{ display: 'flex', alignItems: 'center', mb: 2, boxShadow: 3, borderRadius: 4, bgcolor: `linear-gradient(135deg, ${theme.palette.background.paper} 80%, ${theme.palette.secondary.light} 100%)`, p: 1.5 }}>
@@ -600,12 +657,6 @@ function ListDetail() {
           </Card>
         )) : <Typography>Henüz oyun eklenmemiş.</Typography>}
       </Box>
-      {shareUrl && (
-        <Box sx={{ wordBreak: 'break-all', fontSize: 13, background: theme.palette.background.paper, p: 1.5, borderRadius: 2, mt: 2, px: { xs: 1, sm: 0 } }}>
-          <span>Paylaşılabilir link: </span>
-          <a href={shareUrl} target="_blank" rel="noopener noreferrer">{shareUrl}</a>
-        </Box>
-      )}
       {snackbar}
     </Box>
   )
