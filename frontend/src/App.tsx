@@ -891,15 +891,33 @@ function ShareTargetView() {
 
   // Paylaşılan URL'yi al
   useEffect(() => {
-    // Önce cache'den dene
-    caches.open('shared-data').then(cache => {
-      cache.match('/last-shared-url').then(res => {
-        if (res) {
-          res.text().then(setSharedUrl);
-        }
-        setLoading(false);
+    console.log('ShareTargetView useEffect çalıştı');
+    
+    // Önce URL parametresinden dene (test için)
+    const urlParams = new URLSearchParams(window.location.search);
+    const sharedUrlParam = urlParams.get('url');
+    
+    if (sharedUrlParam) {
+      console.log('URL parametresinden alındı:', sharedUrlParam);
+      setSharedUrl(decodeURIComponent(sharedUrlParam));
+      setLoading(false);
+    } else {
+      console.log('Cache\'den alınmaya çalışılıyor...');
+      // Cache'den dene
+      caches.open('shared-data').then(cache => {
+        cache.match('/last-shared-url').then(res => {
+          if (res) {
+            res.text().then(url => {
+              console.log('Cache\'den alındı:', url);
+              setSharedUrl(url);
+            });
+          } else {
+            console.log('Cache\'de URL bulunamadı');
+          }
+          setLoading(false);
+        });
       });
-    });
+    }
   }, []);
 
   // Kullanıcının listelerini al
@@ -977,7 +995,10 @@ function ShareTargetView() {
 
   const gameInfo = sharedUrl ? getGameInfo(sharedUrl) : null;
 
+  console.log('ShareTargetView render - loading:', loading, 'initialized:', initialized, 'sharedUrl:', sharedUrl);
+  
   if (loading || !initialized) {
+    console.log('Loading state - render ediliyor');
     return (
       <Container maxWidth="sm" sx={{ py: 4 }}>
         <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
