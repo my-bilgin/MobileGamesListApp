@@ -1,31 +1,54 @@
 version: '3.8'
 services:
-  frontend:
-    build: ./frontend
+  mongo:
+    image: mongo:6.0
+    restart: always
     ports:
-      - "3000:3000"
-    depends_on:
-      - backend
-    environment:
-      - REACT_APP_API_URL=http://localhost:8080/api
+      - 27017:27017
+    volumes:
+      - mongo-data:/data/db
 
   backend:
     build: ./backend
+    restart: always
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/gameshare
+      - JWT_SECRET=supersecretkey
+      - PORT=5023
     ports:
-      - "8080:8080"
+      - 5023:5023
     depends_on:
       - mongo
-    environment:
-      - MONGODB_URI=mongodb://mongo:27017/gameshare
-      - JWT_SECRET=your-secret-key
-      - PORT=8080
+    networks:
+      - default
 
-  mongo:
-    image: mongo:latest
-    ports:
-      - "27017:27017"
+  frontend:
+    build: ./frontend
+    restart: always
+    depends_on:
+      - backend
+    networks:
+      - default
     volumes:
-      - mongodb_data:/data/db
+      - ./frontend/dist:/app/dist
+
+  custom-nginx:
+    image: nginx:alpine
+    container_name: custom-nginx
+    ports:
+      - "8081:8080"
+    volumes:
+      - ./frontend/dist:/usr/share/nginx/html
+      - ./frontend/nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - default
 
 volumes:
-  mongodb_data: 
+  mongo-data:
+
+networks:
+  default:
+    driver: bridge 
