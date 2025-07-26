@@ -870,13 +870,79 @@ function Profile({ setMode, mode }: { setMode: (m: any) => void, mode: string })
 }
 
 function StarRating({ value }: { value: number }) {
-  const stars = []
-  for (let i = 1; i <= 5; i++) {
-    if (value >= i) stars.push('★')
-    else if (value >= i - 0.5) stars.push('⯨')
-    else stars.push('☆')
-  }
-  return <span style={{ color: '#ffb400', fontSize: 22, letterSpacing: 1 }}>{stars.join('')}</span>
+  return (
+    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+      {[1, 2, 3, 4, 5].map((star) => {
+        const isHalf = value >= star - 0.5 && value < star;
+        const isFull = value >= star;
+        
+        return (
+          <Box
+            key={star}
+            sx={{
+              position: 'relative',
+              width: 16,
+              height: 16,
+              marginRight: 0.5,
+            }}
+          >
+            {/* Boş yıldız arka plan */}
+            <Box
+              sx={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '100%',
+                color: '#E0E0E0',
+                fontSize: 16,
+                lineHeight: 1,
+              }}
+            >
+              ★
+            </Box>
+            
+            {/* Dolu yıldız */}
+            {isFull && (
+              <Box
+                sx={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  height: '100%',
+                  color: '#FFD700',
+                  fontSize: 16,
+                  lineHeight: 1,
+                }}
+              >
+                ★
+              </Box>
+            )}
+            
+            {/* Yarım yıldız */}
+            {isHalf && (
+              <Box
+                sx={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '50%',
+                  height: '100%',
+                  color: '#FFD700',
+                  fontSize: 16,
+                  lineHeight: 1,
+                  overflow: 'hidden',
+                }}
+              >
+                ★
+              </Box>
+            )}
+          </Box>
+        );
+      })}
+    </Box>
+  );
 }
 
 function ShareTargetView() {
@@ -1108,13 +1174,13 @@ function ShareTargetView() {
 
   console.log('Ana render bloğu çalışıyor');
   return (
-    <Container maxWidth="sm" sx={{ py: 2 }}>
+    <Container maxWidth="sm" sx={{ py: 3 }}>
       {/* Header */}
-      <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', mb: 4 }}>
         <IconButton onClick={handleCancel} sx={{ mr: 2 }}>
           <ArrowBackIcon />
         </IconButton>
-        <Typography variant="h5" sx={{ fontWeight: 600 }}>
+        <Typography variant="h5" sx={{ fontWeight: 700, fontSize: '1.5rem' }}>
           Oyun Ekle
         </Typography>
       </Box>
@@ -1129,39 +1195,96 @@ function ShareTargetView() {
         </Box>
         
         {gameInfo && (
-          <Card sx={{ mb: 2, borderRadius: 2, overflow: 'hidden' }}>
-            <Box sx={{ display: 'flex' }}>
+          <Card sx={{ mb: 2, borderRadius: 3, overflow: 'hidden', boxShadow: 2 }}>
+            <Box sx={{ display: 'flex', alignItems: 'stretch' }}>
               <CardMedia
                 component="img"
-                sx={{ width: 80, height: 80, objectFit: 'cover' }}
+                sx={{ 
+                  width: 90, 
+                  height: 90, 
+                  objectFit: 'cover',
+                  flexShrink: 0
+                }}
                 image={gameInfo.imageUrl}
                 alt={gameInfo.title}
                 onError={(e) => {
                   (e.target as HTMLImageElement).src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCA4MCA4MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjgwIiBoZWlnaHQ9IjgwIiBmaWxsPSIjRjVGNUY1Ii8+CjxwYXRoIGQ9Ik00MCAyMEMyOC45NTQzIDIwIDIwIDI4Ljk1NDMgMjAgNDBDMjAgNTEuMDQ1NyAyOC45NTQzIDYwIDQwIDYwQzUxLjA0NTcgNjAgNjAgNTEuMDQ1NyA2MCA0MEM2MCAyOC45NTQzIDUxLjA0NTcgMjAgNDAgMjBaIiBmaWxsPSIjQ0NDIi8+Cjwvc3ZnPgo=';
                 }}
               />
-              <CardContent sx={{ p: 2, flexGrow: 1 }}>
-                <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', mb: 1 }}>
-                  <Typography variant="h6" sx={{ fontWeight: 600, flexGrow: 1, mr: 1 }}>
-                    {gameInfo.title}
-                  </Typography>
-                  <Chip label="Oyun" size="small" color="primary" />
-                </Box>
-                <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                  {gameInfo.developer}
-                </Typography>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                  <StarRating value={gameInfo.rating} />
-                  <Typography variant="body2" color="text.secondary" sx={{ ml: 1 }}>
-                    {gameInfo.rating > 0 ? `${gameInfo.rating}/5` : 'Puan yok'}
-                  </Typography>
-                  {gameInfo.reviewCount > 0 && (
-                    <Typography variant="body2" color="text.secondary" sx={{ ml: 1 }}>
-                      ({gameInfo.reviewCount} yorum)
+              <CardContent sx={{ p: 3, flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                <Box>
+                  <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', mb: 1.5 }}>
+                    <Typography 
+                      variant="h6" 
+                      sx={{ 
+                        fontWeight: 700, 
+                        flexGrow: 1, 
+                        mr: 1,
+                        fontSize: '1.1rem',
+                        lineHeight: 1.3
+                      }}
+                    >
+                      {gameInfo.title}
                     </Typography>
-                  )}
+                    <Chip 
+                      label="Oyun" 
+                      size="small" 
+                      color="primary" 
+                      sx={{ 
+                        fontSize: '0.7rem',
+                        height: 20,
+                        '& .MuiChip-label': { px: 1 }
+                      }} 
+                    />
+                  </Box>
+                  <Typography 
+                    variant="body2" 
+                    color="text.secondary" 
+                    sx={{ 
+                      mb: 1.5,
+                      fontSize: '0.85rem',
+                      fontWeight: 500
+                    }}
+                  >
+                    {gameInfo.developer}
+                  </Typography>
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 1.5 }}>
+                    <StarRating value={gameInfo.rating} />
+                    <Typography 
+                      variant="body2" 
+                      color="text.secondary" 
+                      sx={{ 
+                        ml: 1,
+                        fontSize: '0.8rem',
+                        fontWeight: 600
+                      }}
+                    >
+                      {gameInfo.rating > 0 ? `${gameInfo.rating.toFixed(1)}/5` : 'Puan yok'}
+                    </Typography>
+                    {gameInfo.reviewCount > 0 && (
+                      <Typography 
+                        variant="body2" 
+                        color="text.secondary" 
+                        sx={{ 
+                          ml: 1,
+                          fontSize: '0.75rem'
+                        }}
+                      >
+                        ({gameInfo.reviewCount} yorum)
+                      </Typography>
+                    )}
+                  </Box>
                 </Box>
-                <Typography variant="body2" color="text.secondary" sx={{ wordBreak: 'break-all', fontSize: '0.75rem' }}>
+                <Typography 
+                  variant="body2" 
+                  color="text.secondary" 
+                  sx={{ 
+                    wordBreak: 'break-all', 
+                    fontSize: '0.7rem',
+                    opacity: 0.7,
+                    mt: 1
+                  }}
+                >
                   {sharedUrl}
                 </Typography>
               </CardContent>
@@ -1171,8 +1294,8 @@ function ShareTargetView() {
       </Paper>
 
       {/* Liste Seçimi */}
-      <Paper sx={{ p: 3, mb: 3, borderRadius: 3 }}>
-        <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
+      <Paper sx={{ p: 3, mb: 4, borderRadius: 3, boxShadow: 2 }}>
+        <Typography variant="h6" sx={{ mb: 3, fontWeight: 700, fontSize: '1.2rem' }}>
           Hangi Listeye Eklensin?
         </Typography>
         
@@ -1209,17 +1332,19 @@ function ShareTargetView() {
       </Paper>
 
       {/* Butonlar */}
-      <Box sx={{ display: 'flex', gap: 2 }}>
+      <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
         <Button
           variant="outlined"
           onClick={handleCancel}
           startIcon={<CloseIcon />}
           fullWidth
           sx={{ 
-            borderRadius: 2, 
-            py: 1.5,
+            borderRadius: 3, 
+            py: 2,
             borderColor: 'error.main',
             color: 'error.main',
+            fontWeight: 600,
+            fontSize: '1rem',
             '&:hover': {
               borderColor: 'error.dark',
               backgroundColor: 'error.light',
@@ -1237,9 +1362,14 @@ function ShareTargetView() {
           disabled={!selectedList || adding}
           fullWidth
           sx={{ 
-            borderRadius: 2, 
-            py: 1.5,
-            fontWeight: 600
+            borderRadius: 3, 
+            py: 2,
+            fontWeight: 700,
+            fontSize: '1rem',
+            boxShadow: 2,
+            '&:hover': {
+              boxShadow: 4
+            }
           }}
         >
           {adding ? 'Ekleniyor...' : 'Listeye Ekle'}
