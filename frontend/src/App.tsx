@@ -1583,7 +1583,7 @@ function AppContent({ toggleTheme, realMode, navigate, setMode, mode }: {
         <AppBar position="sticky">
           <Toolbar>
             <Box sx={{ flexGrow: 1, cursor: 'pointer', display: 'flex', alignItems: 'center' }} onClick={() => navigate('/')}>
-              <img src="/gamesharehome.png" alt="GameShare" style={{ height: 40, maxWidth: '100%', objectFit: 'contain' }} />
+              <img src="/gamesharebanner.png" alt="GameShare" style={{ height: 48, objectFit: 'contain' }} />
             </Box>
             <IconButton color="inherit" onClick={toggleTheme} size="large">
               {realMode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
