@@ -1585,7 +1585,7 @@ function AppContent({ toggleTheme, realMode, navigate, setMode, mode }: {
           <Toolbar>
             <Box sx={{ flexGrow: 1, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 1 }} onClick={() => navigate('/')}>
               <img 
-                src="/gamesharelogo.png" 
+                src="/gameshare_logo.png" 
                 alt="GameShare" 
                 style={{ 
                   height: 32, 
@@ -1596,12 +1596,18 @@ function AppContent({ toggleTheme, realMode, navigate, setMode, mode }: {
               <Typography 
                 variant="h6" 
                 sx={{ 
-                  fontWeight: 800, 
-                  fontSize: 20, 
+                  fontWeight: 900, 
+                  fontSize: 22, 
                   color: '#fff', 
-                  letterSpacing: 0.5,
-                  fontFamily: '"Segoe UI", "Roboto", "Helvetica", "Arial", sans-serif',
-                  textShadow: '0 1px 2px rgba(0,0,0,0.3)'
+                  letterSpacing: 1.2,
+                  fontFamily: '"Orbitron", "Audiowide", "Chakra Petch", "Rajdhani", "Exo 2", sans-serif',
+                  textShadow: '0 2px 4px rgba(0,0,0,0.5)',
+                  textTransform: 'uppercase',
+                  background: 'linear-gradient(45deg, #fff 30%, #e3f2fd 90%)',
+                  backgroundClip: 'text',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.3))'
                 }}
               >
                 GameShare
