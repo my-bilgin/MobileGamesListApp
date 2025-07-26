@@ -31,7 +31,12 @@ app.post('/api/fetch-game-info', async (req, res) => {
     const match = url.match(/id=([a-zA-Z0-9_.]+)/)
     if (!match) return res.status(400).json({ message: 'Geçersiz Google Play linki.' })
     const pkg = match[1]
+    
+    console.log('Scraping for app ID:', pkg)
+    
     const data = await gplay.app({ appId: pkg })
+    console.log('Scraped data:', data.title)
+    
     res.json({
       title: data.title,
       imageUrl: data.icon,
@@ -42,7 +47,20 @@ app.post('/api/fetch-game-info', async (req, res) => {
     })
   } catch (err) {
     console.error('Google Play Scraper Hatası:', err)
-    res.status(500).json({ message: 'Oyun bilgisi çekilemedi.' })
+    
+    // Eğer app bulunamazsa, basit bir fallback kullan
+    const match = url.match(/id=([a-zA-Z0-9_.]+)/)
+    const pkg = match ? match[1] : 'unknown'
+    const title = pkg.replace(/\./g, ' ').replace(/([A-Z])/g, ' $1').trim()
+    
+    res.json({
+      title: title,
+      imageUrl: `https://play.google.com/store/apps/details?id=${pkg}`,
+      developer: 'Bilinmeyen Geliştirici',
+      rating: 0,
+      reviewCount: 0,
+      storeUrl: url
+    })
   }
 })
 
