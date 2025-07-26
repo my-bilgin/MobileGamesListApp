@@ -885,16 +885,9 @@ function ShareTargetView() {
   const [selectedList, setSelectedList] = useState('');
   const [loading, setLoading] = useState(true);
   const [adding, setAdding] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const navigate = useNavigate();
+  const { token, initialized } = useAuth();
   const { show } = useSnackbar();
-
-  // Token kontrolü
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    setIsAuthenticated(!!token);
-    setLoading(false);
-  }, []);
 
   // Paylaşılan URL'yi al
   useEffect(() => {
@@ -910,15 +903,13 @@ function ShareTargetView() {
 
   // Kullanıcının listelerini al
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token && !loading && isAuthenticated) {
+    if (token && !loading && initialized) {
       fetchLists();
     }
-  }, [isAuthenticated, loading]);
+  }, [token, loading, initialized]);
 
   const fetchLists = async () => {
     try {
-      const token = localStorage.getItem('token');
       const res = await fetch(`${API_URL}/lists`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -939,7 +930,6 @@ function ShareTargetView() {
     
     setAdding(true);
     try {
-      const token = localStorage.getItem('token');
       const res = await fetch(`${API_URL}/lists/${selectedList}/games`, {
         method: 'POST',
         headers: {
@@ -984,7 +974,7 @@ function ShareTargetView() {
 
   const gameInfo = sharedUrl ? getGameInfo(sharedUrl) : null;
 
-  if (loading) {
+  if (loading || !initialized) {
     return (
       <Container maxWidth="sm" sx={{ py: 4 }}>
         <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
@@ -1009,7 +999,7 @@ function ShareTargetView() {
     );
   }
 
-  if (!isAuthenticated) {
+  if (initialized && !token) {
     return (
       <Container maxWidth="sm" sx={{ py: 4 }}>
         <Paper sx={{ p: 3, textAlign: 'center' }}>
