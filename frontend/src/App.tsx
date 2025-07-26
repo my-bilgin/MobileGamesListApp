@@ -561,10 +561,10 @@ function ListDetail() {
           <Button onClick={() => navigate('/lists')} startIcon={<span style={{ fontSize: 20 }}>←</span>} variant="text" sx={{ borderRadius: 2, fontWeight: 600, px: 1.5, py: 1, minWidth: 0, color: theme.palette.text.primary, fontSize: 18 }}>Geri</Button>
           <Button onClick={fetchShareUrl} variant="text" color="primary" sx={{ borderRadius: 2, fontWeight: 600, px: 1.5, py: 1, minWidth: 0, fontSize: 18, ml: 1 }}>Paylaş</Button>
           <Box sx={{ flex: 1 }} />
-          <IconButton color="primary" onClick={() => setShowAdd(v => !v)} sx={{ bgcolor: theme.palette.mode === 'dark' ? '#1976d2' : '#e3f2fd', boxShadow: 1, ml: 1, ':hover': { bgcolor: '#1565c0' } }}>
+          <IconButton color="primary" onClick={() => setShowAdd(v => !v)} sx={{ bgcolor: theme.palette.mode === 'dark' ? '#1976d2' : '#e3f2fd', boxShadow: 1, ml: 1, ':hover': { bgcolor: '#1565c0', '& .MuiSvgIcon-root': { color: '#fff' } } }}>
             <AddIcon sx={{ fontSize: 24, color: theme.palette.mode === 'dark' ? '#fff' : '#1976d2' }} />
           </IconButton>
-          <IconButton color="error" onClick={handleDeleteList} sx={{ bgcolor: theme.palette.mode === 'dark' ? '#ffebee' : '#fff', boxShadow: 1, ml: 1, ':hover': { bgcolor: '#d32f2f' } }}>
+          <IconButton color="error" onClick={handleDeleteList} sx={{ bgcolor: theme.palette.mode === 'dark' ? '#ffebee' : '#fff', boxShadow: 1, ml: 1, ':hover': { bgcolor: '#d32f2f', '& .MuiSvgIcon-root': { color: '#fff' } } }}>
             <DeleteForeverIcon sx={{ fontSize: 24, color: '#d32f2f' }} />
           </IconButton>
         </Box>
