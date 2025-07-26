@@ -1188,53 +1188,64 @@ function AppContent({ toggleTheme, realMode, navigate, setMode, mode }: {
 }) {
   const { loading } = useAuth()
 
-  if (loading) {
-    return (
-      <Box sx={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        minHeight: '100vh',
-        flexDirection: 'column',
-        gap: 3,
-        backgroundColor: 'background.default'
-      }}>
-        <CircularProgress size={80} thickness={4} />
-        <Typography variant="h5" color="text.secondary" sx={{ fontWeight: 500 }}>
-          Oyun Listem Yükleniyor...
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          Lütfen bekleyin
-        </Typography>
-      </Box>
-    )
-  }
-
   return (
     <>
-      <AppBar position="sticky">
-        <Toolbar>
-          <Typography variant="h6" sx={{ flexGrow: 1, cursor: 'pointer' }} onClick={() => navigate('/')}>Oyun Listem</Typography>
-          <IconButton color="inherit" onClick={toggleTheme} size="large">
-            {realMode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
-          </IconButton>
-          <IconButton color="inherit" onClick={() => navigate('/profile')} size="large">
-            <AccountCircleIcon />
-          </IconButton>
-        </Toolbar>
-      </AppBar>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/lists" element={<ProtectedRoute><Lists /></ProtectedRoute>} />
-        <Route path="/lists/:id" element={<ProtectedRoute><ListDetail /></ProtectedRoute>} />
-        <Route path="/public/:publicId" element={<PublicList />} />
-        <Route path="/share-target" element={<ShareTarget />} />
-        <Route path="/share-target-view" element={<ShareTargetView />} />
-        <Route path="/profile" element={<Profile setMode={setMode} mode={mode} />} />
-        {/* Diğer sayfalar buraya eklenecek */}
-      </Routes>
+      {/* Loading Spinner - Sadece loading durumunda görünür */}
+      {loading && (
+        <Box sx={{ 
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          display: 'flex', 
+          justifyContent: 'center', 
+          alignItems: 'center', 
+          flexDirection: 'column',
+          gap: 3,
+          backgroundColor: 'background.default',
+          zIndex: 9999
+        }}>
+          <CircularProgress size={80} thickness={4} />
+          <Typography variant="h5" color="text.secondary" sx={{ fontWeight: 500 }}>
+            Oyun Listem Yükleniyor...
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Lütfen bekleyin
+          </Typography>
+        </Box>
+      )}
+
+      {/* Ana İçerik - Her zaman render edilir ama loading sırasında görünmez */}
+      <Box sx={{ 
+        opacity: loading ? 0 : 1, 
+        transition: 'opacity 0.3s ease-in-out',
+        visibility: loading ? 'hidden' : 'visible'
+      }}>
+        <AppBar position="sticky">
+          <Toolbar>
+            <Typography variant="h6" sx={{ flexGrow: 1, cursor: 'pointer' }} onClick={() => navigate('/')}>Oyun Listem</Typography>
+            <IconButton color="inherit" onClick={toggleTheme} size="large">
+              {realMode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
+            </IconButton>
+            <IconButton color="inherit" onClick={() => navigate('/profile')} size="large">
+              <AccountCircleIcon />
+            </IconButton>
+          </Toolbar>
+        </AppBar>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/lists" element={<ProtectedRoute><Lists /></ProtectedRoute>} />
+          <Route path="/lists/:id" element={<ProtectedRoute><ListDetail /></ProtectedRoute>} />
+          <Route path="/public/:publicId" element={<PublicList />} />
+          <Route path="/share-target" element={<ShareTarget />} />
+          <Route path="/share-target-view" element={<ShareTargetView />} />
+          <Route path="/profile" element={<Profile setMode={setMode} mode={mode} />} />
+          {/* Diğer sayfalar buraya eklenecek */}
+        </Routes>
+      </Box>
     </>
   )
 }
