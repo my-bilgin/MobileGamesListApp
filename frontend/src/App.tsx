@@ -465,6 +465,12 @@ function ListDetail() {
   }, [listId])
 
   const fetchShareUrl = async () => {
+    // Eğer zaten açıksa kapat
+    if (showShare) {
+      setShowShare(false)
+      return
+    }
+
     try {
       const res = await fetch(`${API_URL}/lists/${listId}/share`, {
         headers: { Authorization: `Bearer ${token}` }
