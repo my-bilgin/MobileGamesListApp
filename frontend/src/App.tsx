@@ -1008,7 +1008,8 @@ function ShareTargetView() {
     );
   }
 
-  if (!sharedUrl) {
+  if (!sharedUrl && !loading) {
+    console.log('Paylaşılan içerik bulunamadı - render ediliyor');
     return (
       <Container maxWidth="sm" sx={{ py: 4 }}>
         <Paper sx={{ p: 3, textAlign: 'center' }}>
@@ -1024,6 +1025,7 @@ function ShareTargetView() {
   }
 
   if (initialized && !token) {
+    console.log('Giriş yapmanız gerekiyor - render ediliyor');
     return (
       <Container maxWidth="sm" sx={{ py: 4 }}>
         <Paper sx={{ p: 3, textAlign: 'center' }}>
@@ -1044,6 +1046,7 @@ function ShareTargetView() {
     );
   }
 
+  console.log('Ana render bloğu çalışıyor');
   return (
     <Container maxWidth="sm" sx={{ py: 2 }}>
       {/* Header */}
