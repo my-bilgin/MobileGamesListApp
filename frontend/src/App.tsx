@@ -867,9 +867,15 @@ function ShareTargetView() {
   const [selectedList, setSelectedList] = useState('');
   const [loading, setLoading] = useState(true);
   const [adding, setAdding] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const navigate = useNavigate();
-  const { token } = useAuth();
   const { show } = useSnackbar();
+
+  // Token kontrolü
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    setIsAuthenticated(!!token);
+  }, []);
 
   // Paylaşılan URL'yi al
   useEffect(() => {
@@ -885,13 +891,15 @@ function ShareTargetView() {
 
   // Kullanıcının listelerini al
   useEffect(() => {
-    if (token && !loading) {
+    const token = localStorage.getItem('token');
+    if (token && !loading && isAuthenticated) {
       fetchLists();
     }
-  }, [token, loading]);
+  }, [isAuthenticated, loading]);
 
   const fetchLists = async () => {
     try {
+      const token = localStorage.getItem('token');
       const res = await fetch(`${API_URL}/lists`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -912,6 +920,7 @@ function ShareTargetView() {
     
     setAdding(true);
     try {
+      const token = localStorage.getItem('token');
       const res = await fetch(`${API_URL}/lists/${selectedList}/games`, {
         method: 'POST',
         headers: {
@@ -974,6 +983,27 @@ function ShareTargetView() {
             Paylaşılan içerik bulunamadı
           </Typography>
           <Button variant="contained" onClick={handleCancel} sx={{ borderRadius: 2 }}>
+            Ana Sayfaya Dön
+          </Button>
+        </Paper>
+      </Container>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <Container maxWidth="sm" sx={{ py: 4 }}>
+        <Paper sx={{ p: 3, textAlign: 'center' }}>
+          <Typography variant="h6" sx={{ mb: 2 }}>
+            Giriş Yapmanız Gerekiyor
+          </Typography>
+          <Typography color="text.secondary" sx={{ mb: 3 }}>
+            Oyun eklemek için lütfen giriş yapın
+          </Typography>
+          <Button variant="contained" onClick={() => navigate('/login')} sx={{ borderRadius: 2, mr: 1 }}>
+            Giriş Yap
+          </Button>
+          <Button variant="outlined" onClick={handleCancel} sx={{ borderRadius: 2 }}>
             Ana Sayfaya Dön
           </Button>
         </Paper>
