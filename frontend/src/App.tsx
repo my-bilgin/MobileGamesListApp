@@ -1201,12 +1201,15 @@ function AppContent({ toggleTheme, realMode, navigate, setMode, mode }: {
   const [routeLoading, setRouteLoading] = useState(false);
 
   useEffect(() => {
-    setRouteLoading(true);
-    const timer = setTimeout(() => setRouteLoading(false), 400);
-    return () => clearTimeout(timer);
-  }, [location.pathname]);
+    if (!loading) {
+      setRouteLoading(true);
+      const timer = setTimeout(() => setRouteLoading(false), 400);
+      return () => clearTimeout(timer);
+    }
+  }, [location.pathname, loading]);
 
-  const showLoading = loading || routeLoading;
+  // Sadece loading false olduktan sonra route spinner devreye girsin
+  const showLoading = loading ? true : routeLoading;
 
   return (
     <>
