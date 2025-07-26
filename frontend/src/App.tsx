@@ -1540,6 +1540,7 @@ function AppContent({ toggleTheme, realMode, navigate, setMode, mode }: {
 }) {
   const location = useLocation();
   const [routeLoading, setRouteLoading] = useState(false);
+  const theme = useTheme();
 
   useEffect(() => {
     setRouteLoading(true);
@@ -1582,8 +1583,29 @@ function AppContent({ toggleTheme, realMode, navigate, setMode, mode }: {
       }}>
         <AppBar position="sticky">
           <Toolbar>
-            <Box sx={{ flexGrow: 1, cursor: 'pointer', display: 'flex', alignItems: 'center' }} onClick={() => navigate('/')}>
-              <img src="/gamesharebanner.png" alt="GameShare" style={{ height: 48, objectFit: 'contain' }} />
+            <Box sx={{ flexGrow: 1, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 1 }} onClick={() => navigate('/')}>
+              <img 
+                src="/gamesharelogo.png" 
+                alt="GameShare" 
+                style={{ 
+                  height: 32, 
+                  filter: theme.palette.mode === 'dark' ? 'invert(1)' : 'none',
+                  objectFit: 'contain' 
+                }} 
+              />
+              <Typography 
+                variant="h6" 
+                sx={{ 
+                  fontWeight: 800, 
+                  fontSize: 20, 
+                  color: '#fff', 
+                  letterSpacing: 0.5,
+                  fontFamily: '"Segoe UI", "Roboto", "Helvetica", "Arial", sans-serif',
+                  textShadow: '0 1px 2px rgba(0,0,0,0.3)'
+                }}
+              >
+                GameShare
+              </Typography>
             </Box>
             <IconButton color="inherit" onClick={toggleTheme} size="large">
               {realMode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
