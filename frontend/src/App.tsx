@@ -126,14 +126,14 @@ function Home() {
       {/* AppBar tarzı başlık */}
       <Box sx={{ width: '100%', position: 'sticky', top: 0, zIndex: 10, mb: 2 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', px: 2, py: 2, bgcolor: theme.palette.background.paper, boxShadow: 3, borderRadius: '0 0 18px 18px', minHeight: 64 }}>
-          <Typography variant="h4" sx={{ fontWeight: 900, fontSize: 28, color: theme.palette.primary.main, letterSpacing: 0.5, flex: 1 }}>Oyun Listem</Typography>
+          <Typography variant="h4" sx={{ fontWeight: 900, fontSize: 28, color: theme.palette.primary.main, letterSpacing: 0.5, flex: 1 }}>GameShare</Typography>
         </Box>
       </Box>
       {/* Hoş geldin ve özet kutusu */}
       <Box sx={{ bgcolor: theme.palette.background.paper, borderRadius: 4, boxShadow: 3, p: 3, mb: 3, mx: { xs: 1, sm: 0 }, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
         <Typography variant="h5" sx={{ fontWeight: 800, fontSize: 22, color: theme.palette.primary.main, mb: 1 }}>Hoşgeldin{user ? `, ${user}` : ''}!</Typography>
         <Typography sx={{ fontSize: 16, color: theme.palette.text.secondary, textAlign: 'center', mb: 1 }}>
-          Oyun Listem ile mobil oyun listeleri oluşturabilir, oyunları otomatik olarak mağaza bilgileriyle ekleyebilir, listelerini paylaşabilir ve kendi oyun koleksiyonunu yönetebilirsin. Uygulama PWA olarak çalışır, cihazına ekleyebilirsin.
+          GameShare ile mobil oyun listeleri oluşturabilir, oyunları otomatik olarak mağaza bilgileriyle ekleyebilir, listelerini paylaşabilir ve kendi oyun koleksiyonunu yönetebilirsin. Uygulama PWA olarak çalışır, cihazına ekleyebilirsin.
         </Typography>
       </Box>
       {/* Giriş/Kayıt veya Listelerime Git butonu */}
@@ -607,8 +607,8 @@ function ListDetail() {
             onClick={() => {
               if (navigator.share) {
                 navigator.share({
-                  title: `${list.name} - Oyun Listesi`,
-                  text: `${list.name} oyun listesini paylaşıyorum:`,
+                  title: `${list.name} - GameShare`,
+                  text: `${list.name} oyun listesini GameShare ile paylaşıyorum:`,
                   url: shareUrl
                 }).catch(() => {
                   // Fallback: kopyala
@@ -1568,7 +1568,7 @@ function AppContent({ toggleTheme, realMode, navigate, setMode, mode }: {
         }}>
           <CircularProgress size={80} thickness={4} />
           <Typography variant="h5" color="text.secondary" sx={{ fontWeight: 500 }}>
-            Oyun Listem Yükleniyor...
+            GameShare Yükleniyor...
           </Typography>
           <Typography variant="body2" color="text.secondary">
             Lütfen bekleyin
@@ -1582,7 +1582,10 @@ function AppContent({ toggleTheme, realMode, navigate, setMode, mode }: {
       }}>
         <AppBar position="sticky">
           <Toolbar>
-            <Typography variant="h6" sx={{ flexGrow: 1, cursor: 'pointer' }} onClick={() => navigate('/')}>Oyun Listem</Typography>
+            <Box sx={{ flexGrow: 1, cursor: 'pointer', display: 'flex', alignItems: 'center' }} onClick={() => navigate('/')}>
+              <img src="/gamesharehome.png" alt="GameShare" style={{ height: 32, marginRight: 8 }} />
+              <Typography variant="h6" sx={{ fontWeight: 600 }}>GameShare</Typography>
+            </Box>
             <IconButton color="inherit" onClick={toggleTheme} size="large">
               {realMode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
             </IconButton>
