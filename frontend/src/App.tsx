@@ -1180,7 +1180,8 @@ function Profile({ setMode, mode }: { setMode: (m: any) => void, mode: string })
             boxShadow: '0 2px 12px #0002', 
             maxWidth: '100%',
             mx: { xs: 0, sm: 0 },
-            width: '100%'
+            width: '100%',
+            mt:1
           }}>
             <Typography variant="h6" sx={{ fontWeight: 700, mb: 1.5, fontFamily: '"Bebas Neue", "Anton", "Oswald", "Impact", sans-serif', color: theme.palette.text.primary, textAlign: 'center' }}>Avatar Seç</Typography>
             <Box sx={{ 
@@ -1404,7 +1405,7 @@ function Profile({ setMode, mode }: { setMode: (m: any) => void, mode: string })
 
       {/* Şifre Değiştirme Butonu */}
       <Box sx={{ bgcolor: theme.palette.background.paper, borderRadius: 4, boxShadow: 3, p: 2.5, mb: 2, mx: { xs: 1, sm: 0 } }}>
-        <Typography variant="h6" sx={{ fontWeight: 700, mb: 2, fontFamily: '"Bebas Neue", "Anton", "Oswald", "Impact", sans-serif' }}>Hesap Ayarları</Typography>
+        <Typography variant="h6" sx={{ fontWeight: 700, mb: 2, fontFamily: '"Bebas Neue", "Anton", "Oswald", "Impact", sans-serif' }}>Güvenlik Ayarları</Typography>
         <Button
           variant="outlined"
           onClick={() => setShowPasswordChange(!showPasswordChange)}
