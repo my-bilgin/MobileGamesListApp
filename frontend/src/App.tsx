@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useRef } from 'react'
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom'
-import { AppBar, Toolbar, Typography, IconButton, Snackbar, Alert, CssBaseline, Card, CardContent, CardMedia, Button, TextField, Box, Container, Paper, Chip, Divider, Grid, FormControl, InputLabel, Select, MenuItem, CircularProgress } from '@mui/material'
+import { AppBar, Toolbar, Typography, IconButton, Snackbar, Alert, CssBaseline, Card, CardContent, CardMedia, Button, TextField, Box, Container, Paper, Chip, Divider, Grid, FormControl, InputLabel, Select, MenuItem, CircularProgress, Tabs, Tab } from '@mui/material'
 import Brightness4Icon from '@mui/icons-material/Brightness4'
 import Brightness7Icon from '@mui/icons-material/Brightness7'
 import AccountCircleIcon from '@mui/icons-material/AccountCircle'
@@ -322,7 +322,7 @@ function Lists() {
       {/* AppBar tarzı başlık */}
       <Box sx={{ width: '100%', position: 'sticky', top: 0, zIndex: 10, mb: 2 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', px: 2, py: 2, bgcolor: theme.palette.background.paper, boxShadow: 3, borderRadius: '0 0 18px 18px', minHeight: 64 }}>
-          <Typography variant="h4" sx={{ fontWeight: 900, fontSize: 28, color: theme.palette.primary.main, letterSpacing: 0.5, flex: 1 }}>Listelerim</Typography>
+          <Typography variant="h4" sx={{ fontWeight: 800, fontSize: 28, color: theme.palette.primary.main, letterSpacing: 0.5, flex: 1, fontFamily: '"Bebas Neue", "Anton", "Oswald", "Impact", sans-serif' }}>Listelerim</Typography>
         </Box>
       </Box>
       {/* Liste ekleme formu kutu içinde modern */}
@@ -344,18 +344,19 @@ function Lists() {
             startIcon={<AddIcon />}
             sx={{
               borderRadius: 999,
-              fontWeight: 700,
+              fontWeight: 800,
               px: 2.5,
               py: 1.2,
               minWidth: 0,
               height: 44,
               fontSize: 16,
-              textTransform: 'none',
-              letterSpacing: 0.5,
+              textTransform: 'uppercase',
+              letterSpacing: 1,
               transition: 'all 0.18s',
               bgcolor: theme.palette.primary.dark,
               boxShadow: 2,
               color: '#fff',
+              fontFamily: '"Bebas Neue", "Anton", "Oswald", "Impact", sans-serif',
               '&:hover': {
                 bgcolor: theme.palette.primary.main,
                 boxShadow: 4,
@@ -374,7 +375,7 @@ function Lists() {
         {lists.map((list) => (
           <Card key={list._id} onClick={() => navigate(`/lists/${list._id}`)} sx={{ p: 2, mb: 1, borderRadius: 4, boxShadow: 3, bgcolor: `linear-gradient(135deg, ${theme.palette.background.paper} 80%, ${theme.palette.secondary.light} 100%)`, cursor: 'pointer', transition: 'all 0.2s', ':hover': { boxShadow: 5, bgcolor: theme.palette.action.hover }, fontSize: 16, display: 'flex', alignItems: 'center', gap: 2 }}>
             <Box sx={{ flex: 1, minWidth: 0 }}>
-              <Typography variant="h6" sx={{ fontWeight: 700, color: theme.palette.text.primary, fontSize: 17, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{list.name}</Typography>
+              <Typography variant="h6" sx={{ fontWeight: 800, color: theme.palette.text.primary, fontSize: 17, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontFamily: '"Bebas Neue", "Anton", "Oswald", "Impact", sans-serif' }}>{list.name}</Typography>
             </Box>
             <IconButton size="small" color="primary" onClick={e => { e.stopPropagation(); navigate(`/lists/${list._id}`) }}>
               <span style={{ fontSize: 20 }}>→</span>
@@ -571,7 +572,7 @@ function ListDetail() {
       </Box>
       {/* Liste adı ve düzenleme */}
       <Box sx={{ display: 'flex', alignItems: 'center', minHeight: 48, px: { xs: 2, sm: 0 }, mb: 1 }}>
-        <Typography variant="h5" sx={{ fontWeight: 800, fontSize: 22, color: theme.palette.text.primary, textAlign: 'left', flex: 1, letterSpacing: 0.2 }}>{list.name}</Typography>
+        <Typography variant="h5" sx={{ fontWeight: 800, fontSize: 22, color: theme.palette.text.primary, textAlign: 'left', flex: 1, letterSpacing: 0.2, fontFamily: '"Bebas Neue", "Anton", "Oswald", "Impact", sans-serif' }}>{list.name}</Typography>
         <IconButton size="small" onClick={handleEditName}><EditIcon fontSize="small" /></IconButton>
       </Box>
       {editingName && (
@@ -592,7 +593,7 @@ function ListDetail() {
             size="medium"
             sx={{ bgcolor: theme.palette.background.default, borderRadius: 2 }}
           />
-          <Button type="submit" variant="contained" color="success" size="large" disabled={fetching} sx={{ fontWeight: 700, borderRadius: 2, py: 1.2, fontSize: 16, boxShadow: 1, textTransform: 'none', letterSpacing: 1, transition: 'all 0.2s', ':hover': { bgcolor: theme.palette.success.dark, boxShadow: 2 } }}>
+          <Button type="submit" variant="contained" color="success" size="large" disabled={fetching} sx={{ fontWeight: 800, borderRadius: 2, py: 1.2, fontSize: 16, boxShadow: 1, textTransform: 'uppercase', letterSpacing: 1, transition: 'all 0.2s', fontFamily: '"Bebas Neue", "Anton", "Oswald", "Impact", sans-serif', ':hover': { bgcolor: theme.palette.success.dark, boxShadow: 2 } }}>
             {fetching ? 'Ekleniyor...' : 'Ekle'}
           </Button>
         </form>
@@ -834,7 +835,7 @@ function PublicList() {
                 <Typography variant="body2" sx={{ fontWeight: 500, fontSize: 13 }}>{item.rating ? Math.round(item.rating * 10) / 10 : '-'}</Typography>
                 <Typography variant="caption" color="text.secondary">({item.reviewCount || 0} yorum)</Typography>
               </Box>
-              <Button href={item.storeUrl} target="_blank" rel="noopener noreferrer" size="small" variant="text" sx={{ mt: 0.5, color: '#1976d2', fontWeight: 600, textTransform: 'none', fontSize: 12 }}>Store'da Aç</Button>
+              <Button href={item.storeUrl} target="_blank" rel="noopener noreferrer" size="small" variant="text" sx={{ mt: 0.5, ml: -0.625, color: '#1976d2', fontWeight: 600, textTransform: 'none', fontSize: 12 }}>Store'da Aç</Button>
             </CardContent>
           </Card>
         )) : <Typography sx={{ textAlign: 'center', mt: 4 }}>Henüz oyun eklenmemiş.</Typography>}
@@ -974,17 +975,49 @@ function Profile({ setMode, mode }: { setMode: (m: any) => void, mode: string })
   const { user, logout, token } = useAuth()
   const { show, snackbar } = useSnackbar()
   const theme = useTheme()
-  // Kullanıcı adı (displayName)
-  const displayName = user || 'Kullanıcı'
-
-  // Listeler ve oyun sayısı için API'den veri al
+  const navigate = useNavigate()
+  
+  // Kullanıcı bilgileri
+  const [userInfo, setUserInfo] = useState({ email: '', displayName: '' })
+  const [profileImage, setProfileImage] = useState('/default-avatar.png')
+  const [showPasswordChange, setShowPasswordChange] = useState(false)
+  const [passwordData, setPasswordData] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' })
+  const [changingPassword, setChangingPassword] = useState(false)
+  
+  // İstatistikler
   const [stats, setStats] = useState({ listCount: 0, gameCount: 0 })
+  
+  // Favoriler
+  const [favorites, setFavorites] = useState({ games: [], lists: [] })
+  const [activeTab, setActiveTab] = useState(0)
+  
+  // Profil resmi seçenekleri
+  const avatarOptions = [
+    '/avatar1.png', '/avatar2.png', '/avatar3.png', '/avatar4.png', '/avatar5.png'
+  ]
   
   useEffect(() => {
     if (token) {
+      fetchUserInfo()
       fetchStats()
+      fetchFavorites()
     }
   }, [token])
+
+  const fetchUserInfo = async () => {
+    try {
+      const res = await fetch(`${API_URL}/user/profile`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+      if (res.ok) {
+        const data = await res.json()
+        setUserInfo(data)
+        setProfileImage(data.profileImage || '/default-avatar.png')
+      }
+    } catch (error) {
+      console.error('Kullanıcı bilgileri alınamadı:', error)
+    }
+  }
 
   const fetchStats = async () => {
     try {
@@ -1002,9 +1035,83 @@ function Profile({ setMode, mode }: { setMode: (m: any) => void, mode: string })
     }
   }
 
-  const handleThemeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setMode(e.target.value)
-    localStorage.setItem('theme', e.target.value)
+  const fetchFavorites = async () => {
+    try {
+      const res = await fetch(`${API_URL}/user/favorites`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+      if (res.ok) {
+        const data = await res.json()
+        setFavorites(data)
+      }
+    } catch (error) {
+      console.error('Favoriler alınamadı:', error)
+    }
+  }
+
+  const handlePasswordChange = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      show('Yeni şifreler eşleşmiyor', 'error')
+      return
+    }
+    if (passwordData.newPassword.length < 6) {
+      show('Şifre en az 6 karakter olmalıdır', 'error')
+      return
+    }
+    
+    setChangingPassword(true)
+    try {
+      const res = await fetch(`${API_URL}/user/change-password`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          currentPassword: passwordData.currentPassword,
+          newPassword: passwordData.newPassword
+        })
+      })
+      
+      if (res.ok) {
+        show('Şifre başarıyla değiştirildi', 'success')
+        setShowPasswordChange(false)
+        setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' })
+      } else {
+        const data = await res.json()
+        show(data.message || 'Şifre değiştirilemedi', 'error')
+      }
+    } catch (error) {
+      show('Bağlantı hatası', 'error')
+    } finally {
+      setChangingPassword(false)
+    }
+  }
+
+  const handleAvatarChange = async (avatarPath: string) => {
+    try {
+      const res = await fetch(`${API_URL}/user/profile-image`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ profileImage: avatarPath })
+      })
+      
+      if (res.ok) {
+        setProfileImage(avatarPath)
+        show('Profil resmi güncellendi', 'success')
+      }
+    } catch (error) {
+      show('Profil resmi güncellenemedi', 'error')
+    }
+  }
+
+  const handleThemeChange = (newMode: string) => {
+    setMode(newMode)
+    localStorage.setItem('theme', newMode)
     show('Tema tercihiniz kaydedildi.', 'success')
   }
 
@@ -1013,40 +1120,318 @@ function Profile({ setMode, mode }: { setMode: (m: any) => void, mode: string })
       {/* AppBar tarzı başlık */}
       <Box sx={{ width: '100%', position: 'sticky', top: 0, zIndex: 10, mb: 2 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', px: 2, py: 2, bgcolor: theme.palette.background.paper, boxShadow: 3, borderRadius: '0 0 18px 18px', minHeight: 64 }}>
-          <Typography variant="h4" sx={{ fontWeight: 900, fontSize: 28, color: theme.palette.primary.main, letterSpacing: 0.5, flex: 1 }}>Profilim</Typography>
+          <Typography variant="h4" sx={{ fontWeight: 800, fontSize: 28, color: theme.palette.primary.main, letterSpacing: 0.5, flex: 1, fontFamily: '"Bebas Neue", "Anton", "Oswald", "Impact", sans-serif' }}>Profilim</Typography>
         </Box>
       </Box>
-      {/* Kullanıcı bilgileri kutusu */}
-      <Box sx={{ bgcolor: `linear-gradient(135deg, ${theme.palette.background.paper} 80%, ${theme.palette.primary.light} 100%)`, borderRadius: 4, boxShadow: 3, p: 2.5, mb: 2, mx: { xs: 1, sm: 0 }, display: 'flex', alignItems: 'center', gap: 2 }}>
-        <AccountCircleIcon sx={{ fontSize: 38, color: theme.palette.primary.main, mr: 1 }} />
-        <Box>
-          <Typography sx={{ fontWeight: 700, fontSize: 18, mb: 0.5 }}>{displayName}</Typography>
-          <Typography sx={{ fontSize: 14, color: theme.palette.text.secondary }}>Kullanıcı</Typography>
+
+      {/* Profil Bilgileri */}
+      <Box sx={{ bgcolor: `linear-gradient(135deg, ${theme.palette.background.paper} 80%, ${theme.palette.primary.light} 100%)`, borderRadius: 4, boxShadow: 3, p: 3, mb: 2, mx: { xs: 1, sm: 0 } }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+          <Box sx={{ position: 'relative' }}>
+            <img 
+              src={profileImage} 
+              alt="Profil" 
+              style={{ 
+                width: 60, 
+                height: 60, 
+                borderRadius: '50%', 
+                objectFit: 'cover',
+                border: `3px solid ${theme.palette.primary.main}`
+              }} 
+            />
+            <IconButton 
+              size="small" 
+              sx={{ 
+                position: 'absolute', 
+                bottom: -5, 
+                right: -5, 
+                bgcolor: theme.palette.primary.main,
+                color: 'white',
+                '&:hover': { bgcolor: theme.palette.primary.dark }
+              }}
+              onClick={() => setShowPasswordChange(false)}
+            >
+              <EditIcon fontSize="small" />
+            </IconButton>
+          </Box>
+          <Box sx={{ flex: 1 }}>
+            <Typography sx={{ fontWeight: 700, fontSize: 18, mb: 0.5 }}>{userInfo.displayName || user}</Typography>
+            <Typography sx={{ fontSize: 14, color: theme.palette.text.secondary }}>{userInfo.email}</Typography>
+          </Box>
+        </Box>
+        
+        {/* Profil Resmi Seçimi */}
+        <Collapse in={!showPasswordChange} timeout={300}>
+          <Box>
+            <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>Profil Resmi Seç</Typography>
+            <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+              {avatarOptions.map((avatar, index) => (
+                <Box
+                  key={index}
+                  onClick={() => handleAvatarChange(avatar)}
+                  sx={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: '50%',
+                    cursor: 'pointer',
+                    border: profileImage === avatar ? `3px solid ${theme.palette.primary.main}` : '2px solid transparent',
+                    transition: 'all 0.2s',
+                    '&:hover': { transform: 'scale(1.1)' }
+                  }}
+                >
+                  <img 
+                    src={avatar} 
+                    alt={`Avatar ${index + 1}`} 
+                    style={{ 
+                      width: '100%', 
+                      height: '100%', 
+                      borderRadius: '50%', 
+                      objectFit: 'cover' 
+                    }} 
+                  />
+                </Box>
+              ))}
+            </Box>
+          </Box>
+        </Collapse>
+      </Box>
+
+      {/* İstatistikler */}
+      <Box sx={{ bgcolor: `linear-gradient(135deg, ${theme.palette.background.paper} 80%, ${theme.palette.secondary.light} 100%)`, borderRadius: 4, boxShadow: 3, p: 2.5, mb: 2, mx: { xs: 1, sm: 0 } }}>
+        <Typography variant="h6" sx={{ fontWeight: 700, mb: 2, fontFamily: '"Bebas Neue", "Anton", "Oswald", "Impact", sans-serif' }}>İstatistikler</Typography>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 2 }}>
+          <Box sx={{ textAlign: 'center', flex: 1 }}>
+            <Typography sx={{ fontWeight: 900, fontSize: 24, color: theme.palette.primary.main }}>{stats.listCount}</Typography>
+            <Typography sx={{ fontSize: 14, color: theme.palette.text.secondary }}>Liste</Typography>
+          </Box>
+          <Box sx={{ textAlign: 'center', flex: 1 }}>
+            <Typography sx={{ fontWeight: 900, fontSize: 24, color: theme.palette.primary.main }}>{stats.gameCount}</Typography>
+            <Typography sx={{ fontSize: 14, color: theme.palette.text.secondary }}>Oyun</Typography>
+          </Box>
         </Box>
       </Box>
-      {/* İstatistik kutusu */}
-      <Box sx={{ bgcolor: `linear-gradient(135deg, ${theme.palette.background.paper} 80%, ${theme.palette.secondary.light} 100%)`, borderRadius: 4, boxShadow: 3, p: 2.5, mb: 2, mx: { xs: 1, sm: 0 }, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2 }}>
-        <Box sx={{ textAlign: 'center', flex: 1 }}>
-          <Typography sx={{ fontWeight: 900, fontSize: 22, color: theme.palette.primary.main }}>{stats.listCount}</Typography>
-          <Typography sx={{ fontSize: 14, color: theme.palette.text.secondary }}>Listem</Typography>
+
+      {/* Favoriler */}
+      <Box sx={{ bgcolor: theme.palette.background.paper, borderRadius: 4, boxShadow: 3, mb: 2, mx: { xs: 1, sm: 0 }, overflow: 'hidden' }}>
+        <Box sx={{ borderBottom: `1px solid ${theme.palette.divider}` }}>
+          <Tabs value={activeTab} onChange={(e, newValue) => setActiveTab(newValue)} sx={{ minHeight: 48 }}>
+            <Tab 
+              label="Favori Oyunlar" 
+              sx={{ 
+                fontWeight: 600, 
+                textTransform: 'none',
+                fontFamily: '"Bebas Neue", "Anton", "Oswald", "Impact", sans-serif'
+              }} 
+            />
+            <Tab 
+              label="Favori Listeler" 
+              sx={{ 
+                fontWeight: 600, 
+                textTransform: 'none',
+                fontFamily: '"Bebas Neue", "Anton", "Oswald", "Impact", sans-serif'
+              }} 
+            />
+          </Tabs>
         </Box>
-        <Box sx={{ textAlign: 'center', flex: 1 }}>
-          <Typography sx={{ fontWeight: 900, fontSize: 22, color: theme.palette.primary.main }}>{stats.gameCount}</Typography>
-          <Typography sx={{ fontSize: 14, color: theme.palette.text.secondary }}>Oyun</Typography>
+        
+        <TabPanel value={activeTab} index={0} sx={{ p: 2 }}>
+          {favorites.games.length > 0 ? (
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+              {favorites.games.slice(0, 5).map((game: any, index: number) => (
+                <Box key={index} sx={{ display: 'flex', alignItems: 'center', gap: 1, p: 1, borderRadius: 2, bgcolor: theme.palette.action.hover }}>
+                  <img src={game.imageUrl} alt={game.title} style={{ width: 32, height: 32, borderRadius: 4 }} />
+                  <Typography sx={{ fontSize: 14, fontWeight: 500 }}>{game.title}</Typography>
+                </Box>
+              ))}
+              {favorites.games.length > 5 && (
+                <Button 
+                  variant="text" 
+                  size="small" 
+                  onClick={() => navigate('/favorites')}
+                  sx={{ mt: 1, fontWeight: 600 }}
+                >
+                  Tümünü Gör ({favorites.games.length})
+                </Button>
+              )}
+            </Box>
+          ) : (
+            <Typography sx={{ textAlign: 'center', color: theme.palette.text.secondary, py: 2 }}>
+              Henüz favori oyun eklenmemiş
+            </Typography>
+          )}
+        </TabPanel>
+        
+        <TabPanel value={activeTab} index={1} sx={{ p: 2 }}>
+          {favorites.lists.length > 0 ? (
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+              {favorites.lists.slice(0, 5).map((list: any, index: number) => (
+                <Box key={index} sx={{ display: 'flex', alignItems: 'center', gap: 1, p: 1, borderRadius: 2, bgcolor: theme.palette.action.hover }}>
+                  <Typography sx={{ fontSize: 14, fontWeight: 500 }}>{list.name}</Typography>
+                </Box>
+              ))}
+              {favorites.lists.length > 5 && (
+                <Button 
+                  variant="text" 
+                  size="small" 
+                  onClick={() => navigate('/favorites')}
+                  sx={{ mt: 1, fontWeight: 600 }}
+                >
+                  Tümünü Gör ({favorites.lists.length})
+                </Button>
+              )}
+            </Box>
+          ) : (
+            <Typography sx={{ textAlign: 'center', color: theme.palette.text.secondary, py: 2 }}>
+              Henüz favori liste eklenmemiş
+            </Typography>
+          )}
+        </TabPanel>
+      </Box>
+
+      {/* Şifre Değiştirme */}
+      <Collapse in={showPasswordChange} timeout={300}>
+        <Box sx={{ bgcolor: theme.palette.background.paper, borderRadius: 4, boxShadow: 3, p: 2.5, mb: 2, mx: { xs: 1, sm: 0 } }}>
+          <Typography variant="h6" sx={{ fontWeight: 700, mb: 2, fontFamily: '"Bebas Neue", "Anton", "Oswald", "Impact", sans-serif' }}>Şifre Değiştir</Typography>
+          <form onSubmit={handlePasswordChange} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <TextField
+              label="Mevcut Şifre"
+              type="password"
+              value={passwordData.currentPassword}
+              onChange={(e) => setPasswordData(prev => ({ ...prev, currentPassword: e.target.value }))}
+              fullWidth
+              size="medium"
+              required
+              sx={{ bgcolor: theme.palette.background.default, borderRadius: 2 }}
+            />
+            <TextField
+              label="Yeni Şifre"
+              type="password"
+              value={passwordData.newPassword}
+              onChange={(e) => setPasswordData(prev => ({ ...prev, newPassword: e.target.value }))}
+              fullWidth
+              size="medium"
+              required
+              sx={{ bgcolor: theme.palette.background.default, borderRadius: 2 }}
+            />
+            <TextField
+              label="Yeni Şifre (Tekrar)"
+              type="password"
+              value={passwordData.confirmPassword}
+              onChange={(e) => setPasswordData(prev => ({ ...prev, confirmPassword: e.target.value }))}
+              fullWidth
+              size="medium"
+              required
+              sx={{ bgcolor: theme.palette.background.default, borderRadius: 2 }}
+            />
+            <Box sx={{ display: 'flex', gap: 1 }}>
+              <Button
+                type="submit"
+                variant="contained"
+                disabled={changingPassword}
+                sx={{ 
+                  flex: 1, 
+                  fontWeight: 700, 
+                  borderRadius: 2, 
+                  py: 1.2, 
+                  fontSize: 16, 
+                  boxShadow: 1, 
+                  textTransform: 'none',
+                  fontFamily: '"Bebas Neue", "Anton", "Oswald", "Impact", sans-serif'
+                }}
+              >
+                {changingPassword ? 'Değiştiriliyor...' : 'Şifreyi Değiştir'}
+              </Button>
+              <Button
+                variant="outlined"
+                onClick={() => setShowPasswordChange(false)}
+                sx={{ 
+                  fontWeight: 700, 
+                  borderRadius: 2, 
+                  py: 1.2, 
+                  fontSize: 16, 
+                  textTransform: 'none',
+                  fontFamily: '"Bebas Neue", "Anton", "Oswald", "Impact", sans-serif'
+                }}
+              >
+                İptal
+              </Button>
+            </Box>
+          </form>
+        </Box>
+      </Collapse>
+
+      {/* Tema Ayarı */}
+      <Box sx={{ bgcolor: theme.palette.background.paper, borderRadius: 4, boxShadow: 3, p: 2.5, mb: 2, mx: { xs: 1, sm: 0 } }}>
+        <Typography variant="h6" sx={{ fontWeight: 700, mb: 2, fontFamily: '"Bebas Neue", "Anton", "Oswald", "Impact", sans-serif' }}>Tema Ayarı</Typography>
+        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+          {[
+            { value: 'auto', label: 'Otomatik', icon: '🌓' },
+            { value: 'light', label: 'Açık', icon: '☀️' },
+            { value: 'dark', label: 'Koyu', icon: '🌙' }
+          ].map((themeOption) => (
+            <Button
+              key={themeOption.value}
+              variant={mode === themeOption.value ? 'contained' : 'outlined'}
+              onClick={() => handleThemeChange(themeOption.value)}
+              sx={{
+                flex: 1,
+                minWidth: 100,
+                fontWeight: 600,
+                borderRadius: 2,
+                py: 1.5,
+                fontSize: 14,
+                textTransform: 'none',
+                fontFamily: '"Bebas Neue", "Anton", "Oswald", "Impact", sans-serif',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 0.5
+              }}
+            >
+              <span style={{ fontSize: 20 }}>{themeOption.icon}</span>
+              {themeOption.label}
+            </Button>
+          ))}
         </Box>
       </Box>
-      {/* Tema ayarı ve çıkış kutusu */}
-      <Box sx={{ bgcolor: `linear-gradient(135deg, ${theme.palette.background.paper} 80%, ${theme.palette.info.light} 100%)`, borderRadius: 4, boxShadow: 3, p: 2.5, mb: 2, mx: { xs: 1, sm: 0 }, display: 'flex', flexDirection: 'column', gap: 2 }}>
-        <Typography variant="subtitle1" sx={{ fontWeight: 700, fontSize: 16, mb: 0.5 }}>Tema Ayarı</Typography>
-        <select value={mode} onChange={handleThemeChange} style={{ padding: 10, fontSize: 15, borderRadius: 8, maxWidth: 220, marginTop: 2, width: '100%', marginBottom: 8 }}>
-          <option value="auto">Otomatik (cihaz temasına göre)</option>
-          <option value="light">Açık</option>
-          <option value="dark">Koyu</option>
-        </select>
-        <Button onClick={logout} variant="outlined" color="error" sx={{ borderRadius: 3, fontWeight: 700, px: 3, py: 1.2, boxShadow: 1, textTransform: 'none', fontSize: 15, mt: 1 }}>Çıkış Yap</Button>
+
+      {/* Çıkış Yap */}
+      <Box sx={{ mx: { xs: 1, sm: 0 } }}>
+        <Button 
+          onClick={logout} 
+          variant="outlined" 
+          color="error" 
+          fullWidth
+          sx={{ 
+            borderRadius: 3, 
+            fontWeight: 700, 
+            py: 1.5, 
+            fontSize: 16, 
+            boxShadow: 1, 
+            textTransform: 'none',
+            fontFamily: '"Bebas Neue", "Anton", "Oswald", "Impact", sans-serif'
+          }}
+        >
+          Çıkış Yap
+        </Button>
       </Box>
+
       {snackbar}
     </Box>
+  )
+}
+
+// TabPanel bileşeni
+function TabPanel({ children, value, index, ...other }: { children: ReactNode, value: number, index: number }) {
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`tabpanel-${index}`}
+      aria-labelledby={`tab-${index}`}
+      {...other}
+    >
+      {value === index && children}
+    </div>
   )
 }
 

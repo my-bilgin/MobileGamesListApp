@@ -1,8 +1,10 @@
 const express = require('express')
 const mongoose = require('mongoose')
 const cors = require('cors')
+const jwt = require('jsonwebtoken')
 require('dotenv').config()
 const gplay = require('google-play-scraper').default
+const User = require('./user.model')
 
 const app = express()
 app.use(cors())
@@ -24,6 +26,95 @@ app.get('/', (req, res) => {
 // Kullanıcı ve liste rotaları buraya eklenecek
 app.use('/api/auth', require('./auth.routes'))
 app.use('/api/lists', require('./list.routes'))
+
+// Kullanıcı profili endpoint'leri
+app.get('/api/user/profile', async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(' ')[1]
+    if (!token) return res.status(401).json({ message: 'Token gerekli' })
+    
+    // JWT token'dan kullanıcı bilgilerini al
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret')
+    const user = await User.findById(decoded.userId)
+    if (!user) return res.status(401).json({ message: 'Geçersiz token' })
+    
+    res.json({
+      email: user.email,
+      displayName: user.displayName,
+      profileImage: user.profileImage || '/default-avatar.png'
+    })
+  } catch (error) {
+    res.status(500).json({ message: 'Sunucu hatası' })
+  }
+})
+
+app.put('/api/user/change-password', async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(' ')[1]
+    if (!token) return res.status(401).json({ message: 'Token gerekli' })
+    
+    const { currentPassword, newPassword } = req.body
+    
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret')
+    const user = await User.findById(decoded.userId)
+    if (!user) return res.status(401).json({ message: 'Geçersiz token' })
+    
+    // Şifre kontrolü
+    const bcrypt = require('bcryptjs')
+    const valid = await bcrypt.compare(currentPassword, user.password)
+    if (!valid) {
+      return res.status(400).json({ message: 'Mevcut şifre yanlış' })
+    }
+    
+    // Yeni şifreyi hash'le
+    const hashed = await bcrypt.hash(newPassword, 10)
+    user.password = hashed
+    await user.save()
+    
+    res.json({ message: 'Şifre başarıyla değiştirildi' })
+  } catch (error) {
+    res.status(500).json({ message: 'Sunucu hatası' })
+  }
+})
+
+app.put('/api/user/profile-image', async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(' ')[1]
+    if (!token) return res.status(401).json({ message: 'Token gerekli' })
+    
+    const { profileImage } = req.body
+    
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret')
+    const user = await User.findById(decoded.userId)
+    if (!user) return res.status(401).json({ message: 'Geçersiz token' })
+    
+    user.profileImage = profileImage
+    await user.save()
+    
+    res.json({ message: 'Profil resmi güncellendi' })
+  } catch (error) {
+    res.status(500).json({ message: 'Sunucu hatası' })
+  }
+})
+
+app.get('/api/user/favorites', async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(' ')[1]
+    if (!token) return res.status(401).json({ message: 'Token gerekli' })
+    
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret')
+    const user = await User.findById(decoded.userId)
+    if (!user) return res.status(401).json({ message: 'Geçersiz token' })
+    
+    // Basit favori implementasyonu
+    res.json({
+      games: user.favoriteGames || [],
+      lists: user.favoriteLists || []
+    })
+  } catch (error) {
+    res.status(500).json({ message: 'Sunucu hatası' })
+  }
+})
 
 app.post('/api/fetch-game-info', async (req, res) => {
   const { url } = req.body
