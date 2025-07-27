@@ -931,7 +931,7 @@ function PublicList() {
         <Button
           variant="contained"
           onClick={handleCopyToMyLists}
-          disabled={saving || !token}
+          disabled={saving}
           fullWidth
           sx={{ 
             borderRadius: 3, 
