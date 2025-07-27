@@ -991,9 +991,14 @@ function Profile({ setMode, mode }: { setMode: (m: any) => void, mode: string })
   const [favorites, setFavorites] = useState({ games: [], lists: [] })
   const [activeTab, setActiveTab] = useState(0)
   
-  // Profil resmi seçenekleri
+  // Avatar seçimi state'i
+  const [showAvatarSelect, setShowAvatarSelect] = useState(false)
+  
+  // Profil resmi seçenekleri (18 avatar)
   const avatarOptions = [
-    '/avatar1.png', '/avatar2.png', '/avatar3.png', '/avatar4.png', '/avatar5.png'
+    '/avatar1.png', '/avatar2.png', '/avatar3.png', '/avatar4.png', '/avatar5.png', '/avatar6.png',
+    '/avatar7.png', '/avatar8.png', '/avatar9.png', '/avatar10.png', '/avatar11.png', '/avatar12.png',
+    '/avatar13.png', '/avatar14.png', '/avatar15.png', '/avatar16.png', '/avatar17.png', '/avatar18.png'
   ]
   
   useEffect(() => {
@@ -1149,7 +1154,7 @@ function Profile({ setMode, mode }: { setMode: (m: any) => void, mode: string })
                 color: 'white',
                 '&:hover': { bgcolor: theme.palette.primary.dark }
               }}
-              onClick={() => setShowPasswordChange(false)}
+              onClick={() => setShowAvatarSelect(!showAvatarSelect)}
             >
               <EditIcon fontSize="small" />
             </IconButton>
@@ -1160,23 +1165,40 @@ function Profile({ setMode, mode }: { setMode: (m: any) => void, mode: string })
           </Box>
         </Box>
         
-        {/* Profil Resmi Seçimi */}
-        <Collapse in={!showPasswordChange} timeout={300}>
-          <Box>
-            <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>Profil Resmi Seç</Typography>
-            <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+        {/* Avatar Seçimi Dropdown */}
+        <Collapse in={showAvatarSelect} timeout={350} unmountOnExit>
+          <Box sx={{ 
+            display: 'flex', 
+            flexDirection: 'column', 
+            gap: 14, 
+            marginBottom: 18, 
+            background: `linear-gradient(135deg, ${theme.palette.background.paper} 80%, ${theme.palette.primary.light} 100%)`, 
+            borderRadius: 4, 
+            boxShadow: '0 2px 12px #0002', 
+            padding: 14, 
+            maxWidth: '100%' 
+          }}>
+            <Typography variant="h6" sx={{ fontWeight: 700, mb: 2, fontFamily: '"Bebas Neue", "Anton", "Oswald", "Impact", sans-serif' }}>Avatar Seç</Typography>
+            <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 2 }}>
               {avatarOptions.map((avatar, index) => (
                 <Box
                   key={index}
-                  onClick={() => handleAvatarChange(avatar)}
+                  onClick={() => {
+                    handleAvatarChange(avatar)
+                    setShowAvatarSelect(false)
+                  }}
                   sx={{
-                    width: 40,
-                    height: 40,
+                    width: '100%',
+                    aspectRatio: '1',
                     borderRadius: '50%',
                     cursor: 'pointer',
                     border: profileImage === avatar ? `3px solid ${theme.palette.primary.main}` : '2px solid transparent',
                     transition: 'all 0.2s',
-                    '&:hover': { transform: 'scale(1.1)' }
+                    overflow: 'hidden',
+                    '&:hover': { 
+                      transform: 'scale(1.05)',
+                      boxShadow: 2
+                    }
                   }}
                 >
                   <img 
@@ -1289,7 +1311,7 @@ function Profile({ setMode, mode }: { setMode: (m: any) => void, mode: string })
       </Box>
 
       {/* Şifre Değiştirme */}
-      <Collapse in={showPasswordChange} timeout={300}>
+      <Collapse in={showPasswordChange} timeout={350} unmountOnExit>
         <Box sx={{ bgcolor: theme.palette.background.paper, borderRadius: 4, boxShadow: 3, p: 2.5, mb: 2, mx: { xs: 1, sm: 0 } }}>
           <Typography variant="h6" sx={{ fontWeight: 700, mb: 2, fontFamily: '"Bebas Neue", "Anton", "Oswald", "Impact", sans-serif' }}>Şifre Değiştir</Typography>
           <form onSubmit={handlePasswordChange} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -1360,6 +1382,32 @@ function Profile({ setMode, mode }: { setMode: (m: any) => void, mode: string })
         </Box>
       </Collapse>
 
+      {/* Şifre Değiştirme Butonu */}
+      <Box sx={{ bgcolor: theme.palette.background.paper, borderRadius: 4, boxShadow: 3, p: 2.5, mb: 2, mx: { xs: 1, sm: 0 } }}>
+        <Typography variant="h6" sx={{ fontWeight: 700, mb: 2, fontFamily: '"Bebas Neue", "Anton", "Oswald", "Impact", sans-serif' }}>Hesap Ayarları</Typography>
+        <Button
+          variant="outlined"
+          onClick={() => setShowPasswordChange(!showPasswordChange)}
+          fullWidth
+          sx={{
+            fontWeight: 700,
+            borderRadius: 2,
+            py: 1.5,
+            fontSize: 16,
+            textTransform: 'none',
+            fontFamily: '"Bebas Neue", "Anton", "Oswald", "Impact", sans-serif',
+            borderColor: theme.palette.primary.main,
+            color: theme.palette.primary.main,
+            '&:hover': {
+              borderColor: theme.palette.primary.dark,
+              bgcolor: theme.palette.primary.light
+            }
+          }}
+        >
+          {showPasswordChange ? 'Şifre Değiştirmeyi Kapat' : 'Şifre Değiştir'}
+        </Button>
+      </Box>
+
       {/* Tema Ayarı */}
       <Box sx={{ bgcolor: theme.palette.background.paper, borderRadius: 4, boxShadow: 3, p: 2.5, mb: 2, mx: { xs: 1, sm: 0 } }}>
         <Typography variant="h6" sx={{ fontWeight: 700, mb: 2, fontFamily: '"Bebas Neue", "Anton", "Oswald", "Impact", sans-serif' }}>Tema Ayarı</Typography>
@@ -1421,13 +1469,14 @@ function Profile({ setMode, mode }: { setMode: (m: any) => void, mode: string })
 }
 
 // TabPanel bileşeni
-function TabPanel({ children, value, index, ...other }: { children: ReactNode, value: number, index: number }) {
+function TabPanel({ children, value, index, sx, ...other }: { children: ReactNode, value: number, index: number, sx?: any }) {
   return (
     <div
       role="tabpanel"
       hidden={value !== index}
       id={`tabpanel-${index}`}
       aria-labelledby={`tab-${index}`}
+      style={sx}
       {...other}
     >
       {value === index && children}
