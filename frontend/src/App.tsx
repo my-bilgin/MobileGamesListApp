@@ -123,50 +123,29 @@ function AppBanner() {
 
   // Uygulama yüklü mü kontrol et
   const checkIfInstalled = () => {
-    // Sadece display-mode kontrolü yap (geçici olarak basitleştir)
+    // Birden fazla yöntemle kontrol et
     const standalone = window.matchMedia('(display-mode: standalone)').matches
     const navigatorStandalone = (window.navigator as any).standalone === true
-    
-    console.log('🔍 Banner Debug - checkIfInstalled:', {
-      standalone,
-      navigatorStandalone,
-      isLocalhost: window.location.href.includes('localhost'),
-      currentUrl: window.location.href
-    })
+    const pwaInstalled = localStorage.getItem('pwa-installed') === 'true'
     
     // Eğer uygulama içinde çalışıyorsa (standalone modda) banner gösterme
     if (standalone || navigatorStandalone) {
-      console.log('🚫 Banner gizlendi: Uygulama içinde çalışıyor')
       return true
     }
     
-    // Geçici olarak sadece display-mode kontrolü
-    const installed = standalone || navigatorStandalone
+    const installed = standalone || navigatorStandalone || pwaInstalled
     setIsAppInstalled(installed)
     return installed
   }
 
   useEffect(() => {
-    console.log('🚀 AppBanner useEffect başladı')
-    
     // 3 saniye sonra banner'ı göster (sadece tarayıcıda)
     setTimeout(() => {
-      console.log('⏰ 3 saniye geçti, banner kontrolü yapılıyor')
-      
       const installed = checkIfInstalled()
       
-      console.log('🔍 Banner gösterme kontrolü:', {
-        installed,
-        isLocalhost: window.location.href.includes('localhost'),
-        shouldShow: !installed && !window.location.href.includes('localhost')
-      })
-      
       // Eğer uygulama içinde değilse ve localhost değilse banner göster
-      if (!installed && !window.location.href.includes('localhost')) {
-        console.log('✅ Banner gösteriliyor')
+      if (!window.location.href.includes('localhost')) {
         setShowBanner(true)
-      } else {
-        console.log('❌ Banner gösterilmiyor')
       }
     }, 3000)
   }, [])
@@ -196,11 +175,39 @@ function AppBanner() {
     setShowBanner(false)
   }
 
-  const handleDismiss = () => {
+  // "Yükle" butonuna tıklandığında önce kontrol et
+  const handleInstallOrOpen = () => {
+    // Önce uygulamanın yüklü olup olmadığını kontrol et
+    const standalone = window.matchMedia('(display-mode: standalone)').matches
+    const navigatorStandalone = (window.navigator as any).standalone === true
+    const pwaInstalled = localStorage.getItem('pwa-installed') === 'true'
+    
+    const isActuallyInstalled = standalone || navigatorStandalone || pwaInstalled
+    
+    if (isActuallyInstalled) {
+      // Uygulama zaten yüklü, otomatik aç
+      const currentUrl = window.location.href
+      
+      // LocalStorage'a yüklü olduğunu kaydet (eğer yoksa)
+      if (localStorage.getItem('pwa-installed') !== 'true') {
+        localStorage.setItem('pwa-installed', 'true')
+      }
+      
+      // PWA'da açmak için window.open kullan
+      window.open(currentUrl, '_blank')
+    } else {
+      // Uygulama yüklü değil, yükleme önerisini göster
+      if ((window as any).installApp) {
+        (window as any).installApp()
+      }
+    }
+    
     setShowBanner(false)
   }
 
-  console.log('🎯 AppBanner render - showBanner:', showBanner, 'isAppInstalled:', isAppInstalled)
+  const handleDismiss = () => {
+    setShowBanner(false)
+  }
 
   if (!showBanner) return null
 
@@ -252,7 +259,7 @@ function AppBanner() {
           <Button
             variant="contained"
             size="small"
-            onClick={handleOpenInApp}
+            onClick={handleInstallOrOpen}
             sx={{
               borderRadius: 2,
               px: 2,
