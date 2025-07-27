@@ -1001,15 +1001,7 @@ function Profile({ setMode, mode }: { setMode: (m: any) => void, mode: string })
     '/avatar13.png', '/avatar14.png', '/avatar15.png', '/avatar16.png', '/avatar17.png', '/avatar18.png'
   ]
   
-  // Avatar yükleme durumu için debug
-  useEffect(() => {
-    avatarOptions.forEach((avatar, index) => {
-      const img = new Image()
-      img.onload = () => console.log(`Avatar ${index + 1} yüklendi:`, avatar)
-      img.onerror = () => console.error(`Avatar ${index + 1} yüklenemedi:`, avatar)
-      img.src = avatar
-    })
-  }, [])
+
   
   useEffect(() => {
     if (token) {
@@ -1183,25 +1175,24 @@ function Profile({ setMode, mode }: { setMode: (m: any) => void, mode: string })
           <Box sx={{ 
             display: 'flex', 
             flexDirection: 'column', 
-            gap: 16, 
-            marginBottom: 18, 
+            gap: 8, 
+            marginBottom: 12, 
             bgcolor: theme.palette.background.paper, 
-            borderRadius: 8, 
-            boxShadow: 3, 
-            padding: 24, 
-            maxWidth: '100%',
+            borderRadius: 4, 
+            boxShadow: 1, 
+            padding: 12, 
             border: `1px solid ${theme.palette.divider}`,
-            mx: { xs: 1, sm: 0 }
+            mx: { xs: 1, sm: 0 },
+            overflow: 'hidden'
           }}>
-            <Typography variant="h6" sx={{ fontWeight: 700, mb: 2, fontFamily: '"Bebas Neue", "Anton", "Oswald", "Impact", sans-serif', color: theme.palette.text.primary }}>Avatar Seç</Typography>
+            <Typography variant="body2" sx={{ fontWeight: 600, mb: 1, color: theme.palette.text.primary, textAlign: 'center', fontSize: 14 }}>Avatar Seç</Typography>
             <Box sx={{ 
               display: 'grid', 
               gridTemplateColumns: { xs: 'repeat(3, 1fr)', sm: 'repeat(6, 1fr)' }, 
-              gap: 4,
+              gap: 1.5,
+              width: '100%',
               maxWidth: '100%',
-              justifyContent: 'center',
-              alignItems: 'center',
-              width: '100%'
+              overflow: 'hidden'
             }}>
               {avatarOptions.map((avatar, index) => (
                 <Box
@@ -1211,18 +1202,18 @@ function Profile({ setMode, mode }: { setMode: (m: any) => void, mode: string })
                     setShowAvatarSelect(false)
                   }}
                   sx={{
-                    width: { xs: 100, sm: 90 },
-                    height: { xs: 100, sm: 90 },
+                    width: { xs: 50, sm: 45 },
+                    height: { xs: 50, sm: 45 },
                     borderRadius: '50%',
                     cursor: 'pointer',
-                    border: profileImage === avatar ? `3px solid ${theme.palette.primary.main}` : '2px solid transparent',
+                    border: profileImage === avatar ? `2px solid ${theme.palette.primary.main}` : '1px solid transparent',
                     transition: 'all 0.2s',
                     overflow: 'hidden',
                     bgcolor: theme.palette.background.default,
                     mx: 'auto',
                     '&:hover': { 
-                      transform: 'scale(1.1)',
-                      boxShadow: 3,
+                      transform: 'scale(1.05)',
+                      boxShadow: 1,
                       borderColor: theme.palette.primary.main
                     }
                   }}
@@ -1235,17 +1226,13 @@ function Profile({ setMode, mode }: { setMode: (m: any) => void, mode: string })
                       height: '100%', 
                       borderRadius: '50%', 
                       objectFit: 'cover',
-                      display: 'block',
-                      minWidth: '100%',
-                      minHeight: '100%'
+                      display: 'block'
                     }} 
                     onError={(e) => {
                       console.error('Avatar yüklenemedi:', avatar)
                       e.currentTarget.src = '/gameshare_logo.png'
                     }}
-                    onLoad={() => {
-                      console.log(`Avatar ${index + 1} başarıyla yüklendi:`, avatar)
-                    }}
+
                   />
                 </Box>
               ))}
