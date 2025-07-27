@@ -2407,7 +2407,19 @@ function AppContent({ toggleTheme, realMode, navigate, setMode, mode }: {
         transition: 'opacity 0.3s ease-in-out',
         visibility: showLoading ? 'hidden' : 'visible'
       }}>
-        <AppBar position="sticky">
+        <AppBar position="sticky" sx={{ 
+          boxShadow: 'none',
+          borderBottom: 'none',
+          '&::before': {
+            content: '""',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            height: '1px',
+            backgroundColor: 'transparent'
+          }
+        }}>
           <Toolbar>
             <Box sx={{ flexGrow: 1, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 1 }} onClick={() => navigate('/')}>
               <img 
