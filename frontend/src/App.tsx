@@ -2331,6 +2331,22 @@ function App() {
 
   const toggleTheme = () => setMode((prev) => prev === 'light' ? 'dark' : prev === 'dark' ? 'auto' : 'light')
 
+  // Android bildirim çubuğu rengini temaya göre güncelle
+  useEffect(() => {
+    const updateThemeColor = () => {
+      const metaThemeColor = document.querySelector('meta[name="theme-color"]')
+      if (metaThemeColor) {
+        if (realMode === 'dark') {
+          metaThemeColor.setAttribute('content', '#121212')
+        } else {
+          metaThemeColor.setAttribute('content', '#1976d2')
+        }
+      }
+    }
+    
+    updateThemeColor()
+  }, [realMode])
+
   return (
     <AuthProvider>
       <ThemeProvider theme={theme}>
