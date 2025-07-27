@@ -15,17 +15,72 @@
     <link href="https://fonts.googleapis.com/css2?family=Bitcount+Prop+Single:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <script>
-      // PWA yüklü olduğunda tarayıcıda link açıldığında uygulamadan açılmasını sağla
+      // PWA otomatik açılma kontrolü
+      let deferredPrompt;
+      
       window.addEventListener('beforeinstallprompt', (e) => {
-        // Uygulama yüklü olduğunda bu event tetiklenir
-        console.log('PWA yüklü, tarayıcıda link açıldığında uygulamadan açılacak');
+        // Varsayılan davranışı engelle
+        e.preventDefault();
+        // Event'i sakla
+        deferredPrompt = e;
+        console.log('PWA yükleme önerisi hazır');
       });
       
       // Uygulama zaten yüklü mü kontrol et
-      if (window.matchMedia('(display-mode: standalone)').matches || 
-          window.navigator.standalone === true) {
-        console.log('Uygulama zaten yüklü ve çalışıyor');
+      function checkIfAppInstalled() {
+        // Android için
+        if (window.matchMedia('(display-mode: standalone)').matches) {
+          console.log('Uygulama standalone modda çalışıyor');
+          return true;
+        }
+        
+        // iOS için
+        if (window.navigator.standalone === true) {
+          console.log('iOS uygulaması yüklü');
+          return true;
+        }
+        
+        // Diğer kontroller
+        if (window.location.search.includes('source=pwa') || 
+            document.referrer.includes('android-app://')) {
+          console.log('PWA kaynağından geliyor');
+          return true;
+        }
+        
+        return false;
       }
+      
+      // Sayfa yüklendiğinde kontrol et
+      window.addEventListener('load', () => {
+        const isInstalled = checkIfAppInstalled();
+        
+        // Eğer uygulama yüklü değilse ve tarayıcıda açıldıysa
+        if (!isInstalled && !window.location.href.includes('localhost')) {
+          console.log('Tarayıcıda açıldı, uygulama yükleme önerisi gösterilebilir');
+          
+          // 3 saniye sonra uygulama yükleme önerisi göster
+          setTimeout(() => {
+            if (deferredPrompt) {
+              deferredPrompt.prompt();
+              deferredPrompt.userChoice.then((choiceResult) => {
+                if (choiceResult.outcome === 'accepted') {
+                  console.log('Kullanıcı uygulamayı yüklemeyi kabul etti');
+                } else {
+                  console.log('Kullanıcı uygulamayı yüklemeyi reddetti');
+                }
+                deferredPrompt = null;
+              });
+            }
+          }, 3000);
+        }
+      });
+      
+      // Appinstalled event'i
+      window.addEventListener('appinstalled', (evt) => {
+        console.log('Uygulama başarıyla yüklendi');
+        // Uygulamayı aç
+        window.location.href = window.location.origin;
+      });
     </script>
   </head>
   <body>
