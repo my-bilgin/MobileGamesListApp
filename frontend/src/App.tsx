@@ -100,13 +100,126 @@ function ProtectedRoute({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (initialized && !token) {
-      navigate('/login');
+      navigate('/');
     }
   }, [token, initialized, navigate]);
 
-  if (!initialized) return null;
-  if (!token) return null;
+  if (!initialized) {
+    return <div>Yükleniyor...</div>;
+  }
+
+  if (!token) {
+    return null;
+  }
+
   return <>{children}</>;
+}
+
+// App Banner Component
+function AppBanner() {
+  const [showBanner, setShowBanner] = useState(false)
+  const theme = useTheme()
+
+  useEffect(() => {
+    // Uygulama zaten yüklü mü kontrol et
+    const isInstalled = window.matchMedia('(display-mode: standalone)').matches || 
+                       (window.navigator as any).standalone === true;
+    
+    // Eğer uygulama yüklü değilse ve tarayıcıda açıldıysa banner göster
+    if (!isInstalled && !window.location.href.includes('localhost')) {
+      // 3 saniye sonra banner'ı göster
+      setTimeout(() => {
+        setShowBanner(true)
+      }, 3000)
+    }
+  }, [])
+
+  const handleOpenInApp = () => {
+    // Uygulamayı açmaya çalış
+    if ((window as any).installApp) {
+      (window as any).installApp()
+    }
+    setShowBanner(false)
+  }
+
+  const handleDismiss = () => {
+    setShowBanner(false)
+  }
+
+  if (!showBanner) return null
+
+  return (
+    <Box sx={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      zIndex: 10000,
+      bgcolor: theme.palette.background.paper,
+      borderBottom: `1px solid ${theme.palette.divider}`,
+      boxShadow: 3,
+      p: 2
+    }}>
+      <Box sx={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        maxWidth: 480,
+        mx: 'auto'
+      }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <img 
+            src="/gameshare_logo.png" 
+            alt="GameShare" 
+            style={{ 
+              height: 32, 
+              filter: theme.palette.mode === 'dark' ? 'invert(1)' : 'none'
+            }} 
+          />
+          <Box>
+            <Typography variant="subtitle1" sx={{ 
+              fontWeight: 700, 
+              fontSize: 14,
+              fontFamily: '"Bitcount Prop Single", system-ui'
+            }}>
+              GameShare
+            </Typography>
+            <Typography variant="caption" sx={{ 
+              color: theme.palette.text.secondary,
+              fontSize: 11
+            }}>
+              Uygulamada daha iyi deneyim
+            </Typography>
+          </Box>
+        </Box>
+        <Box sx={{ display: 'flex', gap: 1 }}>
+          <Button
+            variant="contained"
+            size="small"
+            onClick={handleOpenInApp}
+            sx={{
+              borderRadius: 2,
+              px: 2,
+              py: 0.5,
+              fontSize: 12,
+              fontWeight: 700,
+              fontFamily: '"Bitcount Prop Single", system-ui',
+              textTransform: 'none'
+            }}
+          >
+            Aç
+          </Button>
+          <IconButton
+            size="small"
+            onClick={handleDismiss}
+            sx={{ color: theme.palette.text.secondary }}
+          >
+            <span style={{ fontSize: 16 }}>×</span>
+          </IconButton>
+        </Box>
+      </Box>
+    </Box>
+  )
 }
 
 function Home() {
@@ -2632,6 +2745,10 @@ function AppContent({ toggleTheme, realMode, navigate, setMode, mode }: {
           </Typography>
         </Box>
       )}
+      
+      {/* App Banner - Tarayıcıda açıldığında görünür */}
+      <AppBanner />
+      
       <Box sx={{ 
         opacity: showLoading ? 0 : 1, 
         transition: 'opacity 0.3s ease-in-out',
