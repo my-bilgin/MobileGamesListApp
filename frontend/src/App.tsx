@@ -322,7 +322,7 @@ function Lists() {
       {/* AppBar tarzı başlık */}
       <Box sx={{ width: '100%', position: 'sticky', top: 0, zIndex: 10, mb: 2 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', px: 2, py: 2, bgcolor: theme.palette.background.paper, boxShadow: 3, borderRadius: '0 0 18px 18px', minHeight: 64 }}>
-          <Typography variant="h4" sx={{ fontWeight: 800, fontSize: 28, color: theme.palette.primary.main, letterSpacing: 0.5, flex: 1, fontFamily: '"Bebas Neue", "Anton", "Oswald", "Impact", sans-serif' }}>Listelerim</Typography>
+          <Typography variant="h4" sx={{ fontWeight: 700, fontSize: 28, color: theme.palette.primary.main, letterSpacing: 0.5, flex: 1, fontFamily: '"Bitcount Prop Single", system-ui' }}>Listelerim</Typography>
         </Box>
       </Box>
       {/* Liste ekleme formu kutu içinde modern */}
@@ -375,7 +375,7 @@ function Lists() {
         {lists.map((list) => (
           <Card key={list._id} onClick={() => navigate(`/lists/${list._id}`)} sx={{ p: 2, mb: 1, borderRadius: 4, boxShadow: 3, bgcolor: `linear-gradient(135deg, ${theme.palette.background.paper} 80%, ${theme.palette.secondary.light} 100%)`, cursor: 'pointer', transition: 'all 0.2s', ':hover': { boxShadow: 5, bgcolor: theme.palette.action.hover }, fontSize: 16, display: 'flex', alignItems: 'center', gap: 2 }}>
             <Box sx={{ flex: 1, minWidth: 0 }}>
-              <Typography variant="h6" sx={{ fontWeight: 800, color: theme.palette.text.primary, fontSize: 17, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontFamily: '"Bebas Neue", "Anton", "Oswald", "Impact", sans-serif' }}>{list.name}</Typography>
+                              <Typography variant="h6" sx={{ fontWeight: 700, color: theme.palette.text.primary, fontSize: 17, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontFamily: '"Bitcount Prop Single", system-ui' }}>{list.name}</Typography>
             </Box>
             <IconButton size="small" color="primary" onClick={e => { e.stopPropagation(); navigate(`/lists/${list._id}`) }}>
               <span style={{ fontSize: 20 }}>→</span>
@@ -559,8 +559,8 @@ function ListDetail() {
       {/* AppBar tarzı başlık ve aksiyonlar */}
       <Box sx={{ width: '100%', position: 'sticky', top: 0, zIndex: 10, mb: 2 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', px: 2, py: 2, bgcolor: theme.palette.background.paper, boxShadow: 3, borderRadius: '0 0 18px 18px', minHeight: 64 }}>
-          <Button onClick={() => navigate('/lists')} startIcon={<span style={{ fontSize: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', marginTop: '-5px' }}>←</span>} variant="text" sx={{ borderRadius: 2, fontWeight: 800, px: 1.5, py: 1, minWidth: 0, color: theme.palette.text.primary, fontSize: 17, fontFamily: '"Bebas Neue", "Anton", "Oswald", "Impact", sans-serif', textTransform: 'uppercase', letterSpacing: 1 }}>Geri</Button>
-          <Button onClick={fetchShareUrl} variant="text" color="primary" sx={{ borderRadius: 2, fontWeight: 800, px: 1.5, py: 1, minWidth: 0, fontSize: 17, ml: 1, fontFamily: '"Bebas Neue", "Anton", "Oswald", "Impact", sans-serif', textTransform: 'uppercase', letterSpacing: 1 }}>Paylaş</Button>
+          <Button onClick={() => navigate('/lists')} startIcon={<span style={{ fontSize: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', marginTop: '-5px' }}>←</span>} variant="text" sx={{ borderRadius: 2, fontWeight: 700, px: 1.5, py: 1, minWidth: 0, color: theme.palette.text.primary, fontSize: 17, fontFamily: '"Bitcount Prop Single", system-ui', textTransform: 'uppercase', letterSpacing: 1 }}>Geri</Button>
+          <Button onClick={fetchShareUrl} variant="text" color="primary" sx={{ borderRadius: 2, fontWeight: 700, px: 1.5, py: 1, minWidth: 0, fontSize: 17, ml: 1, fontFamily: '"Bitcount Prop Single", system-ui', textTransform: 'uppercase', letterSpacing: 1 }}>Paylaş</Button>
           <Box sx={{ flex: 1 }} />
           <IconButton color="primary" onClick={() => setShowAdd(v => !v)} sx={{ bgcolor: theme.palette.mode === 'dark' ? '#1976d2' : '#e3f2fd', boxShadow: 1, ml: 1, ':hover': { bgcolor: '#1565c0', '& .MuiSvgIcon-root': { color: '#fff' } } }}>
             <AddIcon sx={{ fontSize: 24, color: theme.palette.mode === 'dark' ? '#fff' : '#1976d2' }} />
@@ -572,7 +572,7 @@ function ListDetail() {
       </Box>
       {/* Liste adı ve düzenleme */}
       <Box sx={{ display: 'flex', alignItems: 'center', minHeight: 48, px: { xs: 2, sm: 0 }, mb: 1 }}>
-        <Typography variant="h5" sx={{ fontWeight: 800, fontSize: 22, color: theme.palette.text.primary, textAlign: 'left', flex: 1, letterSpacing: 0.2, fontFamily: '"Bebas Neue", "Anton", "Oswald", "Impact", sans-serif' }}>{list.name}</Typography>
+        <Typography variant="h5" sx={{ fontWeight: 700, fontSize: 22, color: theme.palette.text.primary, textAlign: 'left', flex: 1, letterSpacing: 0.2, fontFamily: '"Bitcount Prop Single", system-ui' }}>{list.name}</Typography>
         <IconButton size="small" onClick={handleEditName}><EditIcon fontSize="small" /></IconButton>
       </Box>
       {editingName && (
@@ -593,7 +593,7 @@ function ListDetail() {
             size="medium"
             sx={{ bgcolor: theme.palette.background.default, borderRadius: 2 }}
           />
-          <Button type="submit" variant="contained" color="success" size="large" disabled={fetching} sx={{ fontWeight: 800, borderRadius: 2, py: 1.2, fontSize: 16, boxShadow: 1, textTransform: 'uppercase', letterSpacing: 1, transition: 'all 0.2s', fontFamily: '"Bebas Neue", "Anton", "Oswald", "Impact", sans-serif', ':hover': { bgcolor: theme.palette.success.dark, boxShadow: 2 } }}>
+          <Button type="submit" variant="contained" color="success" size="large" disabled={fetching} sx={{ fontWeight: 700, borderRadius: 2, py: 1.2, fontSize: 16, boxShadow: 1, textTransform: 'uppercase', letterSpacing: 1, transition: 'all 0.2s', fontFamily: '"Bitcount Prop Single", system-ui', ':hover': { bgcolor: theme.palette.success.dark, boxShadow: 2 } }}>
             {fetching ? 'Ekleniyor...' : 'Ekle'}
           </Button>
         </form>
@@ -1206,7 +1206,7 @@ function Profile({ setMode, mode }: { setMode: (m: any) => void, mode: string })
       {/* AppBar tarzı başlık */}
       <Box sx={{ width: '100%', position: 'sticky', top: 0, zIndex: 10, mb: 2 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', px: 2, py: 2, bgcolor: theme.palette.background.paper, boxShadow: 3, borderRadius: '0 0 18px 18px', minHeight: 64 }}>
-          <Typography variant="h4" sx={{ fontWeight: 800, fontSize: 28, color: theme.palette.primary.main, letterSpacing: 0.5, flex: 1, fontFamily: '"Bebas Neue", "Anton", "Oswald", "Impact", sans-serif' }}>Profilim</Typography>
+          <Typography variant="h4" sx={{ fontWeight: 700, fontSize: 28, color: theme.palette.primary.main, letterSpacing: 0.5, flex: 1, fontFamily: '"Bitcount Prop Single", system-ui' }}>Profilim</Typography>
         </Box>
       </Box>
 
@@ -1288,7 +1288,7 @@ function Profile({ setMode, mode }: { setMode: (m: any) => void, mode: string })
             width: '100%',
             mt:1
           }}>
-            <Typography variant="h6" sx={{ fontWeight: 700, mb: 1.5, fontFamily: '"Bebas Neue", "Anton", "Oswald", "Impact", sans-serif', color: theme.palette.text.primary, textAlign: 'center' }}>Avatar Seç</Typography>
+            <Typography variant="h6" sx={{ fontWeight: 700, mb: 1.5, fontFamily: '"Bitcount Prop Single", system-ui', color: theme.palette.text.primary, textAlign: 'center' }}>Avatar Seç</Typography>
             <Box sx={{ 
               display: 'grid', 
               gridTemplateColumns: 'repeat(3, 1fr)', 
@@ -1373,7 +1373,7 @@ function Profile({ setMode, mode }: { setMode: (m: any) => void, mode: string })
                   py: 1, 
                   fontSize: 14, 
                   textTransform: 'none',
-                  fontFamily: '"Bebas Neue", "Anton", "Oswald", "Impact", sans-serif'
+                  fontFamily: '"Bitcount Prop Single", system-ui'
                 }}
               >
                 {updatingInfo ? 'Kaydediliyor...' : 'Kaydet'}
@@ -1388,7 +1388,7 @@ function Profile({ setMode, mode }: { setMode: (m: any) => void, mode: string })
                   py: 1, 
                   fontSize: 14, 
                   textTransform: 'none',
-                  fontFamily: '"Bebas Neue", "Anton", "Oswald", "Impact", sans-serif'
+                  fontFamily: '"Bitcount Prop Single", system-ui'
                 }}
               >
                 İptal
@@ -1428,7 +1428,7 @@ function Profile({ setMode, mode }: { setMode: (m: any) => void, mode: string })
                   py: 1, 
                   fontSize: 14, 
                   textTransform: 'none',
-                  fontFamily: '"Bebas Neue", "Anton", "Oswald", "Impact", sans-serif'
+                  fontFamily: '"Bitcount Prop Single", system-ui'
                 }}
               >
                 {updatingInfo ? 'Kaydediliyor...' : 'Kaydet'}
@@ -1443,7 +1443,7 @@ function Profile({ setMode, mode }: { setMode: (m: any) => void, mode: string })
                   py: 1, 
                   fontSize: 14, 
                   textTransform: 'none',
-                  fontFamily: '"Bebas Neue", "Anton", "Oswald", "Impact", sans-serif'
+                  fontFamily: '"Bitcount Prop Single", system-ui'
                 }}
               >
                 İptal
@@ -1455,7 +1455,7 @@ function Profile({ setMode, mode }: { setMode: (m: any) => void, mode: string })
 
       {/* İstatistikler */}
       <Box sx={{ bgcolor: theme.palette.background.paper, borderRadius: 4, boxShadow: 3, p: 2.5, mb: 2, mx: { xs: 1, sm: 0 }, border: `1px solid ${theme.palette.divider}` }}>
-        <Typography variant="h6" sx={{ fontWeight: 700, mb: 2, fontFamily: '"Bebas Neue", "Anton", "Oswald", "Impact", sans-serif' }}>İstatistikler</Typography>
+        <Typography variant="h6" sx={{ fontWeight: 700, mb: 2, fontFamily: '"Bitcount Prop Single", system-ui' }}>İstatistikler</Typography>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 2 }}>
           <Box sx={{ textAlign: 'center', flex: 1 }}>
             <Typography sx={{ fontWeight: 900, fontSize: 24, color: theme.palette.primary.main }}>{stats.listCount}</Typography>
@@ -1548,7 +1548,7 @@ function Profile({ setMode, mode }: { setMode: (m: any) => void, mode: string })
       {/* Şifre Değiştirme */}
       <Collapse in={showPasswordChange} timeout={350} unmountOnExit>
         <Box sx={{ bgcolor: theme.palette.background.paper, borderRadius: 4, boxShadow: 3, p: 2.5, mb: 2, mx: { xs: 1, sm: 0 } }}>
-          <Typography variant="h6" sx={{ fontWeight: 700, mb: 2, fontFamily: '"Bebas Neue", "Anton", "Oswald", "Impact", sans-serif' }}>Şifre Değiştir</Typography>
+          <Typography variant="h6" sx={{ fontWeight: 700, mb: 2, fontFamily: '"Bitcount Prop Single", system-ui' }}>Şifre Değiştir</Typography>
           <form onSubmit={handlePasswordChange} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             <TextField
               label="Mevcut Şifre"
@@ -1593,7 +1593,7 @@ function Profile({ setMode, mode }: { setMode: (m: any) => void, mode: string })
                   fontSize: 16, 
                   boxShadow: 1, 
                   textTransform: 'none',
-                  fontFamily: '"Bebas Neue", "Anton", "Oswald", "Impact", sans-serif'
+                  fontFamily: '"Bitcount Prop Single", system-ui'
                 }}
               >
                 {changingPassword ? 'Değiştiriliyor...' : 'Şifreyi Değiştir'}
@@ -1607,7 +1607,7 @@ function Profile({ setMode, mode }: { setMode: (m: any) => void, mode: string })
                   py: 1.2, 
                   fontSize: 16, 
                   textTransform: 'none',
-                  fontFamily: '"Bebas Neue", "Anton", "Oswald", "Impact", sans-serif'
+                  fontFamily: '"Bitcount Prop Single", system-ui'
                 }}
               >
                 İptal
@@ -1619,7 +1619,7 @@ function Profile({ setMode, mode }: { setMode: (m: any) => void, mode: string })
 
       {/* Şifre Değiştirme Butonu */}
       <Box sx={{ bgcolor: theme.palette.background.paper, borderRadius: 4, boxShadow: 3, p: 2.5, mb: 2, mx: { xs: 1, sm: 0 } }}>
-        <Typography variant="h6" sx={{ fontWeight: 700, mb: 2, fontFamily: '"Bebas Neue", "Anton", "Oswald", "Impact", sans-serif' }}>Güvenlik Ayarları</Typography>
+        <Typography variant="h6" sx={{ fontWeight: 700, mb: 2, fontFamily: '"Bitcount Prop Single", system-ui' }}>Güvenlik Ayarları</Typography>
         <Button
           variant="outlined"
           onClick={() => setShowPasswordChange(!showPasswordChange)}
@@ -1630,7 +1630,7 @@ function Profile({ setMode, mode }: { setMode: (m: any) => void, mode: string })
             py: 1.5,
             fontSize: 16,
             textTransform: 'none',
-            fontFamily: '"Bebas Neue", "Anton", "Oswald", "Impact", sans-serif',
+            fontFamily: '"Bitcount Prop Single", system-ui',
             borderColor: theme.palette.primary.main,
             color: theme.palette.primary.main,
             '&:hover': {
@@ -1645,7 +1645,7 @@ function Profile({ setMode, mode }: { setMode: (m: any) => void, mode: string })
 
       {/* Tema Ayarı */}
       <Box sx={{ bgcolor: theme.palette.background.paper, borderRadius: 4, boxShadow: 3, p: 2.5, mb: 2, mx: { xs: 1, sm: 0 } }}>
-        <Typography variant="h6" sx={{ fontWeight: 700, mb: 2, fontFamily: '"Bebas Neue", "Anton", "Oswald", "Impact", sans-serif' }}>Tema Ayarı</Typography>
+        <Typography variant="h6" sx={{ fontWeight: 700, mb: 2, fontFamily: '"Bitcount Prop Single", system-ui' }}>Tema Ayarı</Typography>
         <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
           {[
             { value: 'auto', label: 'Otomatik', icon: '🌓' },
@@ -1664,7 +1664,7 @@ function Profile({ setMode, mode }: { setMode: (m: any) => void, mode: string })
                 py: 1.5,
                 fontSize: 14,
                 textTransform: 'none',
-                fontFamily: '"Bebas Neue", "Anton", "Oswald", "Impact", sans-serif',
+                fontFamily: '"Bitcount Prop Single", system-ui',
                 display: 'flex',
                 flexDirection: 'column',
                 gap: 0.5
@@ -1691,7 +1691,7 @@ function Profile({ setMode, mode }: { setMode: (m: any) => void, mode: string })
             fontSize: 16, 
             boxShadow: 1, 
             textTransform: 'none',
-            fontFamily: '"Bebas Neue", "Anton", "Oswald", "Impact", sans-serif'
+            fontFamily: '"Bitcount Prop Single", system-ui'
           }}
         >
           Çıkış Yap
@@ -2362,11 +2362,13 @@ function AppContent({ toggleTheme, realMode, navigate, setMode, mode }: {
               <Typography 
                 variant="h6" 
                 sx={{ 
-                  fontWeight: 800, 
+                  fontWeight: 700, 
                   fontSize: 17, 
                   color: '#fff', 
-                  letterSpacing: 2,
-                  fontFamily: '"Bebas Neue", "Anton", "Oswald", "Impact", sans-serif',
+                  letterSpacing: 1.5,
+                  fontFamily: '"Bitcount Prop Single", system-ui',
+                  fontOpticalSizing: 'auto',
+                  fontVariationSettings: '"slnt" 0, "CRSV" 0.5, "ELSH" 0, "ELXP" 0',
                   textShadow: '1px 1px 2px rgba(0,0,0,0.4)',
                   textTransform: 'none',
                   fontStyle: 'normal',
