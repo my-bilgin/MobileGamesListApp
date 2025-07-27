@@ -378,7 +378,7 @@ function Lists() {
                               <Typography variant="h6" sx={{ fontWeight: 700, color: theme.palette.text.primary, fontSize: 17, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontFamily: '"Bitcount Prop Single", system-ui' }}>{list.name}</Typography>
             </Box>
             <IconButton size="small" color="primary" onClick={e => { e.stopPropagation(); navigate(`/lists/${list._id}`) }}>
-              <span style={{ fontSize: 20 }}>→</span>
+              <span style={{ fontSize: 20, fontFamily: '"Bitcount Prop Single", system-ui' }}>→</span>
             </IconButton>
           </Card>
         ))}
@@ -559,7 +559,7 @@ function ListDetail() {
       {/* AppBar tarzı başlık ve aksiyonlar */}
       <Box sx={{ width: '100%', position: 'sticky', top: 0, zIndex: 10, mb: 2 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', px: 2, py: 2, bgcolor: theme.palette.background.paper, boxShadow: 3, borderRadius: '0 0 18px 18px', minHeight: 64 }}>
-          <Button onClick={() => navigate('/lists')} startIcon={<span style={{ fontSize: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', marginTop: '-5px' }}>←</span>} variant="text" sx={{ borderRadius: 2, fontWeight: 700, px: 1.5, py: 1, minWidth: 0, color: theme.palette.text.primary, fontSize: 17, fontFamily: '"Bitcount Prop Single", system-ui', textTransform: 'uppercase', letterSpacing: 1 }}>Geri</Button>
+          <Button onClick={() => navigate('/lists')} startIcon={<span style={{ fontSize: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>←</span>} variant="text" sx={{ borderRadius: 2, fontWeight: 700, px: 1.5, py: 1, minWidth: 0, color: theme.palette.text.primary, fontSize: 17, fontFamily: '"Bitcount Prop Single", system-ui', textTransform: 'uppercase', letterSpacing: 1 }}>Geri</Button>
           <Button onClick={fetchShareUrl} variant="text" color="primary" sx={{ borderRadius: 2, fontWeight: 700, px: 1.5, py: 1, minWidth: 0, fontSize: 17, ml: 1, fontFamily: '"Bitcount Prop Single", system-ui', textTransform: 'uppercase', letterSpacing: 1 }}>Paylaş</Button>
           <Box sx={{ flex: 1 }} />
           <IconButton color="primary" onClick={() => setShowAdd(v => !v)} sx={{ bgcolor: theme.palette.mode === 'dark' ? '#1976d2' : '#e3f2fd', boxShadow: 1, ml: 1, ':hover': { bgcolor: '#1565c0', '& .MuiSvgIcon-root': { color: '#fff' } } }}>
@@ -582,6 +582,7 @@ function ListDetail() {
           boxShadow: '0 2px 12px #0002', 
           p: 2, 
           mt: 1,
+          mx: { xs: 1, sm: 0 },
           border: `1px solid ${theme.palette.divider}`
         }}>
           <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>Liste Adını Düzenle</Typography>
