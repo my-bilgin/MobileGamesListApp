@@ -730,7 +730,15 @@ function PublicList() {
   const [editingName, setEditingName] = useState(false)
   const [newName, setNewName] = useState('')
   const [saving, setSaving] = useState(false)
-  const { token, initialized } = useAuth()
+  const [showLoginPopup, setShowLoginPopup] = useState(false)
+  const [isLoginMode, setIsLoginMode] = useState(true)
+  const [loginEmail, setLoginEmail] = useState('')
+  const [loginPassword, setLoginPassword] = useState('')
+  const [registerEmail, setRegisterEmail] = useState('')
+  const [registerPassword, setRegisterPassword] = useState('')
+  const [registerDisplayName, setRegisterDisplayName] = useState('')
+  const [authLoading, setAuthLoading] = useState(false)
+  const { token, initialized, login, register } = useAuth()
   const { show, snackbar } = useSnackbar()
   const theme = useTheme()
   const navigate = useNavigate()
@@ -766,7 +774,7 @@ function PublicList() {
 
   const handleCopyToMyLists = async () => {
     if (!token || !initialized) {
-      show('Listeyi kaydetmek için giriş yapmanız gerekiyor', 'error')
+      setShowLoginPopup(true)
       return
     }
     
@@ -792,6 +800,39 @@ function PublicList() {
       show('Bağlantı hatası', 'error')
     } finally {
       setSaving(false)
+    }
+  }
+
+  const handleLoginSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setAuthLoading(true)
+    try {
+      await login(loginEmail, loginPassword)
+      setShowLoginPopup(false)
+      setLoginEmail('')
+      setLoginPassword('')
+      show('Giriş başarılı!', 'success')
+    } catch (error: any) {
+      show(error.message || 'Giriş başarısız', 'error')
+    } finally {
+      setAuthLoading(false)
+    }
+  }
+
+  const handleRegisterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setAuthLoading(true)
+    try {
+      await register(registerEmail, registerPassword, registerDisplayName)
+      setShowLoginPopup(false)
+      setRegisterEmail('')
+      setRegisterPassword('')
+      setRegisterDisplayName('')
+      show('Kayıt başarılı!', 'success')
+    } catch (error: any) {
+      show(error.message || 'Kayıt başarısız', 'error')
+    } finally {
+      setAuthLoading(false)
     }
   }
 
@@ -908,6 +949,150 @@ function PublicList() {
       </Box>
 
       {snackbar}
+
+      {/* Login/Register Popup */}
+      {showLoginPopup && (
+        <Box sx={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          bgcolor: 'rgba(0,0,0,0.8)',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          zIndex: 9999,
+          p: 2
+        }}>
+          <Box sx={{
+            bgcolor: theme.palette.background.paper,
+            borderRadius: 4,
+            p: 3,
+            width: '100%',
+            maxWidth: 400,
+            boxShadow: 24,
+            position: 'relative'
+          }}>
+            <IconButton
+              onClick={() => setShowLoginPopup(false)}
+              sx={{
+                position: 'absolute',
+                top: 8,
+                right: 8,
+                color: theme.palette.text.secondary
+              }}
+            >
+              <span style={{ fontSize: 24 }}>×</span>
+            </IconButton>
+
+            <Typography variant="h5" sx={{ 
+              fontWeight: 700, 
+              mb: 3, 
+              textAlign: 'center',
+              fontFamily: '"Bitcount Prop Single", system-ui'
+            }}>
+              {isLoginMode ? 'Giriş Yap' : 'Kayıt Ol'}
+            </Typography>
+
+            {isLoginMode ? (
+              <form onSubmit={handleLoginSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                <TextField
+                  label="Email"
+                  type="email"
+                  value={loginEmail}
+                  onChange={(e) => setLoginEmail(e.target.value)}
+                  required
+                  fullWidth
+                  variant="outlined"
+                />
+                <TextField
+                  label="Şifre"
+                  type="password"
+                  value={loginPassword}
+                  onChange={(e) => setLoginPassword(e.target.value)}
+                  required
+                  fullWidth
+                  variant="outlined"
+                />
+                <Button
+                  type="submit"
+                  variant="contained"
+                  disabled={authLoading}
+                  sx={{
+                    py: 1.5,
+                    fontWeight: 700,
+                    fontSize: 16,
+                    fontFamily: '"Bitcount Prop Single", system-ui'
+                  }}
+                >
+                  {authLoading ? 'Giriş Yapılıyor...' : 'Giriş Yap'}
+                </Button>
+                <Button
+                  variant="text"
+                  onClick={() => setIsLoginMode(false)}
+                  sx={{
+                    fontFamily: '"Bitcount Prop Single", system-ui'
+                  }}
+                >
+                  Hesabın yok mu? Kayıt ol
+                </Button>
+              </form>
+            ) : (
+              <form onSubmit={handleRegisterSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                <TextField
+                  label="Ad Soyad"
+                  value={registerDisplayName}
+                  onChange={(e) => setRegisterDisplayName(e.target.value)}
+                  required
+                  fullWidth
+                  variant="outlined"
+                />
+                <TextField
+                  label="Email"
+                  type="email"
+                  value={registerEmail}
+                  onChange={(e) => setRegisterEmail(e.target.value)}
+                  required
+                  fullWidth
+                  variant="outlined"
+                />
+                <TextField
+                  label="Şifre"
+                  type="password"
+                  value={registerPassword}
+                  onChange={(e) => setRegisterPassword(e.target.value)}
+                  required
+                  fullWidth
+                  variant="outlined"
+                />
+                <Button
+                  type="submit"
+                  variant="contained"
+                  disabled={authLoading}
+                  sx={{
+                    py: 1.5,
+                    fontWeight: 700,
+                    fontSize: 16,
+                    fontFamily: '"Bitcount Prop Single", system-ui'
+                  }}
+                >
+                  {authLoading ? 'Kayıt Yapılıyor...' : 'Kayıt Ol'}
+                </Button>
+                <Button
+                  variant="text"
+                  onClick={() => setIsLoginMode(true)}
+                  sx={{
+                    fontFamily: '"Bitcount Prop Single", system-ui'
+                  }}
+                >
+                  Zaten hesabın var mı? Giriş yap
+                </Button>
+              </form>
+            )}
+          </Box>
+        </Box>
+      )}
     </Box>
   )
 }
@@ -2468,7 +2653,7 @@ function AppContent({ toggleTheme, realMode, navigate, setMode, mode }: {
           <Route path="/public/:publicId" element={<PublicList />} />
           <Route path="/share-target" element={<ShareTarget />} />
           <Route path="/share-target-view" element={<ShareTargetView />} />
-          <Route path="/profile" element={<Profile setMode={setMode} mode={mode} />} />
+          <Route path="/profile" element={<ProtectedRoute><Profile setMode={setMode} mode={mode} /></ProtectedRoute>} />
         </Routes>
       </Box>
     </>
