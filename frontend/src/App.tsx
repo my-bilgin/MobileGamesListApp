@@ -356,7 +356,7 @@ function Lists() {
               bgcolor: theme.palette.primary.dark,
               boxShadow: 2,
               color: '#fff',
-              fontFamily: '"Bebas Neue", "Anton", "Oswald", "Impact", sans-serif',
+              fontFamily: '"Bitcount Prop Single", system-ui',
               '&:hover': {
                 bgcolor: theme.palette.primary.main,
                 boxShadow: 4,
@@ -364,7 +364,7 @@ function Lists() {
               },
             }}
           >
-            Ekle
+            EKLE
           </Button>
         </form>
       </Box>
@@ -575,13 +575,57 @@ function ListDetail() {
         <Typography variant="h5" sx={{ fontWeight: 700, fontSize: 22, color: theme.palette.text.primary, textAlign: 'left', flex: 1, letterSpacing: 0.2, fontFamily: '"Bitcount Prop Single", system-ui' }}>{list.name}</Typography>
         <IconButton size="small" onClick={handleEditName}><EditIcon fontSize="small" /></IconButton>
       </Box>
-      {editingName && (
-        <Box sx={{ display: 'flex', justifyContent: 'flex-start', gap: 1, mt: 1, px: { xs: 2, sm: 0 } }}>
-          <input value={newName} onChange={e => setNewName(e.target.value)} style={{ fontSize: 18, padding: 6, borderRadius: 8, border: '1px solid #ccc', marginRight: 8 }} />
-          <Button onClick={handleSaveName} variant="contained" color="primary" sx={{ borderRadius: 2, fontWeight: 600, px: 2, py: 1 }}>Kaydet</Button>
-          <Button onClick={() => setEditingName(false)} variant="outlined" color="primary" sx={{ borderRadius: 2, fontWeight: 600, px: 2, py: 1 }}>İptal</Button>
+      <Collapse in={editingName} timeout={350} unmountOnExit>
+        <Box sx={{ 
+          bgcolor: theme.palette.background.paper, 
+          borderRadius: 4, 
+          boxShadow: '0 2px 12px #0002', 
+          p: 2, 
+          mt: 1,
+          border: `1px solid ${theme.palette.divider}`
+        }}>
+          <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>Liste Adını Düzenle</Typography>
+          <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+            <TextField
+              size="small"
+              value={newName}
+              onChange={(e) => setNewName(e.target.value)}
+              placeholder="Liste adı"
+              sx={{ flex: 1 }}
+            />
+            <Button
+              size="small"
+              variant="contained"
+              onClick={handleSaveName}
+              sx={{ 
+                fontWeight: 700, 
+                borderRadius: 2, 
+                py: 1, 
+                fontSize: 14, 
+                textTransform: 'none',
+                fontFamily: '"Bitcount Prop Single", system-ui'
+              }}
+            >
+              Kaydet
+            </Button>
+            <Button
+              size="small"
+              variant="outlined"
+              onClick={() => setEditingName(false)}
+              sx={{ 
+                fontWeight: 700, 
+                borderRadius: 2, 
+                py: 1, 
+                fontSize: 14, 
+                textTransform: 'none',
+                fontFamily: '"Bitcount Prop Single", system-ui'
+              }}
+            >
+              İptal
+            </Button>
+          </Box>
         </Box>
-      )}
+      </Collapse>
       <Collapse in={showAdd} timeout={350} unmountOnExit>
         <form onSubmit={handleAddGame} style={{ display: 'flex', flexDirection: 'column', gap: 14, marginBottom: 18, background: `linear-gradient(135deg, ${theme.palette.background.paper} 80%, ${theme.palette.primary.light} 100%)`, borderRadius: 4, boxShadow: '0 2px 12px #0002', padding: 14, maxWidth: '100%' }}>
           <TextField
