@@ -558,7 +558,7 @@ function ListDetail() {
       {/* AppBar tarzı başlık ve aksiyonlar */}
       <Box sx={{ width: '100%', position: 'sticky', top: 0, zIndex: 10, mb: 2 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', px: 2, py: 2, bgcolor: theme.palette.background.paper, boxShadow: 3, borderRadius: '0 0 18px 18px', minHeight: 64 }}>
-          <Button onClick={() => navigate('/lists')} startIcon={<span style={{ fontSize: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>←</span>} variant="text" sx={{ borderRadius: 2, fontWeight: 800, px: 1.5, py: 1, minWidth: 0, color: theme.palette.text.primary, fontSize: 17, fontFamily: '"Bebas Neue", "Anton", "Oswald", "Impact", sans-serif', textTransform: 'uppercase', letterSpacing: 1 }}>Geri</Button>
+          <Button onClick={() => navigate('/lists')} startIcon={<span style={{ fontSize: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', marginTop: '-5px' }}>←</span>} variant="text" sx={{ borderRadius: 2, fontWeight: 800, px: 1.5, py: 1, minWidth: 0, color: theme.palette.text.primary, fontSize: 17, fontFamily: '"Bebas Neue", "Anton", "Oswald", "Impact", sans-serif', textTransform: 'uppercase', letterSpacing: 1 }}>Geri</Button>
           <Button onClick={fetchShareUrl} variant="text" color="primary" sx={{ borderRadius: 2, fontWeight: 800, px: 1.5, py: 1, minWidth: 0, fontSize: 17, ml: 1, fontFamily: '"Bebas Neue", "Anton", "Oswald", "Impact", sans-serif', textTransform: 'uppercase', letterSpacing: 1 }}>Paylaş</Button>
           <Box sx={{ flex: 1 }} />
           <IconButton color="primary" onClick={() => setShowAdd(v => !v)} sx={{ bgcolor: theme.palette.mode === 'dark' ? '#1976d2' : '#e3f2fd', boxShadow: 1, ml: 1, ':hover': { bgcolor: '#1565c0', '& .MuiSvgIcon-root': { color: '#fff' } } }}>
@@ -667,7 +667,7 @@ function ListDetail() {
                 <Typography variant="body2" sx={{ fontWeight: 500, fontSize: 13 }}>{item.rating ? Math.round(item.rating * 10) / 10 : '-'}</Typography>
                 <Typography variant="caption" color="text.secondary">({item.reviewCount || 0} yorum)</Typography>
               </Box>
-              <Button href={item.storeUrl} target="_blank" rel="noopener noreferrer" size="small" variant="text" sx={{ mt: 0.5, color: '#1976d2', fontWeight: 600, textTransform: 'none', fontSize: 12 }}>Store'da Aç</Button>
+              <Button href={item.storeUrl} target="_blank" rel="noopener noreferrer" size="small" variant="text" sx={{ mt: 0.5, color: '#1976d2', fontWeight: 600, textTransform: 'none', fontSize: 12 , marginLeft: '-5px'}}>Store'da Aç</Button>
             </CardContent>
           </Card>
         )) : <Typography>Henüz oyun eklenmemiş.</Typography>}
