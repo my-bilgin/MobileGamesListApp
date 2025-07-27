@@ -1515,6 +1515,46 @@ function App() {
         palette: {
           mode: realMode,
         },
+        typography: {
+          fontFamily: '"Inter", "SF Pro Display", "Segoe UI", "Roboto", "Helvetica Neue", sans-serif',
+          h1: {
+            fontFamily: '"Inter", "SF Pro Display", "Segoe UI", "Roboto", "Helvetica Neue", sans-serif',
+            fontWeight: 700,
+          },
+          h2: {
+            fontFamily: '"Inter", "SF Pro Display", "Segoe UI", "Roboto", "Helvetica Neue", sans-serif',
+            fontWeight: 600,
+          },
+          h3: {
+            fontFamily: '"Inter", "SF Pro Display", "Segoe UI", "Roboto", "Helvetica Neue", sans-serif',
+            fontWeight: 600,
+          },
+          h4: {
+            fontFamily: '"Inter", "SF Pro Display", "Segoe UI", "Roboto", "Helvetica Neue", sans-serif',
+            fontWeight: 600,
+          },
+          h5: {
+            fontFamily: '"Inter", "SF Pro Display", "Segoe UI", "Roboto", "Helvetica Neue", sans-serif',
+            fontWeight: 600,
+          },
+          h6: {
+            fontFamily: '"Inter", "SF Pro Display", "Segoe UI", "Roboto", "Helvetica Neue", sans-serif',
+            fontWeight: 600,
+          },
+          body1: {
+            fontFamily: '"Inter", "SF Pro Display", "Segoe UI", "Roboto", "Helvetica Neue", sans-serif',
+            fontWeight: 400,
+          },
+          body2: {
+            fontFamily: '"Inter", "SF Pro Display", "Segoe UI", "Roboto", "Helvetica Neue", sans-serif',
+            fontWeight: 400,
+          },
+          button: {
+            fontFamily: '"Inter", "SF Pro Display", "Segoe UI", "Roboto", "Helvetica Neue", sans-serif',
+            fontWeight: 600,
+            textTransform: 'none',
+          },
+        },
       }),
     [realMode]
   )
@@ -1597,12 +1637,12 @@ function AppContent({ toggleTheme, realMode, navigate, setMode, mode }: {
                 variant="h6" 
                 sx={{ 
                   fontWeight: 800, 
-                  fontSize: 19, 
+                  fontSize: 17, 
                   color: '#fff', 
                   letterSpacing: 2,
                   fontFamily: '"Bebas Neue", "Anton", "Oswald", "Impact", sans-serif',
                   textShadow: '2px 2px 4px rgba(0,0,0,0.7), 0 0 8px rgba(0,0,0,0.5), 0 0 12px rgba(0,0,0,0.3)',
-                  textTransform: 'uppercase',
+                  textTransform: 'none',
                   fontStyle: 'normal',
                   transform: 'translateY(5px)',
                   filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.6))'
