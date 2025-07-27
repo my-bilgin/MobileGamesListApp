@@ -1180,14 +1180,14 @@ function Profile({ setMode, mode }: { setMode: (m: any) => void, mode: string })
             borderRadius: 4, 
             boxShadow: '0 2px 12px #0002', 
             maxWidth: '100%',
-            mx: { xs: 1, sm: 0 },
+            mx: { xs: 0, sm: 0 },
             width: '100%'
           }}>
             <Typography variant="h6" sx={{ fontWeight: 700, mb: 1.5, fontFamily: '"Bebas Neue", "Anton", "Oswald", "Impact", sans-serif', color: theme.palette.text.primary, textAlign: 'center' }}>Avatar Seç</Typography>
             <Box sx={{ 
               display: 'grid', 
               gridTemplateColumns: 'repeat(3, 1fr)', 
-              gap: '12px 22px',
+              gap: '22px',
               width: '100%',
               maxWidth: '100%',
               justifyContent: 'center'
