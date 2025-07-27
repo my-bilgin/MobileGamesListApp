@@ -113,6 +113,7 @@ function Home() {
   const { user, token } = useAuth()
   const navigate = useNavigate()
   const theme = useTheme()
+  const [showInstallButton, setShowInstallButton] = useState(false)
 
   // Giriş yaptıysa otomatik olarak listelere yönlendir
   useEffect(() => {
@@ -120,6 +121,23 @@ function Home() {
       navigate('/lists')
     }
   }, [token, navigate])
+
+  // PWA yükleme butonunu kontrol et
+  useEffect(() => {
+    // Uygulama zaten yüklü mü kontrol et
+    const isInstalled = window.matchMedia('(display-mode: standalone)').matches || 
+                       (window.navigator as any).standalone === true;
+    
+    if (!isInstalled) {
+      setShowInstallButton(true);
+    }
+  }, []);
+
+  const handleInstallApp = () => {
+    if ((window as any).installApp) {
+      (window as any).installApp();
+    }
+  };
 
   return (
     <Box sx={{ width: '100vw', maxWidth: { xs: '100vw', sm: 480 }, mx: 'auto', minHeight: '100vh', bgcolor: theme.palette.background.default, overflowX: 'hidden', p: { xs: 0, sm: 2 } }}>
@@ -136,6 +154,31 @@ function Home() {
           GameShare ile mobil oyun listeleri oluşturabilir, oyunları otomatik olarak mağaza bilgileriyle ekleyebilir, listelerini paylaşabilir ve kendi oyun koleksiyonunu yönetebilirsin. Uygulama PWA olarak çalışır, cihazına ekleyebilirsin.
         </Typography>
       </Box>
+      {/* PWA Yükleme Butonu */}
+      {showInstallButton && (
+        <Box sx={{ mb: 2, mx: { xs: 1, sm: 0 } }}>
+          <Button 
+            onClick={handleInstallApp} 
+            variant="contained" 
+            color="secondary" 
+            size="large" 
+            sx={{ 
+              borderRadius: 999, 
+              fontWeight: 700, 
+              px: 3, 
+              py: 1.5, 
+              fontSize: 16, 
+              boxShadow: 2, 
+              textTransform: 'none', 
+              letterSpacing: 1,
+              fontFamily: '"Bitcount Prop Single", system-ui',
+              width: '100%'
+            }}
+          >
+            📱 Uygulamayı Yükle
+          </Button>
+        </Box>
+      )}
       {/* Giriş/Kayıt veya Listelerime Git butonu */}
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mx: { xs: 1, sm: 0 } }}>
         {!token ? (
@@ -923,7 +966,9 @@ function PublicList() {
               <Button href={item.storeUrl} target="_blank" rel="noopener noreferrer" size="small" variant="text" sx={{ mt: 0.5, ml: -0.625, color: '#1976d2', fontWeight: 600, textTransform: 'none', fontSize: 12 }}>Store'da Aç</Button>
             </CardContent>
           </Card>
-        )) : <Typography sx={{ textAlign: 'center', mt: 4 }}>Henüz oyun eklenmemiş.</Typography>}
+        )) : <Typography sx={{ textAlign: 'center', color: theme.palette.text.secondary, py: 2 }}>
+              Henüz oyun eklenmemiş
+            </Typography>}
       </Box>
 
       {/* Listeyi Kaydet butonu */}

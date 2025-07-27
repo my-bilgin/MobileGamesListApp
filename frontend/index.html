@@ -15,6 +15,19 @@
     <link href="https://fonts.googleapis.com/css2?family=Bitcount+Prop+Single:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <script>
+      // Service Worker kaydet
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then((registration) => {
+              console.log('SW registered: ', registration);
+            })
+            .catch((registrationError) => {
+              console.log('SW registration failed: ', registrationError);
+            });
+        });
+      }
+      
       // PWA otomatik açılma kontrolü
       let deferredPrompt;
       
@@ -24,6 +37,9 @@
         // Event'i sakla
         deferredPrompt = e;
         console.log('PWA yükleme önerisi hazır');
+        
+        // Hemen göster
+        showInstallPrompt();
       });
       
       // Uygulama zaten yüklü mü kontrol et
@@ -50,6 +66,28 @@
         return false;
       }
       
+      // Yükleme önerisini göster
+      function showInstallPrompt() {
+        if (deferredPrompt) {
+          // Hemen göster
+          deferredPrompt.prompt();
+          deferredPrompt.userChoice.then((choiceResult) => {
+            if (choiceResult.outcome === 'accepted') {
+              console.log('Kullanıcı uygulamayı yüklemeyi kabul etti');
+            } else {
+              console.log('Kullanıcı uygulamayı yüklemeyi reddetti');
+              // 5 saniye sonra tekrar dene
+              setTimeout(() => {
+                if (deferredPrompt) {
+                  showInstallPrompt();
+                }
+              }, 5000);
+            }
+            deferredPrompt = null;
+          });
+        }
+      }
+      
       // Sayfa yüklendiğinde kontrol et
       window.addEventListener('load', () => {
         const isInstalled = checkIfAppInstalled();
@@ -58,20 +96,10 @@
         if (!isInstalled && !window.location.href.includes('localhost')) {
           console.log('Tarayıcıda açıldı, uygulama yükleme önerisi gösterilebilir');
           
-          // 3 saniye sonra uygulama yükleme önerisi göster
+          // 2 saniye sonra uygulama yükleme önerisi göster
           setTimeout(() => {
-            if (deferredPrompt) {
-              deferredPrompt.prompt();
-              deferredPrompt.userChoice.then((choiceResult) => {
-                if (choiceResult.outcome === 'accepted') {
-                  console.log('Kullanıcı uygulamayı yüklemeyi kabul etti');
-                } else {
-                  console.log('Kullanıcı uygulamayı yüklemeyi reddetti');
-                }
-                deferredPrompt = null;
-              });
-            }
-          }, 3000);
+            showInstallPrompt();
+          }, 2000);
         }
       });
       
@@ -81,6 +109,11 @@
         // Uygulamayı aç
         window.location.href = window.location.origin;
       });
+      
+      // Manuel yükleme butonu için global fonksiyon
+      window.installApp = function() {
+        showInstallPrompt();
+      };
     </script>
   </head>
   <body>

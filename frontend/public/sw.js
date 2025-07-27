@@ -1,40 +1,67 @@
-self.addEventListener('fetch', (event) => {
-  const url = new URL(event.request.url);
+// Service Worker for GameShare PWA
+const CACHE_NAME = 'gameshare-v1';
+const urlsToCache = [
+  '/',
+  '/manifest.json',
+  '/gameshare_logo.png'
+];
 
-  if (event.request.method === 'POST' && url.pathname === '/share-target') {
-    console.log('SW: /share-target POST yakalandı!');
-    event.respondWith(handleShareTarget(event));
-  }
-});
-
-async function handleShareTarget(event) {
-  const formData = await event.request.formData();
-  console.log('SW: formData entries:', Array.from(formData.entries()));
-  
-  // URL'yi farklı parametrelerden almaya çalış
-  let sharedUrl = formData.get('url') || formData.get('shared_url') || '';
-  
-  // Eğer url boşsa, text parametresinden URL'yi çıkar
-  if (!sharedUrl) {
-    const text = formData.get('text') || '';
-    // URL pattern'ini bul
-    const urlMatch = text.match(/https?:\/\/[^\s]+/);
-    if (urlMatch) {
-      sharedUrl = urlMatch[0];
-    }
-  }
-
-  const cache = await caches.open('shared-data');
-  await cache.put('/last-shared-url', new Response(sharedUrl));
-  console.log('SW: Cache yazıldı:', sharedUrl);
-
-  return Response.redirect('/share-target-view', 303);
-}
-
+// Install event
 self.addEventListener('install', (event) => {
-  self.skipWaiting();
+  event.waitUntil(
+    caches.open(CACHE_NAME)
+      .then((cache) => {
+        console.log('Opened cache');
+        return cache.addAll(urlsToCache);
+      })
+  );
 });
 
+// Fetch event
+self.addEventListener('fetch', (event) => {
+  event.respondWith(
+    caches.match(event.request)
+      .then((response) => {
+        // Cache hit - return response
+        if (response) {
+          return response;
+        }
+        return fetch(event.request);
+      }
+    )
+  );
+});
+
+// Activate event
 self.addEventListener('activate', (event) => {
-  self.clients.claim();
+  event.waitUntil(
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames.map((cacheName) => {
+          if (cacheName !== CACHE_NAME) {
+            console.log('Deleting old cache:', cacheName);
+            return caches.delete(cacheName);
+          }
+        })
+      );
+    })
+  );
+});
+
+// Push notification event
+self.addEventListener('push', (event) => {
+  const options = {
+    body: 'GameShare\'e hoş geldiniz!',
+    icon: '/gameshare_logo.png',
+    badge: '/gameshare_logo.png',
+    vibrate: [100, 50, 100],
+    data: {
+      dateOfArrival: Date.now(),
+      primaryKey: 1
+    }
+  };
+
+  event.waitUntil(
+    self.registration.showNotification('GameShare', options)
+  );
 }); 
