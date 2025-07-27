@@ -118,15 +118,22 @@ function ProtectedRoute({ children }: { children: ReactNode }) {
 // App Banner Component
 function AppBanner() {
   const [showBanner, setShowBanner] = useState(false)
+  const [isAppInstalled, setIsAppInstalled] = useState(false)
   const theme = useTheme()
 
   useEffect(() => {
     // Uygulama zaten yüklü mü kontrol et
-    const isInstalled = window.matchMedia('(display-mode: standalone)').matches || 
+    const checkIfInstalled = () => {
+      const installed = window.matchMedia('(display-mode: standalone)').matches || 
                        (window.navigator as any).standalone === true;
+      setIsAppInstalled(installed)
+      return installed
+    }
+    
+    const installed = checkIfInstalled()
     
     // Eğer uygulama yüklü değilse ve tarayıcıda açıldıysa banner göster
-    if (!isInstalled && !window.location.href.includes('localhost')) {
+    if (!installed && !window.location.href.includes('localhost')) {
       // 3 saniye sonra banner'ı göster
       setTimeout(() => {
         setShowBanner(true)
@@ -135,10 +142,18 @@ function AppBanner() {
   }, [])
 
   const handleOpenInApp = () => {
-    // Uygulamayı açmaya çalış
-    if ((window as any).installApp) {
-      (window as any).installApp()
+    if (isAppInstalled) {
+      // Uygulama yüklü, mevcut sayfayı uygulamada aç
+      const currentUrl = window.location.href
+      const appUrl = currentUrl.replace('https://', 'gameshare://')
+      window.location.href = appUrl
+    } else {
+      // Uygulama yüklü değil, yükleme önerisini göster
+      if ((window as any).installApp) {
+        (window as any).installApp()
+      }
     }
+    
     setShowBanner(false)
   }
 
@@ -188,7 +203,7 @@ function AppBanner() {
               color: theme.palette.text.secondary,
               fontSize: 11
             }}>
-              Uygulamada daha iyi deneyim
+              {isAppInstalled ? 'Uygulamada aç' : 'Uygulamada daha iyi deneyim'}
             </Typography>
           </Box>
         </Box>
@@ -207,7 +222,7 @@ function AppBanner() {
               textTransform: 'none'
             }}
           >
-            Aç
+            {isAppInstalled ? 'Aç' : 'Yükle'}
           </Button>
           <IconButton
             size="small"

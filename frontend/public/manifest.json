@@ -10,6 +10,12 @@
   "scope": "/",
   "orientation": "portrait",
   "categories": ["games", "entertainment", "productivity"],
+  "protocol_handlers": [
+    {
+      "protocol": "gameshare",
+      "url": "/?url=%s"
+    }
+  ],
   "icons": [
     {
       "src": "/gameshare_logo.png",
