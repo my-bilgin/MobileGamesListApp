@@ -1175,24 +1175,24 @@ function Profile({ setMode, mode }: { setMode: (m: any) => void, mode: string })
           <Box sx={{ 
             display: 'flex', 
             flexDirection: 'column', 
-            gap: 8, 
-            marginBottom: 12, 
-            bgcolor: theme.palette.background.paper, 
+            gap: 16, 
+            marginBottom: 18, 
+            background: `linear-gradient(135deg, ${theme.palette.background.paper} 80%, ${theme.palette.primary.light} 100%)`, 
             borderRadius: 4, 
-            boxShadow: 1, 
-            padding: 12, 
-            border: `1px solid ${theme.palette.divider}`,
+            boxShadow: '0 2px 12px #0002', 
+            padding: 20, 
+            maxWidth: '100%',
             mx: { xs: 1, sm: 0 },
-            overflow: 'hidden'
+            width: '100%'
           }}>
-            <Typography variant="body2" sx={{ fontWeight: 600, mb: 1, color: theme.palette.text.primary, textAlign: 'center', fontSize: 14 }}>Avatar Seç</Typography>
+            <Typography variant="h6" sx={{ fontWeight: 700, mb: 2, fontFamily: '"Bebas Neue", "Anton", "Oswald", "Impact", sans-serif', color: theme.palette.text.primary, textAlign: 'center' }}>Avatar Seç</Typography>
             <Box sx={{ 
               display: 'grid', 
               gridTemplateColumns: { xs: 'repeat(3, 1fr)', sm: 'repeat(6, 1fr)' }, 
-              gap: 1.5,
+              gap: 4,
               width: '100%',
               maxWidth: '100%',
-              overflow: 'hidden'
+              justifyContent: 'center'
             }}>
               {avatarOptions.map((avatar, index) => (
                 <Box
@@ -1202,18 +1202,19 @@ function Profile({ setMode, mode }: { setMode: (m: any) => void, mode: string })
                     setShowAvatarSelect(false)
                   }}
                   sx={{
-                    width: { xs: 50, sm: 45 },
-                    height: { xs: 50, sm: 45 },
+                    width: { xs: 100, sm: 90 },
+                    height: { xs: 100, sm: 90 },
                     borderRadius: '50%',
                     cursor: 'pointer',
-                    border: profileImage === avatar ? `2px solid ${theme.palette.primary.main}` : '1px solid transparent',
+                    border: profileImage === avatar ? `3px solid ${theme.palette.primary.main}` : '2px solid transparent',
                     transition: 'all 0.2s',
                     overflow: 'hidden',
                     bgcolor: theme.palette.background.default,
                     mx: 'auto',
+                    boxShadow: 1,
                     '&:hover': { 
-                      transform: 'scale(1.05)',
-                      boxShadow: 1,
+                      transform: 'scale(1.1)',
+                      boxShadow: 3,
                       borderColor: theme.palette.primary.main
                     }
                   }}
@@ -1232,7 +1233,6 @@ function Profile({ setMode, mode }: { setMode: (m: any) => void, mode: string })
                       console.error('Avatar yüklenemedi:', avatar)
                       e.currentTarget.src = '/gameshare_logo.png'
                     }}
-
                   />
                 </Box>
               ))}
