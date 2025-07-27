@@ -1001,6 +1001,16 @@ function Profile({ setMode, mode }: { setMode: (m: any) => void, mode: string })
     '/avatar13.png', '/avatar14.png', '/avatar15.png', '/avatar16.png', '/avatar17.png', '/avatar18.png'
   ]
   
+  // Avatar yükleme durumu için debug
+  useEffect(() => {
+    avatarOptions.forEach((avatar, index) => {
+      const img = new Image()
+      img.onload = () => console.log(`Avatar ${index + 1} yüklendi:`, avatar)
+      img.onerror = () => console.error(`Avatar ${index + 1} yüklenemedi:`, avatar)
+      img.src = avatar
+    })
+  }, [])
+  
   useEffect(() => {
     if (token) {
       fetchUserInfo()
@@ -1130,7 +1140,7 @@ function Profile({ setMode, mode }: { setMode: (m: any) => void, mode: string })
       </Box>
 
       {/* Profil Bilgileri */}
-      <Box sx={{ bgcolor: `linear-gradient(135deg, ${theme.palette.background.paper} 80%, ${theme.palette.primary.light} 100%)`, borderRadius: 4, boxShadow: 3, p: 3, mb: 2, mx: { xs: 1, sm: 0 } }}>
+      <Box sx={{ bgcolor: theme.palette.background.paper, borderRadius: 4, boxShadow: 3, p: 3, mb: 2, mx: { xs: 1, sm: 0 }, border: `1px solid ${theme.palette.divider}` }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
           <Box sx={{ position: 'relative' }}>
             <img 
@@ -1143,6 +1153,9 @@ function Profile({ setMode, mode }: { setMode: (m: any) => void, mode: string })
                 objectFit: 'cover',
                 border: `3px solid ${theme.palette.primary.main}`
               }} 
+              onError={(e) => {
+                e.currentTarget.src = '/gameshare_logo.png'
+              }}
             />
             <IconButton 
               size="small" 
@@ -1172,14 +1185,15 @@ function Profile({ setMode, mode }: { setMode: (m: any) => void, mode: string })
             flexDirection: 'column', 
             gap: 14, 
             marginBottom: 18, 
-            background: `linear-gradient(135deg, ${theme.palette.background.paper} 80%, ${theme.palette.primary.light} 100%)`, 
+            bgcolor: theme.palette.background.paper, 
             borderRadius: 4, 
-            boxShadow: '0 2px 12px #0002', 
-            padding: 14, 
-            maxWidth: '100%' 
+            boxShadow: 3, 
+            padding: 16, 
+            maxWidth: '100%',
+            border: `1px solid ${theme.palette.divider}`
           }}>
-            <Typography variant="h6" sx={{ fontWeight: 700, mb: 2, fontFamily: '"Bebas Neue", "Anton", "Oswald", "Impact", sans-serif' }}>Avatar Seç</Typography>
-            <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 2 }}>
+            <Typography variant="h6" sx={{ fontWeight: 700, mb: 2, fontFamily: '"Bebas Neue", "Anton", "Oswald", "Impact", sans-serif', color: theme.palette.text.primary }}>Avatar Seç</Typography>
+            <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 1.5 }}>
               {avatarOptions.map((avatar, index) => (
                 <Box
                   key={index}
@@ -1195,9 +1209,11 @@ function Profile({ setMode, mode }: { setMode: (m: any) => void, mode: string })
                     border: profileImage === avatar ? `3px solid ${theme.palette.primary.main}` : '2px solid transparent',
                     transition: 'all 0.2s',
                     overflow: 'hidden',
+                    bgcolor: theme.palette.background.default,
                     '&:hover': { 
                       transform: 'scale(1.05)',
-                      boxShadow: 2
+                      boxShadow: 2,
+                      borderColor: theme.palette.primary.main
                     }
                   }}
                 >
@@ -1208,8 +1224,13 @@ function Profile({ setMode, mode }: { setMode: (m: any) => void, mode: string })
                       width: '100%', 
                       height: '100%', 
                       borderRadius: '50%', 
-                      objectFit: 'cover' 
+                      objectFit: 'cover',
+                      display: 'block'
                     }} 
+                    onError={(e) => {
+                      console.error('Avatar yüklenemedi:', avatar)
+                      e.currentTarget.src = '/gameshare_logo.png'
+                    }}
                   />
                 </Box>
               ))}
@@ -1219,7 +1240,7 @@ function Profile({ setMode, mode }: { setMode: (m: any) => void, mode: string })
       </Box>
 
       {/* İstatistikler */}
-      <Box sx={{ bgcolor: `linear-gradient(135deg, ${theme.palette.background.paper} 80%, ${theme.palette.secondary.light} 100%)`, borderRadius: 4, boxShadow: 3, p: 2.5, mb: 2, mx: { xs: 1, sm: 0 } }}>
+      <Box sx={{ bgcolor: theme.palette.background.paper, borderRadius: 4, boxShadow: 3, p: 2.5, mb: 2, mx: { xs: 1, sm: 0 }, border: `1px solid ${theme.palette.divider}` }}>
         <Typography variant="h6" sx={{ fontWeight: 700, mb: 2, fontFamily: '"Bebas Neue", "Anton", "Oswald", "Impact", sans-serif' }}>İstatistikler</Typography>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 2 }}>
           <Box sx={{ textAlign: 'center', flex: 1 }}>
