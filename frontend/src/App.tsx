@@ -141,10 +141,12 @@ function AppBanner() {
   useEffect(() => {
     // 3 saniye sonra banner'ı göster (sadece tarayıcıda)
     setTimeout(() => {
-      const installed = checkIfInstalled()
+      // Uygulama içinde çalışıp çalışmadığını kontrol et
+      const isStandalone = window.matchMedia('(display-mode: standalone)').matches
+      const isNavigatorStandalone = (window.navigator as any).standalone === true
       
       // Eğer uygulama içinde değilse ve localhost değilse banner göster
-      if (!window.location.href.includes('localhost')) {
+      if (!isStandalone && !isNavigatorStandalone && !window.location.href.includes('localhost')) {
         setShowBanner(true)
       }
     }, 3000)
