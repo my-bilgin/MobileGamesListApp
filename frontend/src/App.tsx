@@ -2165,7 +2165,25 @@ function ShareTargetView() {
 function App() {
   const [mode, setMode] = useState<'light' | 'dark' | 'auto'>(localStorage.getItem('theme') as any || 'auto')
   const [prefersDarkMode, setPrefersDarkMode] = useState(false)
+  const [fontsLoaded, setFontsLoaded] = useState(false)
   const navigate = useNavigate()
+
+  // Font yükleme kontrolü
+  useEffect(() => {
+    const checkFonts = async () => {
+      try {
+        // Font yükleme kontrolü
+        await document.fonts.ready
+        setFontsLoaded(true)
+        console.log('Fonts loaded successfully')
+      } catch (error) {
+        console.log('Font loading fallback')
+        setFontsLoaded(true)
+      }
+    }
+    
+    checkFonts()
+  }, [])
 
   // Sistem tema tercihini manuel olarak kontrol et
   useEffect(() => {
@@ -2291,7 +2309,12 @@ function App() {
     <AuthProvider>
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        <AppContent toggleTheme={toggleTheme} realMode={realMode} navigate={navigate} setMode={setMode} mode={mode} />
+        <Box className={fontsLoaded ? 'fonts-loaded' : 'font-loading'} sx={{ 
+          fontFamily: fontsLoaded ? 'inherit' : '"Bebas Neue", "Anton", "Oswald", "Impact", sans-serif',
+          minHeight: '100vh'
+        }}>
+          <AppContent toggleTheme={toggleTheme} realMode={realMode} navigate={navigate} setMode={setMode} mode={mode} />
+        </Box>
       </ThemeProvider>
     </AuthProvider>
   )
