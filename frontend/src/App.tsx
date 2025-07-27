@@ -121,33 +121,81 @@ function AppBanner() {
   const [isAppInstalled, setIsAppInstalled] = useState(false)
   const theme = useTheme()
 
-  useEffect(() => {
-    // Uygulama zaten yüklü mü kontrol et
-    const checkIfInstalled = () => {
-      // Birden fazla yöntemle kontrol et
-      const standalone = window.matchMedia('(display-mode: standalone)').matches
-      const navigatorStandalone = (window.navigator as any).standalone === true
-      const pwaInstalled = localStorage.getItem('pwa-installed') === 'true'
-      
-      const installed = standalone || navigatorStandalone || pwaInstalled
-      setIsAppInstalled(installed)
-      return installed
+  // Uygulama yüklü mü kontrol et
+  const checkIfInstalled = () => {
+    // Birden fazla yöntemle kontrol et
+    const standalone = window.matchMedia('(display-mode: standalone)').matches
+    const navigatorStandalone = (window.navigator as any).standalone === true
+    const pwaInstalled = localStorage.getItem('pwa-installed') === 'true'
+    
+    // Eğer uygulama içinde çalışıyorsa (standalone modda) banner gösterme
+    if (standalone || navigatorStandalone) {
+      return true
     }
     
-    // 3 saniye sonra banner'ı göster (her zaman)
+    const installed = standalone || navigatorStandalone || pwaInstalled
+    setIsAppInstalled(installed)
+    return installed
+  }
+
+  useEffect(() => {
+    // 3 saniye sonra banner'ı göster (sadece tarayıcıda)
     setTimeout(() => {
-      checkIfInstalled()
-      if (!window.location.href.includes('localhost')) {
+      const installed = checkIfInstalled()
+      
+      // Eğer uygulama içinde değilse ve localhost değilse banner göster
+      if (!installed && !window.location.href.includes('localhost')) {
         setShowBanner(true)
       }
     }, 3000)
   }, [])
 
   const handleOpenInApp = () => {
-    if (isAppInstalled) {
+    // Önce tekrar kontrol et (durum değişmiş olabilir)
+    const currentlyInstalled = checkIfInstalled()
+    
+    if (currentlyInstalled) {
       // Uygulama yüklü, mevcut sayfayı uygulamada aç
       const currentUrl = window.location.href
       const appUrl = currentUrl.replace('https://', 'gameshare://')
+      
+      // LocalStorage'a yüklü olduğunu kaydet (eğer yoksa)
+      if (localStorage.getItem('pwa-installed') !== 'true') {
+        localStorage.setItem('pwa-installed', 'true')
+      }
+      
+      // Uygulamada aç
+      window.location.href = appUrl
+    } else {
+      // Uygulama yüklü değil, yükleme önerisini göster
+      if ((window as any).installApp) {
+        (window as any).installApp()
+      }
+    }
+    
+    setShowBanner(false)
+  }
+
+  // "Yükle" butonuna tıklandığında önce kontrol et
+  const handleInstallOrOpen = () => {
+    // Önce uygulamanın yüklü olup olmadığını kontrol et
+    const standalone = window.matchMedia('(display-mode: standalone)').matches
+    const navigatorStandalone = (window.navigator as any).standalone === true
+    const pwaInstalled = localStorage.getItem('pwa-installed') === 'true'
+    
+    const isActuallyInstalled = standalone || navigatorStandalone || pwaInstalled
+    
+    if (isActuallyInstalled) {
+      // Uygulama zaten yüklü, otomatik aç
+      const currentUrl = window.location.href
+      const appUrl = currentUrl.replace('https://', 'gameshare://')
+      
+      // LocalStorage'a yüklü olduğunu kaydet (eğer yoksa)
+      if (localStorage.getItem('pwa-installed') !== 'true') {
+        localStorage.setItem('pwa-installed', 'true')
+      }
+      
+      // Uygulamada aç
       window.location.href = appUrl
     } else {
       // Uygulama yüklü değil, yükleme önerisini göster
@@ -213,7 +261,7 @@ function AppBanner() {
           <Button
             variant="contained"
             size="small"
-            onClick={handleOpenInApp}
+            onClick={handleInstallOrOpen}
             sx={{
               borderRadius: 2,
               px: 2,
