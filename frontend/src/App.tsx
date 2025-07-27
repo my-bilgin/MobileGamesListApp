@@ -1175,21 +1175,22 @@ function Profile({ setMode, mode }: { setMode: (m: any) => void, mode: string })
           <Box sx={{ 
             display: 'flex', 
             flexDirection: 'column', 
-            gap: 16, 
-            marginBottom: 18, 
-            background: `linear-gradient(135deg, ${theme.palette.background.paper} 80%, ${theme.palette.primary.light} 100%)`, 
+            gap: 12, 
+            marginBottom: 16, 
+            background: theme.palette.background.paper, 
             borderRadius: 4, 
             boxShadow: '0 2px 12px #0002', 
-            padding: 20, 
+            padding: 16, 
             maxWidth: '100%',
             mx: { xs: 1, sm: 0 },
-            width: '100%'
+            width: '100%',
+            border: `1px solid ${theme.palette.divider}`
           }}>
-            <Typography variant="h6" sx={{ fontWeight: 700, mb: 2, fontFamily: '"Bebas Neue", "Anton", "Oswald", "Impact", sans-serif', color: theme.palette.text.primary, textAlign: 'center' }}>Avatar Seç</Typography>
+            <Typography variant="h6" sx={{ fontWeight: 700, mb: 1.5, fontFamily: '"Bebas Neue", "Anton", "Oswald", "Impact", sans-serif', color: theme.palette.text.primary, textAlign: 'center' }}>Avatar Seç</Typography>
             <Box sx={{ 
               display: 'grid', 
-              gridTemplateColumns: { xs: 'repeat(3, 1fr)', sm: 'repeat(6, 1fr)' }, 
-              gap: 4,
+              gridTemplateColumns: 'repeat(3, 1fr)', 
+              gap: 2.75,
               width: '100%',
               maxWidth: '100%',
               justifyContent: 'center'
@@ -1202,8 +1203,8 @@ function Profile({ setMode, mode }: { setMode: (m: any) => void, mode: string })
                     setShowAvatarSelect(false)
                   }}
                   sx={{
-                    width: { xs: 100, sm: 90 },
-                    height: { xs: 100, sm: 90 },
+                    width: { xs: 110, sm: 105 },
+                    height: { xs: 110, sm: 105 },
                     borderRadius: '50%',
                     cursor: 'pointer',
                     border: profileImage === avatar ? `3px solid ${theme.palette.primary.main}` : '2px solid transparent',
