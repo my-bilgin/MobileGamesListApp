@@ -558,7 +558,7 @@ function ListDetail() {
       {/* AppBar tarzı başlık ve aksiyonlar */}
       <Box sx={{ width: '100%', position: 'sticky', top: 0, zIndex: 10, mb: 2 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', px: 2, py: 2, bgcolor: theme.palette.background.paper, boxShadow: 3, borderRadius: '0 0 18px 18px', minHeight: 64 }}>
-          <Button onClick={() => navigate('/lists')} startIcon={<span style={{ fontSize: 20, display: 'flex', alignItems: 'center' }}>←</span>} variant="text" sx={{ borderRadius: 2, fontWeight: 800, px: 1.5, py: 1, minWidth: 0, color: theme.palette.text.primary, fontSize: 17, fontFamily: '"Bebas Neue", "Anton", "Oswald", "Impact", sans-serif', textTransform: 'uppercase', letterSpacing: 1 }}>Geri</Button>
+          <Button onClick={() => navigate('/lists')} startIcon={<span style={{ fontSize: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>←</span>} variant="text" sx={{ borderRadius: 2, fontWeight: 800, px: 1.5, py: 1, minWidth: 0, color: theme.palette.text.primary, fontSize: 17, fontFamily: '"Bebas Neue", "Anton", "Oswald", "Impact", sans-serif', textTransform: 'uppercase', letterSpacing: 1 }}>Geri</Button>
           <Button onClick={fetchShareUrl} variant="text" color="primary" sx={{ borderRadius: 2, fontWeight: 800, px: 1.5, py: 1, minWidth: 0, fontSize: 17, ml: 1, fontFamily: '"Bebas Neue", "Anton", "Oswald", "Impact", sans-serif', textTransform: 'uppercase', letterSpacing: 1 }}>Paylaş</Button>
           <Box sx={{ flex: 1 }} />
           <IconButton color="primary" onClick={() => setShowAdd(v => !v)} sx={{ bgcolor: theme.palette.mode === 'dark' ? '#1976d2' : '#e3f2fd', boxShadow: 1, ml: 1, ':hover': { bgcolor: '#1565c0', '& .MuiSvgIcon-root': { color: '#fff' } } }}>
@@ -811,7 +811,7 @@ function PublicList() {
       </Box>
 
       {/* Oyunlar listesi */}
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, px: { xs: 2, sm: 0 } }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, px: { xs: 2, sm: 0 }, mb: 8 }}>
         {list.items && list.items.length > 0 ? list.items.map((item: any, i: number) => (
           <Card key={i} sx={{ display: 'flex', alignItems: 'center', mb: 2, boxShadow: 3, borderRadius: 4, bgcolor: `linear-gradient(135deg, ${theme.palette.background.paper} 80%, ${theme.palette.secondary.light} 100%)`, p: 1.5 }}>
             {item.imageUrl ? (
@@ -1629,7 +1629,7 @@ function AppContent({ toggleTheme, realMode, navigate, setMode, mode }: {
                 alt="GameShare" 
                 style={{ 
                   height: 32, 
-                  filter: 'invert(1) drop-shadow(0 1px 2px rgba(0,0,0,0.3))',
+                  filter: 'invert(1) drop-shadow(0 1px 2px rgba(0,0,0,0.6))',
                   objectFit: 'contain'
                 }} 
               />
