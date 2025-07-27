@@ -1190,7 +1190,7 @@ function Profile({ setMode, mode }: { setMode: (m: any) => void, mode: string })
             <Box sx={{ 
               display: 'grid', 
               gridTemplateColumns: 'repeat(3, 1fr)', 
-              gap: 2.75,
+              gap: '12px 22px',
               width: '100%',
               maxWidth: '100%',
               justifyContent: 'center'
@@ -1203,8 +1203,8 @@ function Profile({ setMode, mode }: { setMode: (m: any) => void, mode: string })
                     setShowAvatarSelect(false)
                   }}
                   sx={{
-                    width: { xs: 110, sm: 105 },
-                    height: { xs: 110, sm: 105 },
+                    width: { xs: 85, sm: 80 },
+                    height: { xs: 85, sm: 80 },
                     borderRadius: '50%',
                     cursor: 'pointer',
                     border: profileImage === avatar ? `3px solid ${theme.palette.primary.main}` : '2px solid transparent',
