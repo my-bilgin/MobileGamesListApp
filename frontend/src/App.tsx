@@ -1596,13 +1596,14 @@ function AppContent({ toggleTheme, realMode, navigate, setMode, mode }: {
               <Typography 
                 variant="h6" 
                 sx={{ 
-                  fontWeight: 700, 
-                  fontSize: 20, 
+                  fontWeight: 600, 
+                  fontSize: 18, 
                   color: '#fff', 
-                  letterSpacing: 0.8,
-                  fontFamily: '"Inter", "SF Pro Display", "Segoe UI", "Roboto", "Helvetica Neue", sans-serif',
-                  textShadow: '0 1px 3px rgba(0,0,0,0.4)',
-                  textTransform: 'none'
+                  letterSpacing: 1.5,
+                  fontFamily: '"Poppins", "Montserrat", "Raleway", "Open Sans", sans-serif',
+                  textShadow: '0 1px 2px rgba(0,0,0,0.3)',
+                  textTransform: 'none',
+                  fontStyle: 'normal'
                 }}
               >
                 GameShare
