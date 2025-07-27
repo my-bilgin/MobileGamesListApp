@@ -341,7 +341,6 @@ function Lists() {
             type="submit"
             variant="contained"
             color="primary"
-            startIcon={<AddIcon />}
             sx={{
               borderRadius: 999,
               fontWeight: 800,
