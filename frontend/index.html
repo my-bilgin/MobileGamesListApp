@@ -106,6 +106,8 @@
       // Appinstalled event'i
       window.addEventListener('appinstalled', (evt) => {
         console.log('Uygulama başarıyla yüklendi');
+        // PWA yüklendi flag'ini kaydet
+        localStorage.setItem('pwa-installed', 'true');
         // Uygulamayı aç
         window.location.href = window.location.origin;
       });

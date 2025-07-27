@@ -124,21 +124,23 @@ function AppBanner() {
   useEffect(() => {
     // Uygulama zaten yüklü mü kontrol et
     const checkIfInstalled = () => {
-      const installed = window.matchMedia('(display-mode: standalone)').matches || 
-                       (window.navigator as any).standalone === true;
+      // Birden fazla yöntemle kontrol et
+      const standalone = window.matchMedia('(display-mode: standalone)').matches
+      const navigatorStandalone = (window.navigator as any).standalone === true
+      const pwaInstalled = localStorage.getItem('pwa-installed') === 'true'
+      
+      const installed = standalone || navigatorStandalone || pwaInstalled
       setIsAppInstalled(installed)
       return installed
     }
     
-    const installed = checkIfInstalled()
-    
-    // Eğer uygulama yüklü değilse ve tarayıcıda açıldıysa banner göster
-    if (!installed && !window.location.href.includes('localhost')) {
-      // 3 saniye sonra banner'ı göster
-      setTimeout(() => {
+    // 3 saniye sonra banner'ı göster (her zaman)
+    setTimeout(() => {
+      checkIfInstalled()
+      if (!window.location.href.includes('localhost')) {
         setShowBanner(true)
-      }, 3000)
-    }
+      }
+    }, 3000)
   }, [])
 
   const handleOpenInApp = () => {
