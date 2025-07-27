@@ -627,7 +627,7 @@ function ListDetail() {
         </Box>
       </Collapse>
       <Collapse in={showAdd} timeout={350} unmountOnExit>
-        <form onSubmit={handleAddGame} style={{ display: 'flex', flexDirection: 'column', gap: 14, marginBottom: 18, background: `linear-gradient(135deg, ${theme.palette.background.paper} 80%, ${theme.palette.primary.light} 100%)`, borderRadius: 4, boxShadow: '0 2px 12px #0002', padding: 14, maxWidth: '100%' }}>
+        <form onSubmit={handleAddGame} style={{ display: 'flex', flexDirection: 'column', gap: 14, marginBottom: 18, borderRadius: 4, boxShadow: '0 2px 12px #0002', padding: 14, maxWidth: '100%' }}>
           <TextField
             label="Google Play Store linki"
             variant="outlined"
@@ -2378,10 +2378,10 @@ function AppContent({ toggleTheme, realMode, navigate, setMode, mode }: {
           zIndex: 9999
         }}>
           <CircularProgress size={80} thickness={4} />
-          <Typography variant="h5" color="text.secondary" sx={{ fontWeight: 500 }}>
+          <Typography variant="h5" color="text.secondary" sx={{ fontWeight: 500, fontFamily: '"Bitcount Prop Single", system-ui' }}>
             GameShare Yükleniyor...
           </Typography>
-          <Typography variant="body2" color="text.secondary">
+          <Typography variant="body2" color="text.secondary" sx={{ fontFamily: '"Bitcount Prop Single", system-ui' }}>
             Lütfen bekleyin
           </Typography>
         </Box>
