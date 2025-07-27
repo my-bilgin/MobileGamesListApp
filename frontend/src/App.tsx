@@ -1175,7 +1175,6 @@ function Profile({ setMode, mode }: { setMode: (m: any) => void, mode: string })
           <Box sx={{ 
             display: 'flex', 
             flexDirection: 'column', 
-            marginBottom: 16, 
             background: theme.palette.background.paper, 
             borderRadius: 4, 
             boxShadow: '0 2px 12px #0002', 
@@ -1187,7 +1186,7 @@ function Profile({ setMode, mode }: { setMode: (m: any) => void, mode: string })
             <Box sx={{ 
               display: 'grid', 
               gridTemplateColumns: 'repeat(3, 1fr)', 
-              gap: '22px',
+              gap: '14px',
               width: '100%',
               maxWidth: '100%',
               justifyContent: 'center'
