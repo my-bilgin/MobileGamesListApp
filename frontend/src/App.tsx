@@ -2163,9 +2163,63 @@ function ShareTargetView() {
 }
 
 function App() {
-  const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)')
   const [mode, setMode] = useState<'light' | 'dark' | 'auto'>(localStorage.getItem('theme') as any || 'auto')
+  const [prefersDarkMode, setPrefersDarkMode] = useState(false)
   const navigate = useNavigate()
+
+  // Sistem tema tercihini manuel olarak kontrol et
+  useEffect(() => {
+    const checkSystemTheme = () => {
+      // Birden fazla yöntemle kontrol et
+      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
+      const isDark = mediaQuery.matches
+      
+      // Mobil cihazlar için ek kontroller
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+      
+      if (isMobile) {
+        // Mobil cihazlarda daha agresif kontrol
+        const checkDarkMode = () => {
+          const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
+          setPrefersDarkMode(mediaQuery.matches)
+        }
+        
+        // İlk kontrol
+        checkDarkMode()
+        
+        // Periyodik kontrol (mobil cihazlarda bazen event listener çalışmaz)
+        const interval = setInterval(checkDarkMode, 2000)
+        
+        return () => clearInterval(interval)
+      } else {
+        // Desktop için normal event listener
+        setPrefersDarkMode(isDark)
+        
+        const handleChange = (e: MediaQueryListEvent) => {
+          setPrefersDarkMode(e.matches)
+        }
+        
+        // Modern ve eski tarayıcılar için
+        if (mediaQuery.addEventListener) {
+          mediaQuery.addEventListener('change', handleChange)
+        } else {
+          // Eski tarayıcılar için
+          mediaQuery.addListener(handleChange)
+        }
+
+        return () => {
+          if (mediaQuery.removeEventListener) {
+            mediaQuery.removeEventListener('change', handleChange)
+          } else {
+            // Eski tarayıcılar için
+            mediaQuery.removeListener(handleChange)
+          }
+        }
+      }
+    }
+
+    checkSystemTheme()
+  }, [])
 
   useEffect(() => {
     const stored = localStorage.getItem('theme') as 'light' | 'dark' | 'auto' | null
@@ -2176,21 +2230,10 @@ function App() {
     localStorage.setItem('theme', mode)
   }, [mode])
 
-  // Sistem tema değişikliğini dinle
-  useEffect(() => {
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
-    const handleChange = (e: MediaQueryListEvent) => {
-      if (mode === 'auto') {
-        // Auto modda sistem değişikliğini zorla
-        setMode('auto')
-      }
-    }
-    
-    mediaQuery.addEventListener('change', handleChange)
-    return () => mediaQuery.removeEventListener('change', handleChange)
-  }, [mode])
-
   const realMode = mode === 'auto' ? (prefersDarkMode ? 'dark' : 'light') : mode
+
+  // Debug için console log
+  console.log('Theme Debug:', { mode, prefersDarkMode, realMode })
 
   const theme = useMemo(
     () =>
