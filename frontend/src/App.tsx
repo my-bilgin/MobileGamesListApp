@@ -178,46 +178,14 @@ function AppBanner() {
     if (currentlyInstalled) {
       // Uygulama yüklü, mevcut sayfayı uygulamada aç
       const currentUrl = window.location.href
-      const appUrl = currentUrl.replace('https://', 'gameshare://')
       
       // LocalStorage'a yüklü olduğunu kaydet (eğer yoksa)
       if (localStorage.getItem('pwa-installed') !== 'true') {
         localStorage.setItem('pwa-installed', 'true')
       }
       
-      // Uygulamada aç
-      window.location.href = appUrl
-    } else {
-      // Uygulama yüklü değil, yükleme önerisini göster
-      if ((window as any).installApp) {
-        (window as any).installApp()
-      }
-    }
-    
-    setShowBanner(false)
-  }
-
-  // "Yükle" butonuna tıklandığında önce kontrol et
-  const handleInstallOrOpen = () => {
-    // Önce uygulamanın yüklü olup olmadığını kontrol et
-    const standalone = window.matchMedia('(display-mode: standalone)').matches
-    const navigatorStandalone = (window.navigator as any).standalone === true
-    const pwaInstalled = localStorage.getItem('pwa-installed') === 'true'
-    
-    const isActuallyInstalled = standalone || navigatorStandalone || pwaInstalled
-    
-    if (isActuallyInstalled) {
-      // Uygulama zaten yüklü, otomatik aç
-      const currentUrl = window.location.href
-      const appUrl = currentUrl.replace('https://', 'gameshare://')
-      
-      // LocalStorage'a yüklü olduğunu kaydet (eğer yoksa)
-      if (localStorage.getItem('pwa-installed') !== 'true') {
-        localStorage.setItem('pwa-installed', 'true')
-      }
-      
-      // Uygulamada aç
-      window.location.href = appUrl
+      // PWA'da açmak için window.open kullan
+      window.open(currentUrl, '_blank')
     } else {
       // Uygulama yüklü değil, yükleme önerisini göster
       if ((window as any).installApp) {
@@ -284,7 +252,7 @@ function AppBanner() {
           <Button
             variant="contained"
             size="small"
-            onClick={handleInstallOrOpen}
+            onClick={handleOpenInApp}
             sx={{
               borderRadius: 2,
               px: 2,
