@@ -128,8 +128,17 @@ function AppBanner() {
     const navigatorStandalone = (window.navigator as any).standalone === true
     const pwaInstalled = localStorage.getItem('pwa-installed') === 'true'
     
+    console.log('🔍 Banner Debug - checkIfInstalled:', {
+      standalone,
+      navigatorStandalone,
+      pwaInstalled,
+      isLocalhost: window.location.href.includes('localhost'),
+      currentUrl: window.location.href
+    })
+    
     // Eğer uygulama içinde çalışıyorsa (standalone modda) banner gösterme
     if (standalone || navigatorStandalone) {
+      console.log('🚫 Banner gizlendi: Uygulama içinde çalışıyor')
       return true
     }
     
@@ -139,15 +148,37 @@ function AppBanner() {
   }
 
   useEffect(() => {
+    console.log('🚀 AppBanner useEffect başladı')
+    
+    // TEST: 1 saniye sonra banner'ı göster (geçici test)
+    setTimeout(() => {
+      console.log('⏰ 1 saniye geçti, banner gösteriliyor (TEST)')
+      setShowBanner(true)
+    }, 1000)
+    
+    // Orijinal kod (geçici olarak yorum satırı)
+    /*
     // 3 saniye sonra banner'ı göster (sadece tarayıcıda)
     setTimeout(() => {
+      console.log('⏰ 3 saniye geçti, banner kontrolü yapılıyor')
+      
       const installed = checkIfInstalled()
+      
+      console.log('🔍 Banner gösterme kontrolü:', {
+        installed,
+        isLocalhost: window.location.href.includes('localhost'),
+        shouldShow: !installed && !window.location.href.includes('localhost')
+      })
       
       // Eğer uygulama içinde değilse ve localhost değilse banner göster
       if (!installed && !window.location.href.includes('localhost')) {
+        console.log('✅ Banner gösteriliyor')
         setShowBanner(true)
+      } else {
+        console.log('❌ Banner gösterilmiyor')
       }
     }, 3000)
+    */
   }, [])
 
   const handleOpenInApp = () => {
@@ -210,6 +241,8 @@ function AppBanner() {
   const handleDismiss = () => {
     setShowBanner(false)
   }
+
+  console.log('🎯 AppBanner render - showBanner:', showBanner, 'isAppInstalled:', isAppInstalled)
 
   if (!showBanner) return null
 
