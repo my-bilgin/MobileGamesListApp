@@ -1175,16 +1175,13 @@ function Profile({ setMode, mode }: { setMode: (m: any) => void, mode: string })
           <Box sx={{ 
             display: 'flex', 
             flexDirection: 'column', 
-            gap: 12, 
             marginBottom: 16, 
             background: theme.palette.background.paper, 
             borderRadius: 4, 
             boxShadow: '0 2px 12px #0002', 
-            padding: 16, 
             maxWidth: '100%',
             mx: { xs: 1, sm: 0 },
-            width: '100%',
-            border: `1px solid ${theme.palette.divider}`
+            width: '100%'
           }}>
             <Typography variant="h6" sx={{ fontWeight: 700, mb: 1.5, fontFamily: '"Bebas Neue", "Anton", "Oswald", "Impact", sans-serif', color: theme.palette.text.primary, textAlign: 'center' }}>Avatar Seç</Typography>
             <Box sx={{ 
@@ -1203,8 +1200,8 @@ function Profile({ setMode, mode }: { setMode: (m: any) => void, mode: string })
                     setShowAvatarSelect(false)
                   }}
                   sx={{
-                    width: { xs: 85, sm: 80 },
-                    height: { xs: 85, sm: 80 },
+                    width: { xs: 100, sm: 95 },
+                    height: { xs: 100, sm: 95 },
                     borderRadius: '50%',
                     cursor: 'pointer',
                     border: profileImage === avatar ? `3px solid ${theme.palette.primary.main}` : '2px solid transparent',
