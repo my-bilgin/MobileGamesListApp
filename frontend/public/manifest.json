@@ -29,5 +29,12 @@
       "text": "text",
       "url": "url"
     }
-  }
+  },
+  "related_applications": [
+    {
+      "platform": "webapp",
+      "url": "https://gameshare.app/manifest.json"
+    }
+  ],
+  "prefer_related_applications": true
 } 
