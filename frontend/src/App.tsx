@@ -1183,17 +1183,26 @@ function Profile({ setMode, mode }: { setMode: (m: any) => void, mode: string })
           <Box sx={{ 
             display: 'flex', 
             flexDirection: 'column', 
-            gap: 14, 
+            gap: 16, 
             marginBottom: 18, 
             bgcolor: theme.palette.background.paper, 
-            borderRadius: 4, 
+            borderRadius: 8, 
             boxShadow: 3, 
-            padding: 16, 
+            padding: 24, 
             maxWidth: '100%',
-            border: `1px solid ${theme.palette.divider}`
+            border: `1px solid ${theme.palette.divider}`,
+            mx: { xs: 1, sm: 0 }
           }}>
             <Typography variant="h6" sx={{ fontWeight: 700, mb: 2, fontFamily: '"Bebas Neue", "Anton", "Oswald", "Impact", sans-serif', color: theme.palette.text.primary }}>Avatar Seç</Typography>
-            <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 1.5 }}>
+            <Box sx={{ 
+              display: 'grid', 
+              gridTemplateColumns: { xs: 'repeat(3, 1fr)', sm: 'repeat(6, 1fr)' }, 
+              gap: 4,
+              maxWidth: '100%',
+              justifyContent: 'center',
+              alignItems: 'center',
+              width: '100%'
+            }}>
               {avatarOptions.map((avatar, index) => (
                 <Box
                   key={index}
@@ -1202,17 +1211,18 @@ function Profile({ setMode, mode }: { setMode: (m: any) => void, mode: string })
                     setShowAvatarSelect(false)
                   }}
                   sx={{
-                    width: '100%',
-                    aspectRatio: '1',
+                    width: { xs: 100, sm: 90 },
+                    height: { xs: 100, sm: 90 },
                     borderRadius: '50%',
                     cursor: 'pointer',
                     border: profileImage === avatar ? `3px solid ${theme.palette.primary.main}` : '2px solid transparent',
                     transition: 'all 0.2s',
                     overflow: 'hidden',
                     bgcolor: theme.palette.background.default,
+                    mx: 'auto',
                     '&:hover': { 
-                      transform: 'scale(1.05)',
-                      boxShadow: 2,
+                      transform: 'scale(1.1)',
+                      boxShadow: 3,
                       borderColor: theme.palette.primary.main
                     }
                   }}
@@ -1225,11 +1235,16 @@ function Profile({ setMode, mode }: { setMode: (m: any) => void, mode: string })
                       height: '100%', 
                       borderRadius: '50%', 
                       objectFit: 'cover',
-                      display: 'block'
+                      display: 'block',
+                      minWidth: '100%',
+                      minHeight: '100%'
                     }} 
                     onError={(e) => {
                       console.error('Avatar yüklenemedi:', avatar)
                       e.currentTarget.src = '/gameshare_logo.png'
+                    }}
+                    onLoad={() => {
+                      console.log(`Avatar ${index + 1} başarıyla yüklendi:`, avatar)
                     }}
                   />
                 </Box>
