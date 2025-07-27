@@ -994,6 +994,13 @@ function Profile({ setMode, mode }: { setMode: (m: any) => void, mode: string })
   // Avatar seçimi state'i
   const [showAvatarSelect, setShowAvatarSelect] = useState(false)
   
+  // Kullanıcı bilgileri düzenleme state'leri
+  const [showNameEdit, setShowNameEdit] = useState(false)
+  const [showEmailEdit, setShowEmailEdit] = useState(false)
+  const [editingName, setEditingName] = useState('')
+  const [editingEmail, setEditingEmail] = useState('')
+  const [updatingInfo, setUpdatingInfo] = useState(false)
+  
   // Profil resmi seçenekleri (18 avatar)
   const avatarOptions = [
     '/avatar1.png', '/avatar2.png', '/avatar3.png', '/avatar4.png', '/avatar5.png', '/avatar6.png',
@@ -1122,6 +1129,78 @@ function Profile({ setMode, mode }: { setMode: (m: any) => void, mode: string })
     show('Tema tercihiniz kaydedildi.', 'success')
   }
 
+  const handleNameEdit = () => {
+    setEditingName(userInfo.displayName || user || '')
+    setShowNameEdit(true)
+  }
+
+  const handleEmailEdit = () => {
+    setEditingEmail(userInfo.email || '')
+    setShowEmailEdit(true)
+  }
+
+  const handleSaveName = async () => {
+    if (!editingName.trim()) {
+      show('Kullanıcı adı boş olamaz', 'error')
+      return
+    }
+    
+    setUpdatingInfo(true)
+    try {
+      const res = await fetch(`${API_URL}/user/update-profile`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ displayName: editingName.trim() })
+      })
+      
+      if (res.ok) {
+        setUserInfo({ ...userInfo, displayName: editingName.trim() })
+        setShowNameEdit(false)
+        show('Kullanıcı adı güncellendi', 'success')
+      } else {
+        show('Kullanıcı adı güncellenemedi', 'error')
+      }
+    } catch (error) {
+      show('Kullanıcı adı güncellenemedi', 'error')
+    } finally {
+      setUpdatingInfo(false)
+    }
+  }
+
+  const handleSaveEmail = async () => {
+    if (!editingEmail.trim() || !editingEmail.includes('@')) {
+      show('Geçerli bir email adresi girin', 'error')
+      return
+    }
+    
+    setUpdatingInfo(true)
+    try {
+      const res = await fetch(`${API_URL}/user/update-profile`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ email: editingEmail.trim() })
+      })
+      
+      if (res.ok) {
+        setUserInfo({ ...userInfo, email: editingEmail.trim() })
+        setShowEmailEdit(false)
+        show('Email adresi güncellendi', 'success')
+      } else {
+        show('Email adresi güncellenemedi', 'error')
+      }
+    } catch (error) {
+      show('Email adresi güncellenemedi', 'error')
+    } finally {
+      setUpdatingInfo(false)
+    }
+  }
+
   return (
     <Box sx={{ width: '100vw', maxWidth: { xs: '100vw', sm: 480 }, mx: 'auto', p: { xs: 0, sm: 2 }, pt: { xs: 0, sm: 2 }, pb: { xs: 2, sm: 3 }, minHeight: '100vh', bgcolor: theme.palette.background.default, overflowX: 'hidden' }}>
       {/* AppBar tarzı başlık */}
@@ -1165,8 +1244,34 @@ function Profile({ setMode, mode }: { setMode: (m: any) => void, mode: string })
             </IconButton>
           </Box>
           <Box sx={{ flex: 1 }}>
-            <Typography sx={{ fontWeight: 700, fontSize: 18, mb: 0.5 }}>{userInfo.displayName || user}</Typography>
-            <Typography sx={{ fontSize: 14, color: theme.palette.text.secondary }}>{userInfo.email}</Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
+              <Typography sx={{ fontWeight: 700, fontSize: 18 }}>{userInfo.displayName || user}</Typography>
+              <IconButton 
+                size="small" 
+                onClick={handleNameEdit}
+                sx={{ 
+                  p: 0.5,
+                  color: theme.palette.primary.main,
+                  '&:hover': { bgcolor: theme.palette.primary.light }
+                }}
+              >
+                <EditIcon fontSize="small" />
+              </IconButton>
+            </Box>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Typography sx={{ fontSize: 14, color: theme.palette.text.secondary }}>{userInfo.email}</Typography>
+              <IconButton 
+                size="small" 
+                onClick={handleEmailEdit}
+                sx={{ 
+                  p: 0.5,
+                  color: theme.palette.primary.main,
+                  '&:hover': { bgcolor: theme.palette.primary.light }
+                }}
+              >
+                <EditIcon fontSize="small" />
+              </IconButton>
+            </Box>
           </Box>
         </Box>
         
@@ -1234,6 +1339,115 @@ function Profile({ setMode, mode }: { setMode: (m: any) => void, mode: string })
                   />
                 </Box>
               ))}
+            </Box>
+          </Box>
+        </Collapse>
+        
+        {/* Kullanıcı Adı Düzenleme */}
+        <Collapse in={showNameEdit} timeout={350} unmountOnExit>
+          <Box sx={{ 
+            bgcolor: theme.palette.background.paper, 
+            borderRadius: 4, 
+            boxShadow: '0 2px 12px #0002', 
+            p: 2, 
+            mt: 1,
+            border: `1px solid ${theme.palette.divider}`
+          }}>
+            <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>Kullanıcı Adını Düzenle</Typography>
+            <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+              <TextField
+                size="small"
+                value={editingName}
+                onChange={(e) => setEditingName(e.target.value)}
+                placeholder="Kullanıcı adı"
+                sx={{ flex: 1 }}
+              />
+              <Button
+                size="small"
+                variant="contained"
+                onClick={handleSaveName}
+                disabled={updatingInfo}
+                sx={{ 
+                  fontWeight: 700, 
+                  borderRadius: 2, 
+                  py: 1, 
+                  fontSize: 14, 
+                  textTransform: 'none',
+                  fontFamily: '"Bebas Neue", "Anton", "Oswald", "Impact", sans-serif'
+                }}
+              >
+                {updatingInfo ? 'Kaydediliyor...' : 'Kaydet'}
+              </Button>
+              <Button
+                size="small"
+                variant="outlined"
+                onClick={() => setShowNameEdit(false)}
+                sx={{ 
+                  fontWeight: 700, 
+                  borderRadius: 2, 
+                  py: 1, 
+                  fontSize: 14, 
+                  textTransform: 'none',
+                  fontFamily: '"Bebas Neue", "Anton", "Oswald", "Impact", sans-serif'
+                }}
+              >
+                İptal
+              </Button>
+            </Box>
+          </Box>
+        </Collapse>
+        
+        {/* Email Düzenleme */}
+        <Collapse in={showEmailEdit} timeout={350} unmountOnExit>
+          <Box sx={{ 
+            bgcolor: theme.palette.background.paper, 
+            borderRadius: 4, 
+            boxShadow: '0 2px 12px #0002', 
+            p: 2, 
+            mt: 1,
+            border: `1px solid ${theme.palette.divider}`
+          }}>
+            <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>Email Adresini Düzenle</Typography>
+            <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+              <TextField
+                size="small"
+                value={editingEmail}
+                onChange={(e) => setEditingEmail(e.target.value)}
+                placeholder="Email adresi"
+                type="email"
+                sx={{ flex: 1 }}
+              />
+              <Button
+                size="small"
+                variant="contained"
+                onClick={handleSaveEmail}
+                disabled={updatingInfo}
+                sx={{ 
+                  fontWeight: 700, 
+                  borderRadius: 2, 
+                  py: 1, 
+                  fontSize: 14, 
+                  textTransform: 'none',
+                  fontFamily: '"Bebas Neue", "Anton", "Oswald", "Impact", sans-serif'
+                }}
+              >
+                {updatingInfo ? 'Kaydediliyor...' : 'Kaydet'}
+              </Button>
+              <Button
+                size="small"
+                variant="outlined"
+                onClick={() => setShowEmailEdit(false)}
+                sx={{ 
+                  fontWeight: 700, 
+                  borderRadius: 2, 
+                  py: 1, 
+                  fontSize: 14, 
+                  textTransform: 'none',
+                  fontFamily: '"Bebas Neue", "Anton", "Oswald", "Impact", sans-serif'
+                }}
+              >
+                İptal
+              </Button>
             </Box>
           </Box>
         </Collapse>
@@ -1960,6 +2174,20 @@ function App() {
 
   useEffect(() => {
     localStorage.setItem('theme', mode)
+  }, [mode])
+
+  // Sistem tema değişikliğini dinle
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
+    const handleChange = (e: MediaQueryListEvent) => {
+      if (mode === 'auto') {
+        // Auto modda sistem değişikliğini zorla
+        setMode('auto')
+      }
+    }
+    
+    mediaQuery.addEventListener('change', handleChange)
+    return () => mediaQuery.removeEventListener('change', handleChange)
   }, [mode])
 
   const realMode = mode === 'auto' ? (prefersDarkMode ? 'dark' : 'light') : mode

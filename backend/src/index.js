@@ -97,6 +97,43 @@ app.put('/api/user/profile-image', async (req, res) => {
   }
 })
 
+app.put('/api/user/update-profile', async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(' ')[1]
+    if (!token) return res.status(401).json({ message: 'Token gerekli' })
+    
+    const { displayName, email } = req.body
+    
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret')
+    const user = await User.findById(decoded.userId)
+    if (!user) return res.status(401).json({ message: 'Geçersiz token' })
+    
+    // Email değişikliği varsa kontrol et
+    if (email && email !== user.email) {
+      const existingUser = await User.findOne({ email })
+      if (existingUser) {
+        return res.status(400).json({ message: 'Bu email adresi zaten kullanılıyor' })
+      }
+      user.email = email
+    }
+    
+    // Display name değişikliği varsa güncelle
+    if (displayName) {
+      user.displayName = displayName
+    }
+    
+    await user.save()
+    
+    res.json({ 
+      message: 'Profil güncellendi',
+      email: user.email,
+      displayName: user.displayName
+    })
+  } catch (error) {
+    res.status(500).json({ message: 'Sunucu hatası' })
+  }
+})
+
 app.get('/api/user/favorites', async (req, res) => {
   try {
     const token = req.headers.authorization?.split(' ')[1]
