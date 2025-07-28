@@ -199,43 +199,39 @@ function AppBanner() {
   }
 
   // "Yükle" butonuna tıklandığında önce kontrol et
-  const handleInstallOrOpen = () => {
-    // Sadece cihazdan bilgi alarak kontrol et (localStorage kullanma)
-    const standalone = window.matchMedia('(display-mode: standalone)').matches
-    const navigatorStandalone = (window.navigator as any).standalone === true
+  const handleInstallOrOpen = async () => {
+    console.log('🚀 Aç/Yükle butonu tıklandı')
     
-    const isActuallyInstalled = standalone || navigatorStandalone
+    // Her zaman önce açmayı dene
+    const currentUrl = window.location.href
     
-    console.log('Yükle butonu tıklandı:', {
-      standalone,
-      navigatorStandalone,
-      isActuallyInstalled
-    })
-    
-    if (isActuallyInstalled) {
-      // Uygulama zaten yüklü, otomatik aç
-      const currentUrl = window.location.href
+    try {
+      console.log('📱 Uygulamada açmaya çalışılıyor:', currentUrl)
       
-      console.log('✅ Uygulama yüklü, açılıyor:', currentUrl)
+      // Yöntem 1: window.open ile yeni sekmede aç
+      const newWindow = window.open(currentUrl, '_blank')
       
-      // PWA'da açmak için farklı yöntemler dene
-      try {
-        // Yöntem 1: window.open
-        const newWindow = window.open(currentUrl, '_blank')
-        
-        // Yöntem 2: Eğer window.open çalışmazsa location.href
-        if (!newWindow) {
-          console.log('window.open çalışmadı, location.href deneniyor')
-          window.location.href = currentUrl
-        }
-      } catch (error) {
-        console.log('Hata:', error)
-        // Yöntem 3: Basit yönlendirme
+      // Yöntem 2: Eğer window.open çalışmazsa location.href
+      if (!newWindow) {
+        console.log('window.open çalışmadı, location.href deneniyor')
         window.location.href = currentUrl
+      } else {
+        console.log('✅ Yeni sekme açıldı')
       }
-    } else {
-      console.log('📱 Uygulama yüklü değil, yükleme önerisi gösteriliyor')
-      // Uygulama yüklü değil, yükleme önerisini göster
+      
+      // 2 saniye bekle, eğer hala aynı sayfadaysak yükleme önerisi göster
+      setTimeout(() => {
+        if (window.location.href === currentUrl) {
+          console.log('⏰ 2 saniye sonra hala aynı sayfadayız, yükleme önerisi gösteriliyor')
+          if ((window as any).installApp) {
+            (window as any).installApp()
+          }
+        }
+      }, 2000)
+      
+    } catch (error) {
+      console.log('❌ Açma hatası:', error)
+      // Hata durumunda yükleme önerisi göster
       if ((window as any).installApp) {
         (window as any).installApp()
       }
