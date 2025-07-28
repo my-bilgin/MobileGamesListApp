@@ -120,6 +120,7 @@ function AppBanner() {
   const [showBanner, setShowBanner] = useState(false)
   const [isAppInstalled, setIsAppInstalled] = useState(false)
   const theme = useTheme()
+  const { token } = useAuth()
 
   // Uygulama yüklü mü kontrol et
   const checkIfInstalled = () => {
@@ -146,10 +147,18 @@ function AppBanner() {
       
       // Eğer uygulama içinde değilse ve localhost değilse banner göster
       if (!isStandalone && !isNavigatorStandalone && !window.location.href.includes('localhost')) {
+        // Kullanıcı giriş yapmışsa ve ayarı kapalıysa banner gösterme
+        if (token) {
+          // Kullanıcının ayarını kontrol et (varsayılan olarak göster)
+          const userShowBanner = localStorage.getItem('user-show-app-banner')
+          if (userShowBanner === 'false') {
+            return // Banner gösterme
+          }
+        }
         setShowBanner(true)
       }
     }, 3000)
-  }, [])
+  }, [token])
 
   const handleOpenInApp = () => {
     // Önce tekrar kontrol et (durum değişmiş olabilir)
@@ -252,7 +261,7 @@ function AppBanner() {
               color: theme.palette.text.secondary,
               fontSize: 11
             }}>
-              Uygulamada aç
+              Uygulamada daha iyi deneyim
             </Typography>
           </Box>
         </Box>
@@ -271,7 +280,7 @@ function AppBanner() {
               textTransform: 'none'
             }}
           >
-            Yükle
+            Aç/Yükle
           </Button>
           <IconButton
             size="small"
@@ -1452,6 +1461,9 @@ function Profile({ setMode, mode }: { setMode: (m: any) => void, mode: string })
   const [editingEmail, setEditingEmail] = useState('')
   const [updatingInfo, setUpdatingInfo] = useState(false)
   
+  // Uygulama önerisi ayarı
+  const [showAppBanner, setShowAppBanner] = useState(true)
+  
   // Profil resmi seçenekleri (18 avatar)
   const avatarOptions = [
     '/avatar1.png', '/avatar2.png', '/avatar3.png', '/avatar4.png', '/avatar5.png', '/avatar6.png',
@@ -1478,6 +1490,10 @@ function Profile({ setMode, mode }: { setMode: (m: any) => void, mode: string })
         const data = await res.json()
         setUserInfo(data)
         setProfileImage(data.profileImage || '/default-avatar.png')
+        const bannerSetting = data.showAppBanner !== false // Default true, sadece false ise false yap
+        setShowAppBanner(bannerSetting)
+        // LocalStorage'a da kaydet
+        localStorage.setItem('user-show-app-banner', bannerSetting.toString())
       }
     } catch (error) {
       console.error('Kullanıcı bilgileri alınamadı:', error)
@@ -1578,6 +1594,30 @@ function Profile({ setMode, mode }: { setMode: (m: any) => void, mode: string })
     setMode(newMode)
     localStorage.setItem('theme', newMode)
     show('Tema tercihiniz kaydedildi.', 'success')
+  }
+
+  const handleAppBannerChange = async (newValue: boolean) => {
+    try {
+      const res = await fetch(`${API_URL}/user/app-banner-setting`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ showAppBanner: newValue })
+      })
+      
+      if (res.ok) {
+        setShowAppBanner(newValue)
+        // LocalStorage'a da kaydet
+        localStorage.setItem('user-show-app-banner', newValue.toString())
+        show(newValue ? 'Uygulama önerisi açıldı' : 'Uygulama önerisi kapatıldı', 'success')
+      } else {
+        show('Ayar güncellenemedi', 'error')
+      }
+    } catch (error) {
+      show('Ayar güncellenemedi', 'error')
+    }
   }
 
   const handleNameEdit = () => {
@@ -2126,6 +2166,32 @@ function Profile({ setMode, mode }: { setMode: (m: any) => void, mode: string })
             </Button>
           ))}
         </Box>
+      </Box>
+
+      {/* Uygulama Önerisi Ayarı */}
+      <Box sx={{ bgcolor: theme.palette.background.paper, borderRadius: 4, boxShadow: 3, p: 2.5, mb: 2, mx: { xs: 1, sm: 0 } }}>
+        <Typography variant="h6" sx={{ fontWeight: 700, mb: 2, fontFamily: '"Bitcount Prop Single", system-ui' }}>Uygulama Önerisi Ayarı</Typography>
+        <Button
+          variant={showAppBanner ? 'contained' : 'outlined'}
+          onClick={() => handleAppBannerChange(!showAppBanner)}
+          fullWidth
+          sx={{
+            fontWeight: 700,
+            borderRadius: 2,
+            py: 1.5,
+            fontSize: 16,
+            textTransform: 'none',
+            fontFamily: '"Bitcount Prop Single", system-ui',
+            borderColor: theme.palette.primary.main,
+            color: theme.palette.primary.main,
+            '&:hover': {
+              borderColor: theme.palette.primary.dark,
+              bgcolor: theme.palette.primary.light
+            }
+          }}
+        >
+          {showAppBanner ? 'Uygulama Önerisi Açık' : 'Uygulama Önerisi Kapalı'}
+        </Button>
       </Box>
 
       {/* Çıkış Yap */}

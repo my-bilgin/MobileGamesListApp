@@ -5,6 +5,7 @@ const userSchema = new mongoose.Schema({
   password: { type: String, required: true },
   displayName: { type: String, required: true },
   profileImage: { type: String, default: '/default-avatar.png' },
+  showAppBanner: { type: Boolean, default: true },
   favoriteGames: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Game' }],
   favoriteLists: [{ type: mongoose.Schema.Types.ObjectId, ref: 'List' }],
 }, { timestamps: true })

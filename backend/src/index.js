@@ -134,6 +134,29 @@ app.put('/api/user/update-profile', async (req, res) => {
   }
 })
 
+app.put('/api/user/app-banner-setting', async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(' ')[1]
+    if (!token) return res.status(401).json({ message: 'Token gerekli' })
+    
+    const { showAppBanner } = req.body
+    
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret')
+    const user = await User.findById(decoded.userId)
+    if (!user) return res.status(401).json({ message: 'Geçersiz token' })
+    
+    user.showAppBanner = showAppBanner
+    await user.save()
+    
+    res.json({ 
+      message: 'Uygulama önerisi ayarı güncellendi',
+      showAppBanner: user.showAppBanner
+    })
+  } catch (error) {
+    res.status(500).json({ message: 'Sunucu hatası' })
+  }
+})
+
 app.get('/api/user/favorites', async (req, res) => {
   try {
     const token = req.headers.authorization?.split(' ')[1]
