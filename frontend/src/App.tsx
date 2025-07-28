@@ -202,7 +202,13 @@ function AppBanner() {
   const handleInstallOrOpen = async () => {
     console.log('🚀 Aç/Yükle butonu tıklandı')
     
-    // Her zaman önce açmayı dene
+    // Önce yükleme önerisini göster (user gesture korunuyor)
+    console.log('📱 Yükleme önerisi gösteriliyor')
+    if ((window as any).installApp) {
+      (window as any).installApp()
+    }
+    
+    // Sonra açmayı dene
     const currentUrl = window.location.href
     
     try {
@@ -213,12 +219,6 @@ function AppBanner() {
       
       if (newWindow) {
         console.log('✅ Yeni sekme açıldı')
-        
-        // Hemen yükleme önerisi göster (user gesture korunuyor)
-        console.log('📱 Yükleme önerisi gösteriliyor')
-        if ((window as any).installApp) {
-          (window as any).installApp()
-        }
         
         // 1 saniye sonra yeni sekmeyi kapat (eğer tarayıcıda açıldıysa)
         setTimeout(() => {
@@ -239,10 +239,6 @@ function AppBanner() {
       
     } catch (error) {
       console.log('❌ Açma hatası:', error)
-      // Hata durumunda yükleme önerisi göster
-      if ((window as any).installApp) {
-        (window as any).installApp()
-      }
     }
     
     setShowBanner(false)
