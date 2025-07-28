@@ -46,29 +46,6 @@ app.post('/share-target', (req, res) => {
   }
 });
 
-// API share target endpoint'i
-app.post('/api/share-target', (req, res) => {
-  try {
-    console.log('API Share target endpoint çağrıldı');
-    console.log('Request body:', req.body);
-    console.log('Request headers:', req.headers);
-    
-    // Form data'yı al
-    const { title, text, url } = req.body;
-    
-    console.log('API Share data:', { title, text, url });
-    
-    // Başarılı yanıt döndür
-    res.status(200).json({ 
-      message: 'API Share target başarılı',
-      data: { title, text, url }
-    });
-  } catch (error) {
-    console.error('API Share target hatası:', error);
-    res.status(500).json({ message: 'API Share target hatası' });
-  }
-});
-
 // URL-encoded form data'yı parse et
 app.use(express.urlencoded({ extended: true }));
 
