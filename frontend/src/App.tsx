@@ -117,10 +117,10 @@ function ProtectedRoute({ children }: { children: ReactNode }) {
 
 // App Banner Component
 function AppBanner() {
-  const [showBanner, setShowBanner] = useState(false)
+  const [showBanner, setShowBanner] = useState(false) // Başlangıçta false
   const [isAppInstalled, setIsAppInstalled] = useState(false)
   const theme = useTheme()
-  const { token } = useAuth()
+  const { token } = useAuth() // Added to check user login status
 
   // Uygulama yüklü mü kontrol et
   const checkIfInstalled = () => {
