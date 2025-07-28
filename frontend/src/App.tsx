@@ -252,7 +252,7 @@ function AppBanner() {
               color: theme.palette.text.secondary,
               fontSize: 11
             }}>
-              {isAppInstalled ? 'Uygulamada aç' : 'Uygulamada daha iyi deneyim'}
+              Uygulamada aç
             </Typography>
           </Box>
         </Box>
@@ -271,7 +271,7 @@ function AppBanner() {
               textTransform: 'none'
             }}
           >
-            {isAppInstalled ? 'Aç' : 'Yükle'}
+            Yükle
           </Button>
           <IconButton
             size="small"
