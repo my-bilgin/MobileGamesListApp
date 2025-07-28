@@ -123,17 +123,16 @@ function AppBanner() {
 
   // Uygulama yüklü mü kontrol et
   const checkIfInstalled = () => {
-    // Birden fazla yöntemle kontrol et
+    // Sadece cihazdan bilgi alarak kontrol et (localStorage kullanma)
     const standalone = window.matchMedia('(display-mode: standalone)').matches
     const navigatorStandalone = (window.navigator as any).standalone === true
-    const pwaInstalled = localStorage.getItem('pwa-installed') === 'true'
     
     // Eğer uygulama içinde çalışıyorsa (standalone modda) banner gösterme
     if (standalone || navigatorStandalone) {
       return true
     }
     
-    const installed = standalone || navigatorStandalone || pwaInstalled
+    const installed = standalone || navigatorStandalone
     setIsAppInstalled(installed)
     return installed
   }
@@ -179,28 +178,21 @@ function AppBanner() {
 
   // "Yükle" butonuna tıklandığında önce kontrol et
   const handleInstallOrOpen = () => {
-    // Önce uygulamanın yüklü olup olmadığını kontrol et
+    // Sadece cihazdan bilgi alarak kontrol et (localStorage kullanma)
     const standalone = window.matchMedia('(display-mode: standalone)').matches
     const navigatorStandalone = (window.navigator as any).standalone === true
-    const pwaInstalled = localStorage.getItem('pwa-installed') === 'true'
     
-    const isActuallyInstalled = standalone || navigatorStandalone || pwaInstalled
+    const isActuallyInstalled = standalone || navigatorStandalone
     
     console.log('Yükle butonu tıklandı:', {
       standalone,
       navigatorStandalone,
-      pwaInstalled,
       isActuallyInstalled
     })
     
     if (isActuallyInstalled) {
       // Uygulama zaten yüklü, otomatik aç
       const currentUrl = window.location.href
-      
-      // LocalStorage'a yüklü olduğunu kaydet (eğer yoksa)
-      if (localStorage.getItem('pwa-installed') !== 'true') {
-        localStorage.setItem('pwa-installed', 'true')
-      }
       
       // PWA'da açmak için window.open kullan
       window.open(currentUrl, '_blank')
