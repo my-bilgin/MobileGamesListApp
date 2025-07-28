@@ -41,7 +41,8 @@ app.get('/api/user/profile', async (req, res) => {
     res.json({
       email: user.email,
       displayName: user.displayName,
-      profileImage: user.profileImage || '/default-avatar.png'
+      profileImage: user.profileImage || '/default-avatar.png',
+      showAppBanner: user.showAppBanner !== false // Default true, sadece false ise false yap
     })
   } catch (error) {
     res.status(500).json({ message: 'Sunucu hatası' })

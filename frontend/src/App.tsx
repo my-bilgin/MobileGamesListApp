@@ -145,17 +145,30 @@ function AppBanner() {
       const isStandalone = window.matchMedia('(display-mode: standalone)').matches
       const isNavigatorStandalone = (window.navigator as any).standalone === true
       
+      console.log('🔍 AppBanner Debug:', {
+        isStandalone,
+        isNavigatorStandalone,
+        isLocalhost: window.location.href.includes('localhost'),
+        hasToken: !!token,
+        userShowBanner: localStorage.getItem('user-show-app-banner')
+      })
+      
       // Eğer uygulama içinde değilse ve localhost değilse banner göster
       if (!isStandalone && !isNavigatorStandalone && !window.location.href.includes('localhost')) {
         // Kullanıcı giriş yapmışsa ve ayarı kapalıysa banner gösterme
         if (token) {
           // Kullanıcının ayarını kontrol et (varsayılan olarak göster)
           const userShowBanner = localStorage.getItem('user-show-app-banner')
+          console.log('🔍 Kullanıcı ayarı:', userShowBanner)
           if (userShowBanner === 'false') {
+            console.log('❌ Banner gizlendi: Kullanıcı ayarı kapalı')
             return // Banner gösterme
           }
         }
+        console.log('✅ Banner gösteriliyor')
         setShowBanner(true)
+      } else {
+        console.log('❌ Banner gizlendi: Uygulama içinde veya localhost')
       }
     }, 3000)
   }, [token])
@@ -203,9 +216,25 @@ function AppBanner() {
       // Uygulama zaten yüklü, otomatik aç
       const currentUrl = window.location.href
       
-      // PWA'da açmak için window.open kullan
-      window.open(currentUrl, '_blank')
+      console.log('✅ Uygulama yüklü, açılıyor:', currentUrl)
+      
+      // PWA'da açmak için farklı yöntemler dene
+      try {
+        // Yöntem 1: window.open
+        const newWindow = window.open(currentUrl, '_blank')
+        
+        // Yöntem 2: Eğer window.open çalışmazsa location.href
+        if (!newWindow) {
+          console.log('window.open çalışmadı, location.href deneniyor')
+          window.location.href = currentUrl
+        }
+      } catch (error) {
+        console.log('Hata:', error)
+        // Yöntem 3: Basit yönlendirme
+        window.location.href = currentUrl
+      }
     } else {
+      console.log('📱 Uygulama yüklü değil, yükleme önerisi gösteriliyor')
       // Uygulama yüklü değil, yükleme önerisini göster
       if ((window as any).installApp) {
         (window as any).installApp()
