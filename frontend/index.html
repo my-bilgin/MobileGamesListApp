@@ -74,8 +74,12 @@
           deferredPrompt.userChoice.then((choiceResult) => {
             if (choiceResult.outcome === 'accepted') {
               console.log('Kullanıcı uygulamayı yüklemeyi kabul etti');
+              // Global değişkende sakla
+              window.installResult = 'accepted';
             } else {
               console.log('Kullanıcı uygulamayı yüklemeyi reddetti');
+              // Global değişkende sakla
+              window.installResult = 'rejected';
               // 5 saniye sonra tekrar dene
               setTimeout(() => {
                 if (deferredPrompt) {
@@ -85,6 +89,10 @@
             }
             deferredPrompt = null;
           });
+        } else {
+          // deferredPrompt yoksa, muhtemelen uygulama zaten yüklü
+          console.log('deferredPrompt yok, uygulama zaten yüklü olabilir');
+          window.installResult = 'already-installed';
         }
       }
       

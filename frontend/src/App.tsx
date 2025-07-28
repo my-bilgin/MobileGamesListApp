@@ -202,47 +202,60 @@ function AppBanner() {
   const handleInstallOrOpen = async () => {
     console.log('🚀 Aç/Yükle butonu tıklandı')
     
-    // Önce yükleme önerisini göster (user gesture korunuyor)
+    // Önce yükleme önerisini göster
     console.log('📱 Yükleme önerisi gösteriliyor')
+    
     if ((window as any).installApp) {
-      (window as any).installApp()
-    }
-    
-    // Sonra açmayı dene
-    const currentUrl = window.location.href
-    
-    try {
-      console.log('📱 Uygulamada açmaya çalışılıyor:', currentUrl)
+      // installResult'ı sıfırla
+      (window as any).installResult = null;
       
-      // Yöntem 1: window.open ile yeni sekmede aç
-      const newWindow = window.open(currentUrl, '_blank')
+      // Yükleme önerisini göster
+      (window as any).installApp();
       
-      if (newWindow) {
-        console.log('✅ Yeni sekme açıldı')
-        
-        // 1 saniye sonra yeni sekmeyi kapat (eğer tarayıcıda açıldıysa)
-        setTimeout(() => {
-          try {
-            if (!newWindow.closed) {
-              console.log('🔒 Yeni sekme kapatılıyor')
-              newWindow.close()
+      // Sonucu bekle
+      const checkResult = () => {
+        const result = (window as any).installResult;
+        if (result) {
+          console.log('Yükleme sonucu:', result);
+          
+          if (result === 'accepted' || result === 'already-installed') {
+            // Açmayı dene
+            const currentUrl = window.location.href;
+            console.log('📱 Uygulamada açmaya çalışılıyor:', currentUrl);
+            
+            try {
+              const newWindow = window.open(currentUrl, '_blank');
+              if (newWindow) {
+                console.log('✅ Yeni sekme açıldı');
+                setTimeout(() => {
+                  try {
+                    if (!newWindow.closed) {
+                      console.log('🔒 Yeni sekme kapatılıyor');
+                      newWindow.close();
+                    }
+                  } catch (error) {
+                    console.log('Sekme kapatma hatası:', error);
+                  }
+                }, 1000);
+              }
+            } catch (error) {
+              console.log('❌ Açma hatası:', error);
             }
-          } catch (error) {
-            console.log('Sekme kapatma hatası:', error)
+          } else {
+            console.log('❌ Kullanıcı yüklemeyi reddetti, açma iptal edildi');
           }
-        }, 1000)
-        
-      } else {
-        console.log('❌ window.open başarısız, location.href deneniyor')
-        window.location.href = currentUrl
-      }
+        } else {
+          // Henüz sonuç yok, tekrar kontrol et
+          setTimeout(checkResult, 100);
+        }
+      };
       
-    } catch (error) {
-      console.log('❌ Açma hatası:', error)
+      // Sonucu kontrol etmeye başla
+      setTimeout(checkResult, 100);
     }
     
-    setShowBanner(false)
-  }
+    setShowBanner(false);
+  };
 
   const handleDismiss = () => {
     setShowBanner(false)
