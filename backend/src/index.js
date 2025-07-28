@@ -216,6 +216,27 @@ app.post('/api/fetch-game-info', async (req, res) => {
   }
 })
 
+// Share target endpoint'i
+app.post('/share-target', async (req, res) => {
+  try {
+    console.log('Share target POST isteği alındı:', req.body)
+    const { url } = req.body
+    
+    if (!url) {
+      return res.status(400).json({ error: 'URL gerekli' })
+    }
+    
+    // Basit bir yanıt döndür
+    res.json({ 
+      message: 'Share target başarılı',
+      url: url 
+    })
+  } catch (error) {
+    console.error('Share target hatası:', error)
+    res.status(500).json({ error: 'Sunucu hatası' })
+  }
+})
+
 app.listen(PORT, () => {
   console.log(`Sunucu ${PORT} portunda çalışıyor`)
 })
