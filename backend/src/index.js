@@ -23,32 +23,6 @@ app.get('/', (req, res) => {
   res.json({ message: 'API çalışıyor' })
 })
 
-// Share target endpoint'i
-app.post('/share-target', (req, res) => {
-  try {
-    console.log('Share target endpoint çağrıldı');
-    console.log('Request body:', req.body);
-    console.log('Request headers:', req.headers);
-    
-    // Form data'yı al
-    const { title, text, url } = req.body;
-    
-    console.log('Share data:', { title, text, url });
-    
-    // Başarılı yanıt döndür
-    res.status(200).json({ 
-      message: 'Share target başarılı',
-      data: { title, text, url }
-    });
-  } catch (error) {
-    console.error('Share target hatası:', error);
-    res.status(500).json({ message: 'Share target hatası' });
-  }
-});
-
-// URL-encoded form data'yı parse et
-app.use(express.urlencoded({ extended: true }));
-
 // Kullanıcı ve liste rotaları buraya eklenecek
 app.use('/api/auth', require('./auth.routes'))
 app.use('/api/lists', require('./list.routes'))
