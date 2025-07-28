@@ -211,23 +211,36 @@ function AppBanner() {
       // Yöntem 1: window.open ile yeni sekmede aç
       const newWindow = window.open(currentUrl, '_blank')
       
-      // Yöntem 2: Eğer window.open çalışmazsa location.href
-      if (!newWindow) {
-        console.log('window.open çalışmadı, location.href deneniyor')
-        window.location.href = currentUrl
-      } else {
+      if (newWindow) {
         console.log('✅ Yeni sekme açıldı')
-      }
-      
-      // 2 saniye bekle, eğer hala aynı sayfadaysak yükleme önerisi göster
-      setTimeout(() => {
-        if (window.location.href === currentUrl) {
-          console.log('⏰ 2 saniye sonra hala aynı sayfadayız, yükleme önerisi gösteriliyor')
-          if ((window as any).installApp) {
-            (window as any).installApp()
+        
+        // Yeni sekmenin gerçekten uygulamada açılıp açılmadığını kontrol et
+        setTimeout(() => {
+          try {
+            // Yeni sekmenin URL'sini kontrol et
+            if (newWindow.location.href !== currentUrl) {
+              console.log('✅ Uygulamada açıldı, URL değişti:', newWindow.location.href)
+              return // Başarılı, işlem tamam
+            }
+            
+            // Eğer URL aynıysa ve sekme hala açıksa, muhtemelen tarayıcıda açıldı
+            if (!newWindow.closed) {
+              console.log('❌ Tarayıcıda açıldı, yükleme önerisi gösteriliyor')
+              newWindow.close() // Yeni sekmeyi kapat
+              if ((window as any).installApp) {
+                (window as any).installApp()
+              }
+            }
+          } catch (error) {
+            // CORS hatası alırsak, muhtemelen uygulamada açıldı
+            console.log('✅ Uygulamada açıldı (CORS hatası = başarılı)')
           }
-        }
-      }, 2000)
+        }, 1000) // 1 saniye bekle
+        
+      } else {
+        console.log('❌ window.open başarısız, location.href deneniyor')
+        window.location.href = currentUrl
+      }
       
     } catch (error) {
       console.log('❌ Açma hatası:', error)
