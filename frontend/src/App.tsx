@@ -214,28 +214,23 @@ function AppBanner() {
       if (newWindow) {
         console.log('✅ Yeni sekme açıldı')
         
-        // Yeni sekmenin gerçekten uygulamada açılıp açılmadığını kontrol et
+        // Hemen yükleme önerisi göster (user gesture korunuyor)
+        console.log('📱 Yükleme önerisi gösteriliyor')
+        if ((window as any).installApp) {
+          (window as any).installApp()
+        }
+        
+        // 1 saniye sonra yeni sekmeyi kapat (eğer tarayıcıda açıldıysa)
         setTimeout(() => {
           try {
-            // Yeni sekmenin URL'sini kontrol et
-            if (newWindow.location.href !== currentUrl) {
-              console.log('✅ Uygulamada açıldı, URL değişti:', newWindow.location.href)
-              return // Başarılı, işlem tamam
-            }
-            
-            // Eğer URL aynıysa ve sekme hala açıksa, muhtemelen tarayıcıda açıldı
             if (!newWindow.closed) {
-              console.log('❌ Tarayıcıda açıldı, yükleme önerisi gösteriliyor')
-              newWindow.close() // Yeni sekmeyi kapat
-              if ((window as any).installApp) {
-                (window as any).installApp()
-              }
+              console.log('🔒 Yeni sekme kapatılıyor')
+              newWindow.close()
             }
           } catch (error) {
-            // CORS hatası alırsak, muhtemelen uygulamada açıldı
-            console.log('✅ Uygulamada açıldı (CORS hatası = başarılı)')
+            console.log('Sekme kapatma hatası:', error)
           }
-        }, 1000) // 1 saniye bekle
+        }, 1000)
         
       } else {
         console.log('❌ window.open başarısız, location.href deneniyor')
