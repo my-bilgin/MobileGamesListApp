@@ -2418,23 +2418,18 @@ function ShareTargetView() {
         
         console.log('Cache\'den alınmaya çalışılıyor...');
         
-        // Cache'den dene (farklı key'ler)
+        // Cache'den dene
         if ('caches' in window) {
           const cache = await caches.open('shared-data');
+          const response = await cache.match('/last-shared-url');
           
-          // Farklı key'leri dene
-          const keys = ['/shared-url', '/last-shared-url', '/game-url'];
-          
-          for (const key of keys) {
-            const response = await cache.match(key);
-            if (response) {
-              const url = await response.text();
-              console.log(`Cache'den alındı (${key}):`, url);
-              if (url && url.trim()) {
-                setSharedUrl(url.trim());
-                setLoading(false);
-                return;
-              }
+          if (response) {
+            const url = await response.text();
+            console.log('Cache\'den alındı:', url);
+            if (url && url.trim()) {
+              setSharedUrl(url.trim());
+              setLoading(false);
+              return;
             }
           }
         }
