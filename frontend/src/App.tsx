@@ -2377,25 +2377,9 @@ function ShareTargetView() {
     
     const getSharedUrl = async () => {
       try {
-        // Önce cache'i temizle (eski verileri kaldır)
-        if ('caches' in window) {
-          const cache = await caches.open('shared-data');
-          await cache.delete('/last-shared-url');
-          console.log('Eski cache verisi temizlendi');
-        }
-        
         // Önce URL parametresinden dene (test için)
         const urlParams = new URLSearchParams(window.location.search);
         const sharedUrlParam = urlParams.get('url');
-        
-        // Test için manuel URL (geliştirme aşamasında)
-        const testUrl = urlParams.get('test');
-        if (testUrl) {
-          console.log('Test URL\'si kullanılıyor:', testUrl);
-          setSharedUrl(testUrl);
-          setLoading(false);
-          return;
-        }
         
         if (sharedUrlParam) {
           console.log('URL parametresinden alındı:', sharedUrlParam);
