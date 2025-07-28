@@ -2375,6 +2375,18 @@ function ShareTargetView() {
   useEffect(() => {
     console.log('ShareTargetView useEffect çalıştı');
     
+    // Service Worker'dan gelen mesajları dinle
+    const handleMessage = (event: MessageEvent) => {
+      if (event.data && event.data.type === 'SHARED_URL') {
+        console.log('PostMessage ile URL alındı:', event.data.url);
+        setSharedUrl(event.data.url);
+        setLoading(false);
+      }
+    };
+    
+    // Message listener ekle
+    navigator.serviceWorker.addEventListener('message', handleMessage);
+    
     const getSharedUrl = async () => {
       try {
         // Önce cache'i temizle (eski verileri kaldır)
@@ -2432,6 +2444,11 @@ function ShareTargetView() {
     };
     
     getSharedUrl();
+    
+    // Cleanup
+    return () => {
+      navigator.serviceWorker.removeEventListener('message', handleMessage);
+    };
   }, []);
 
   // sharedUrl değiştiğinde oyun bilgilerini al
