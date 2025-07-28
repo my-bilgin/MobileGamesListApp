@@ -12,8 +12,8 @@
   "categories": ["games", "entertainment", "productivity"],
   "protocol_handlers": [
     {
-      "protocol": "gameshare",
-      "url": "/?url=%s"
+      "protocol": "web+gameshare",
+      "url": "/share-target?url=%s"
     }
   ],
   "icons": [
@@ -76,6 +76,14 @@
       "url": "url"
     }
   },
+  "file_handlers": [
+    {
+      "action": "/share-target",
+      "accept": {
+        "text/plain": [".txt"]
+      }
+    }
+  ],
   "related_applications": [
     {
       "platform": "webapp",

@@ -19,9 +19,24 @@ async function handleShareTarget(event) {
     console.log('Service Worker: Shared URL:', sharedUrl);
 
     if (sharedUrl) {
-      // localStorage'a yaz (daha güvenilir)
+      // Cache'e yaz (daha güvenilir key)
+      const cache = await caches.open('shared-data');
+      const response = new Response(sharedUrl, {
+        headers: { 
+          'Content-Type': 'text/plain',
+          'Cache-Control': 'no-cache'
+        }
+      });
+      
+      // Farklı key'ler dene
+      await cache.put('/shared-url', response);
+      await cache.put('/last-shared-url', response);
+      await cache.put('/game-url', response);
+      
+      console.log('Service Worker: URL cache\'e yazıldı (3 farklı key)');
+      
+      // localStorage'a da yaz (backup)
       try {
-        // Service Worker'dan localStorage'a erişim için postMessage kullan
         const clients = await self.clients.matchAll();
         clients.forEach(client => {
           client.postMessage({
@@ -33,14 +48,6 @@ async function handleShareTarget(event) {
       } catch (error) {
         console.log('Service Worker: postMessage hatası:', error);
       }
-      
-      // Cache'e de yaz (backup)
-      const cache = await caches.open('shared-data');
-      const response = new Response(sharedUrl, {
-        headers: { 'Content-Type': 'text/plain' }
-      });
-      await cache.put('/last-shared-url', response);
-      console.log('Service Worker: URL cache\'e yazıldı');
     }
 
     // Başka sayfaya yönlendir
