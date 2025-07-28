@@ -162,6 +162,7 @@ function AppBanner() {
           console.log('🔍 Kullanıcı ayarı:', userShowBanner)
           if (userShowBanner === 'false') {
             console.log('❌ Banner gizlendi: Kullanıcı ayarı kapalı')
+            setShowBanner(false) // Banner'ı gizle
             return // Banner gösterme
           }
         }
@@ -169,6 +170,7 @@ function AppBanner() {
         setShowBanner(true)
       } else {
         console.log('❌ Banner gizlendi: Uygulama içinde veya localhost')
+        setShowBanner(false) // Banner'ı gizle
       }
     }, 3000)
   }, [token])
