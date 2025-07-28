@@ -2375,31 +2375,47 @@ function ShareTargetView() {
   useEffect(() => {
     console.log('ShareTargetView useEffect çalıştı');
     
-    // Önce URL parametresinden dene (test için)
-    const urlParams = new URLSearchParams(window.location.search);
-    const sharedUrlParam = urlParams.get('url');
-    
-    if (sharedUrlParam) {
-      console.log('URL parametresinden alındı:', sharedUrlParam);
-      setSharedUrl(decodeURIComponent(sharedUrlParam));
-      setLoading(false);
-    } else {
-      console.log('Cache\'den alınmaya çalışılıyor...');
-      // Cache'den dene
-      caches.open('shared-data').then(cache => {
-        cache.match('/last-shared-url').then(res => {
-          if (res) {
-            res.text().then(url => {
-              console.log('Cache\'den alındı:', url);
-              setSharedUrl(url);
-            });
-          } else {
-            console.log('Cache\'de URL bulunamadı');
-          }
+    const getSharedUrl = async () => {
+      try {
+        // Önce URL parametresinden dene (test için)
+        const urlParams = new URLSearchParams(window.location.search);
+        const sharedUrlParam = urlParams.get('url');
+        
+        if (sharedUrlParam) {
+          console.log('URL parametresinden alındı:', sharedUrlParam);
+          setSharedUrl(decodeURIComponent(sharedUrlParam));
           setLoading(false);
-        });
-      });
-    }
+          return;
+        }
+        
+        console.log('Cache\'den alınmaya çalışılıyor...');
+        
+        // Cache'den dene
+        if ('caches' in window) {
+          const cache = await caches.open('shared-data');
+          const response = await cache.match('/last-shared-url');
+          
+          if (response) {
+            const url = await response.text();
+            console.log('Cache\'den alındı:', url);
+            if (url && url.trim()) {
+              setSharedUrl(url.trim());
+              setLoading(false);
+              return;
+            }
+          }
+        }
+        
+        console.log('Cache\'de URL bulunamadı');
+        setLoading(false);
+        
+      } catch (error) {
+        console.error('URL alma hatası:', error);
+        setLoading(false);
+      }
+    };
+    
+    getSharedUrl();
   }, []);
 
   // sharedUrl değiştiğinde oyun bilgilerini al
