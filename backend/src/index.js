@@ -26,14 +26,24 @@ app.get('/', (req, res) => {
 // Share target endpoint'i
 app.post('/share-target', (req, res) => {
   try {
-    console.log('Share target endpoint çağrıldı');
-    console.log('Request body:', req.body);
+    console.log('=== SHARE TARGET ENDPOINT ÇAĞRILDI ===');
+    console.log('Request method:', req.method);
+    console.log('Request URL:', req.url);
     console.log('Request headers:', req.headers);
+    console.log('Request body:', req.body);
+    console.log('Request query:', req.query);
     
     // Form data'yı al
     const { title, text, url } = req.body;
     
-    console.log('Share data:', { title, text, url });
+    console.log('Share data parsed:', { title, text, url });
+    
+    if (!url) {
+      console.log('URL bulunamadı, 400 hatası döndürülüyor');
+      return res.status(400).json({ message: 'URL gerekli' });
+    }
+    
+    console.log('Share target başarılı, 200 döndürülüyor');
     
     // Başarılı yanıt döndür
     res.status(200).json({ 

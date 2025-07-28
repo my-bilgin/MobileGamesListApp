@@ -5,12 +5,15 @@ self.addEventListener('fetch', (event) => {
 
   // Yalnızca POST ve /share-target ise işleme al
   if (event.request.method === 'POST' && url.pathname === '/share-target') {
+    console.log('Service Worker: Share target isteği yakalandı');
     event.respondWith(handleShareTarget(event));
   }
 });
 
 async function handleShareTarget(event) {
   try {
+    console.log('Service Worker: Share target işleniyor');
+    
     const formData = await event.request.formData();
     console.log('Service Worker: Form data alındı');
     
@@ -48,9 +51,12 @@ async function handleShareTarget(event) {
       } catch (error) {
         console.log('Service Worker: postMessage hatası:', error);
       }
+    } else {
+      console.log('Service Worker: URL bulunamadı');
     }
 
     // Başka sayfaya yönlendir
+    console.log('Service Worker: /share-target-view\'a yönlendiriliyor');
     return Response.redirect('/share-target-view', 303);
   } catch (error) {
     console.error('Service Worker: Hata:', error);
