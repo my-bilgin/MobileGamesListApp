@@ -186,6 +186,13 @@ function AppBanner() {
     
     const isActuallyInstalled = standalone || navigatorStandalone || pwaInstalled
     
+    console.log('Yükle butonu tıklandı:', {
+      standalone,
+      navigatorStandalone,
+      pwaInstalled,
+      isActuallyInstalled
+    })
+    
     if (isActuallyInstalled) {
       // Uygulama zaten yüklü, otomatik aç
       const currentUrl = window.location.href
