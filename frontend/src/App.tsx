@@ -141,6 +141,9 @@ function AppBanner() {
   useEffect(() => {
     // 3 saniye sonra banner'ı göster (sadece tarayıcıda)
     setTimeout(() => {
+      // Token'ı burada al (dependency'den kaldırdık)
+      const currentToken = localStorage.getItem('token') || sessionStorage.getItem('token')
+      
       // Uygulama içinde çalışıp çalışmadığını kontrol et
       const isStandalone = window.matchMedia('(display-mode: standalone)').matches
       const isNavigatorStandalone = (window.navigator as any).standalone === true
@@ -149,14 +152,14 @@ function AppBanner() {
         isStandalone,
         isNavigatorStandalone,
         isLocalhost: window.location.href.includes('localhost'),
-        hasToken: !!token,
+        hasToken: !!currentToken,
         userShowBanner: localStorage.getItem('user-show-app-banner')
       })
       
       // Eğer uygulama içinde değilse ve localhost değilse banner göster
       if (!isStandalone && !isNavigatorStandalone && !window.location.href.includes('localhost')) {
         // Kullanıcı giriş yapmışsa ve ayarı kapalıysa banner gösterme
-        if (token) {
+        if (currentToken) {
           // Kullanıcının ayarını kontrol et (varsayılan olarak göster)
           const userShowBanner = localStorage.getItem('user-show-app-banner')
           console.log('🔍 Kullanıcı ayarı:', userShowBanner)
@@ -173,7 +176,7 @@ function AppBanner() {
         setShowBanner(false) // Banner'ı gizle
       }
     }, 3000)
-  }, [token])
+  }, []) // Boş dependency array - sadece bir kez çalışır
 
   const handleOpenInApp = () => {
     // Önce tekrar kontrol et (durum değişmiş olabilir)
