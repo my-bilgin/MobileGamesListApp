@@ -11,10 +11,12 @@ services:
   backend:
     build: ./backend
     restart: always
+    env_file:
+      - .env
     environment:
-      - MONGO_URI=mongodb://mongo:27017/gameshare
-      - JWT_SECRET=supersecretkey
-      - PORT=5023
+      - MONGO_URI=${MONGO_URI:-mongodb://mongo:27017/gameshare}
+      - JWT_SECRET=${JWT_SECRET:-supersecretkey}
+      - PORT=${PORT:-5023}
     ports:
       - 5023:5023
     depends_on:

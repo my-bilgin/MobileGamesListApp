@@ -18,7 +18,6 @@ mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .catch((err) => console.error('MongoDB bağlantı hatası:', err))
 
 // Basit test endpointi
-debugger
 app.get('/', (req, res) => {
   res.json({ message: 'API çalışıyor' })
 })
