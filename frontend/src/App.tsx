@@ -2230,10 +2230,11 @@ function Profile({ setMode, mode }: { setMode: (m: any) => void, mode: string })
             textTransform: 'none',
             fontFamily: '"Bitcount Prop Single", system-ui',
             borderColor: theme.palette.primary.main,
-            color: theme.palette.primary.main,
+            color: showAppBanner ? '#fff' : theme.palette.primary.main,
             '&:hover': {
               borderColor: theme.palette.primary.dark,
-              bgcolor: theme.palette.primary.light
+              bgcolor: showAppBanner ? theme.palette.primary.dark : theme.palette.primary.light,
+              color: showAppBanner ? '#fff' : theme.palette.primary.main
             }
           }}
         >
