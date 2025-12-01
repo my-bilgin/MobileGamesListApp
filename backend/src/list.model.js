@@ -13,6 +13,9 @@ const listSchema = new mongoose.Schema({
       developer: String,
       rating: Number,
       reviewCount: Number,
+      price: String, // Fiyat bilgisi (örn: "Ücretsiz", "₺29,99", "$4.99")
+      originalPrice: String, // Orijinal fiyat (indirim varsa)
+      discountPercent: Number, // İndirim yüzdesi
     }
   ]
 }, { timestamps: true })

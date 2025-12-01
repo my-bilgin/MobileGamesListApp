@@ -77,14 +77,39 @@ router.delete('/:id', auth, async (req, res) => {
 // Listeye oyun ekle
 router.post('/:id/items', auth, async (req, res) => {
   try {
-    const { title, storeUrl, imageUrl, developer, rating, reviewCount } = req.body
+    const { title, storeUrl, imageUrl, developer, rating, reviewCount, price, originalPrice, discountPercent } = req.body
     if (!title || !storeUrl) return res.status(400).json({ message: 'Oyun adı ve link gerekli.' })
     const list = await List.findOne({ _id: req.params.id, user: req.user.userId })
     if (!list) return res.status(404).json({ message: 'Liste bulunamadı.' })
-    const newItem = { title, storeUrl, imageUrl, developer, rating, reviewCount }
+    const newItem = { title, storeUrl, imageUrl, developer, rating, reviewCount, price, originalPrice, discountPercent }
     list.items.push(newItem)
     await list.save()
     res.status(201).json(newItem)
+  } catch (err) {
+    res.status(500).json({ message: 'Sunucu hatası.' })
+  }
+})
+
+// Listedeki bir oyunun price bilgisini güncelle
+router.put('/:id/items/:idx/price', auth, async (req, res) => {
+  try {
+    const list = await List.findOne({ _id: req.params.id, user: req.user.userId })
+    if (!list) return res.status(404).json({ message: 'Liste bulunamadı.' })
+    const idx = parseInt(req.params.idx)
+    if (isNaN(idx) || idx < 0 || idx >= list.items.length) return res.status(400).json({ message: 'Geçersiz oyun.' })
+    
+    const { price, originalPrice, discountPercent } = req.body
+    if (price !== undefined) {
+      list.items[idx].price = price
+    }
+    if (originalPrice !== undefined) {
+      list.items[idx].originalPrice = originalPrice
+    }
+    if (discountPercent !== undefined) {
+      list.items[idx].discountPercent = discountPercent
+    }
+    await list.save()
+    res.json(list.items[idx])
   } catch (err) {
     res.status(500).json({ message: 'Sunucu hatası.' })
   }

@@ -6,6 +6,7 @@ const userSchema = new mongoose.Schema({
   displayName: { type: String, required: true },
   profileImage: { type: String, default: '/default-avatar.png' },
   showAppBanner: { type: Boolean, default: true },
+  currency: { type: String, default: 'tr' }, // Para birimi (country code)
   favoriteGames: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Game' }],
   favoriteLists: [{ type: mongoose.Schema.Types.ObjectId, ref: 'List' }],
 }, { timestamps: true })

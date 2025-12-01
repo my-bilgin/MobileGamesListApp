@@ -678,6 +678,7 @@ function ListDetail() {
   const theme = useTheme()
   const [showAdd, setShowAdd] = useState(false)
   const [showShare, setShowShare] = useState(false)
+  const [sortBy, setSortBy] = useState('none') // Sıralama: 'none', 'priceAsc', 'priceDesc', 'discountDesc', 'nameAsc', 'nameDesc'
 
   const handleEditName = () => {
     setEditingName(true)
@@ -740,6 +741,194 @@ function ListDetail() {
     // eslint-disable-next-line
   }, [listId])
 
+  // Liste yüklendiğinde eksik price bilgilerini güncelle
+  useEffect(() => {
+    if (list && list.items && list.items.length > 0 && token) {
+      // Önce eksik price bilgilerini güncelle
+      updateMissingPrices()
+      
+      // Sonra currency değişmiş mi kontrol et, değişmişse tüm price bilgilerini güncelle
+      const userCurrency = localStorage.getItem('user-currency') || 'tr'
+      const lastUpdatedCurrency = localStorage.getItem('last-updated-currency')
+      
+      // Eğer currency değişmişse veya ilk kez yükleniyorsa, tüm price bilgilerini güncelle (forceRefresh ile)
+      if (lastUpdatedCurrency !== userCurrency) {
+        updateAllPrices(true) // forceRefresh = true ile cache'i bypass et
+        localStorage.setItem('last-updated-currency', userCurrency)
+      } else {
+        // Currency değişmemişse bile, sayfa yenilendiğinde güncel bilgiyi çek (indirimleri görmek için)
+        // Ama sadece belirli bir süre geçmişse (örneğin 15 dakika)
+        const lastRefreshTime = localStorage.getItem('last-price-refresh')
+        const now = Date.now()
+        const REFRESH_INTERVAL = 15 * 60 * 1000 // 15 dakika
+        
+        if (!lastRefreshTime || (now - parseInt(lastRefreshTime)) > REFRESH_INTERVAL) {
+          updateAllPrices(true) // forceRefresh = true ile cache'i bypass et
+          localStorage.setItem('last-price-refresh', now.toString())
+        }
+      }
+    }
+    // eslint-disable-next-line
+  }, [list])
+
+  // Currency değişikliğini dinle ve fiyatları güncelle
+  useEffect(() => {
+    if (list && list.items && list.items.length > 0 && token) {
+      const handleCurrencyChangeEvent = (e: any) => {
+        // Currency değiştiğinde tüm oyunların price bilgilerini güncelle
+        updateAllPrices()
+      }
+      
+      // Custom event listener ekle (aynı sekmede currency değişirse)
+      window.addEventListener('currency-changed', handleCurrencyChangeEvent)
+      
+      // Storage event listener ekle (başka sekmede currency değişirse)
+      const handleStorageChange = (e: StorageEvent) => {
+        if (e.key === 'user-currency') {
+          updateAllPrices()
+        }
+      }
+      window.addEventListener('storage', handleStorageChange)
+      
+      return () => {
+        window.removeEventListener('currency-changed', handleCurrencyChangeEvent)
+        window.removeEventListener('storage', handleStorageChange)
+      }
+    }
+  }, [list, token])
+
+  const updateAllPrices = async (forceRefresh = false) => {
+    if (!list || !list.items || !token) return
+    
+    // Kullanıcının currency'sini al
+    const userCurrency = localStorage.getItem('user-currency') || 'tr'
+    
+    // Tüm oyunların price bilgilerini güncelle
+    const allItems = list.items.map((item: any, index: number) => ({ item, index }))
+    
+    if (allItems.length === 0) return
+    
+    // Her oyun için price bilgisini güncelle (sırayla, rate limiting için)
+    for (const { item, index } of allItems) {
+      if (!item.storeUrl) continue
+      
+      try {
+        // Oyun bilgisini çek (currency ile, forceRefresh ile cache'i bypass et)
+        const res = await fetch(`${API_URL}/fetch-game-info`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url: item.storeUrl, currency: userCurrency, forceRefresh: forceRefresh })
+        })
+        
+        if (res.ok) {
+          const data = await res.json()
+          if (data.price && data.price !== 'Bilinmiyor') {
+            // Price bilgisini güncelle
+            const updateRes = await fetch(`${API_URL}/lists/${listId}/items/${index}/price`, {
+              method: 'PUT',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`
+              },
+              body: JSON.stringify({ 
+                price: data.price,
+                originalPrice: data.originalPrice,
+                discountPercent: data.discountPercent
+              })
+            })
+            
+            if (updateRes.ok) {
+              // Liste state'ini güncelle
+              setList((prev: any) => {
+                const updatedItems = [...prev.items]
+                updatedItems[index] = { 
+                  ...updatedItems[index], 
+                  price: data.price,
+                  originalPrice: data.originalPrice,
+                  discountPercent: data.discountPercent
+                }
+                return { ...prev, items: updatedItems }
+              })
+            }
+          }
+        }
+        
+        // Rate limiting için bekle (her istek arasında 2 saniye)
+        await new Promise(resolve => setTimeout(resolve, 2000))
+      } catch (err) {
+        console.error(`Oyun ${index} için price güncellenemedi:`, err)
+        // Hata durumunda devam et, diğer oyunları güncellemeye çalış
+      }
+    }
+  }
+
+  const updateMissingPrices = async () => {
+    if (!list || !list.items || !token) return
+    
+    // Kullanıcının currency'sini al
+    const userCurrency = localStorage.getItem('user-currency') || 'tr'
+    
+    // Price bilgisi olmayan oyunları bul
+    const itemsWithoutPrice = list.items
+      .map((item: any, index: number) => ({ item, index }))
+      .filter(({ item }: any) => !item.price || item.price === 'Bilinmiyor')
+    
+    if (itemsWithoutPrice.length === 0) return
+    
+    // Her oyun için price bilgisini güncelle (sırayla, rate limiting için)
+    for (const { item, index } of itemsWithoutPrice) {
+      if (!item.storeUrl) continue
+      
+      try {
+        // Oyun bilgisini çek (currency ile, forceRefresh ile cache'i bypass et)
+        const res = await fetch(`${API_URL}/fetch-game-info`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url: item.storeUrl, currency: userCurrency, forceRefresh: true })
+        })
+        
+        if (res.ok) {
+          const data = await res.json()
+          if (data.price && data.price !== 'Bilinmiyor') {
+            // Price bilgisini güncelle
+            const updateRes = await fetch(`${API_URL}/lists/${listId}/items/${index}/price`, {
+              method: 'PUT',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`
+              },
+              body: JSON.stringify({ 
+                price: data.price,
+                originalPrice: data.originalPrice,
+                discountPercent: data.discountPercent
+              })
+            })
+            
+            if (updateRes.ok) {
+              // Liste state'ini güncelle
+              setList((prev: any) => {
+                const updatedItems = [...prev.items]
+                updatedItems[index] = { 
+                  ...updatedItems[index], 
+                  price: data.price,
+                  originalPrice: data.originalPrice,
+                  discountPercent: data.discountPercent
+                }
+                return { ...prev, items: updatedItems }
+              })
+            }
+          }
+        }
+        
+        // Rate limiting için bekle (her istek arasında 2 saniye)
+        await new Promise(resolve => setTimeout(resolve, 2000))
+      } catch (err) {
+        console.error(`Oyun ${index} için price güncellenemedi:`, err)
+        // Hata durumunda devam et, diğer oyunları güncellemeye çalış
+      }
+    }
+  }
+
   const fetchShareUrl = async () => {
     // Eğer zaten açıksa kapat
     if (showShare) {
@@ -782,14 +971,22 @@ function ListDetail() {
     if (!storeUrl.trim()) return
     setFetching(true)
     try {
-      // Oyun bilgisi çek
+      // Kullanıcının currency'sini al
+      const userCurrency = localStorage.getItem('user-currency') || 'tr'
+      
+      // Oyun bilgisi çek (currency ile)
       const res = await fetch(`${API_URL}/fetch-game-info`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url: storeUrl })
+        body: JSON.stringify({ url: storeUrl, currency: userCurrency })
       })
       const data = await res.json()
-      if (!res.ok) throw new Error(data.message)
+      if (!res.ok) {
+        if (res.status === 429) {
+          throw new Error('Google Play Store\'dan çok fazla istek yapıldı. Lütfen birkaç dakika sonra tekrar deneyin.')
+        }
+        throw new Error(data.message || 'Oyun bilgileri alınamadı')
+      }
       // Listeye ekle
       const addRes = await fetch(`${API_URL}/lists/${listId}/items`, {
         method: 'POST',
@@ -805,7 +1002,7 @@ function ListDetail() {
       setShowAdd(false)
       show('Oyun başarıyla eklendi!', 'success')
     } catch (err: any) {
-      show(err.message, 'error')
+      show(err.message || 'Bir hata oluştu', 'error')
     } finally {
       setFetching(false)
     }
@@ -964,8 +1161,63 @@ function ListDetail() {
           </IconButton>
         </Box>
       </Collapse>
+      
+      {/* Sıralama Seçeneği */}
+      {list && list.items && list.items.length > 0 && (
+        <Box sx={{ mx: { xs: 1, sm: 0 }, mb: 2 }}>
+          <FormControl fullWidth size="small">
+            <InputLabel id="sort-select-label">Sıralama</InputLabel>
+            <Select
+              labelId="sort-select-label"
+              value={sortBy}
+              label="Sıralama"
+              onChange={(e) => setSortBy(e.target.value)}
+              sx={{
+                borderRadius: 2,
+                fontFamily: '"Bitcount Prop Single", system-ui',
+                fontWeight: 600,
+                bgcolor: theme.palette.background.paper
+              }}
+            >
+              <MenuItem value="none">Ekleme Sırası (Varsayılan)</MenuItem>
+              <MenuItem value="nameAsc">İsme Göre (A-Z)</MenuItem>
+              <MenuItem value="nameDesc">İsme Göre (Z-A)</MenuItem>
+              <MenuItem value="priceAsc">Fiyata Göre (Düşük-Yüksek)</MenuItem>
+              <MenuItem value="priceDesc">Fiyata Göre (Yüksek-Düşük)</MenuItem>
+              <MenuItem value="discountDesc">İndirim Oranına Göre (Yüksek-Düşük)</MenuItem>
+            </Select>
+          </FormControl>
+        </Box>
+      )}
+      
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1, mb: 2, mx: { xs: 1, sm: 0 } }}>
-        {list.items && list.items.length > 0 ? list.items.map((item: any, i: number) => (
+        {list.items && list.items.length > 0 ? (() => {
+          // Sıralama fonksiyonu
+          const sortedItems = sortBy === 'none' 
+            ? [...list.items] // Ekleme sırasını koru (sıralama yapma)
+            : [...list.items].sort((a: any, b: any) => {
+                switch (sortBy) {
+                  case 'nameAsc':
+                    return (a.title || '').localeCompare(b.title || '')
+                  case 'nameDesc':
+                    return (b.title || '').localeCompare(a.title || '')
+                  case 'priceAsc':
+                    // Fiyatları sayısal değere çevir (örn: "₺29,99" -> 29.99)
+                    const priceA = parseFloat((a.price || '0').replace(/[^\d.,]/g, '').replace(',', '.')) || 0
+                    const priceB = parseFloat((b.price || '0').replace(/[^\d.,]/g, '').replace(',', '.')) || 0
+                    return priceA - priceB
+                  case 'priceDesc':
+                    const priceADesc = parseFloat((a.price || '0').replace(/[^\d.,]/g, '').replace(',', '.')) || 0
+                    const priceBDesc = parseFloat((b.price || '0').replace(/[^\d.,]/g, '').replace(',', '.')) || 0
+                    return priceBDesc - priceADesc
+                  case 'discountDesc':
+                    return (b.discountPercent || 0) - (a.discountPercent || 0)
+                  default:
+                    return 0
+                }
+              })
+          
+          return sortedItems.map((item: any, i: number) => (
           <Card key={i} sx={{ display: 'flex', alignItems: 'center', mb: 2, boxShadow: 3, borderRadius: 4, bgcolor: `linear-gradient(135deg, ${theme.palette.background.paper} 80%, ${theme.palette.secondary.light} 100%)`, p: 1.5 }}>
             {item.imageUrl ? (
               <CardMedia
@@ -988,10 +1240,16 @@ function ListDetail() {
                 <Typography variant="body2" sx={{ fontWeight: 500, fontSize: 13 }}>{item.rating ? Math.round(item.rating * 10) / 10 : '-'}</Typography>
                 <Typography variant="caption" color="text.secondary">({item.reviewCount || 0} yorum)</Typography>
               </Box>
+              {item.price && item.price !== 'Bilinmiyor' && (
+                <Typography variant="body2" sx={{ fontWeight: 600, fontSize: 13, color: theme.palette.primary.main, mb: 0.5 }}>
+                  {item.price}
+                </Typography>
+              )}
               <Button href={item.storeUrl} target="_blank" rel="noopener noreferrer" size="small" variant="text" sx={{ mt: 0.5, color: '#1976d2', fontWeight: 600, textTransform: 'none', fontSize: 12 , marginLeft: '-5px'}}>Store'da Aç</Button>
             </CardContent>
           </Card>
-        )) : <Typography>Henüz oyun eklenmemiş.</Typography>}
+          ))
+        })() : <Typography>Henüz oyun eklenmemiş.</Typography>}
       </Box>
       {snackbar}
     </Box>
@@ -1196,6 +1454,11 @@ function PublicList() {
                 <Typography variant="body2" sx={{ fontWeight: 500, fontSize: 13 }}>{item.rating ? Math.round(item.rating * 10) / 10 : '-'}</Typography>
                 <Typography variant="caption" color="text.secondary">({item.reviewCount || 0} yorum)</Typography>
               </Box>
+              {item.price && item.price !== 'Bilinmiyor' && (
+                <Typography variant="body2" sx={{ fontWeight: 600, fontSize: 13, color: theme.palette.primary.main, mb: 0.5 }}>
+                  {item.price}
+                </Typography>
+              )}
               <Button href={item.storeUrl} target="_blank" rel="noopener noreferrer" size="small" variant="text" sx={{ mt: 0.5, ml: -0.625, color: '#1976d2', fontWeight: 600, textTransform: 'none', fontSize: 12 }}>Store'da Aç</Button>
             </CardContent>
           </Card>
@@ -1511,6 +1774,59 @@ function Profile({ setMode, mode }: { setMode: (m: any) => void, mode: string })
   // Uygulama önerisi ayarı
   const [showAppBanner, setShowAppBanner] = useState(true)
   
+  // Para birimi ayarı
+  const [currency, setCurrency] = useState('tr')
+  
+  // Google Play Store desteklenen para birimleri (TRY ve USD en üstte)
+  const currencies = [
+    { code: 'tr', name: 'Türk Lirası (TRY)', country: 'Türkiye' },
+    { code: 'us', name: 'US Dollar (USD)', country: 'United States' },
+    { code: 'gb', name: 'British Pound (GBP)', country: 'United Kingdom' },
+    { code: 'de', name: 'Euro (EUR)', country: 'Germany' },
+    { code: 'fr', name: 'Euro (EUR)', country: 'France' },
+    { code: 'it', name: 'Euro (EUR)', country: 'Italy' },
+    { code: 'es', name: 'Euro (EUR)', country: 'Spain' },
+    { code: 'nl', name: 'Euro (EUR)', country: 'Netherlands' },
+    { code: 'be', name: 'Euro (EUR)', country: 'Belgium' },
+    { code: 'at', name: 'Euro (EUR)', country: 'Austria' },
+    { code: 'ch', name: 'Swiss Franc (CHF)', country: 'Switzerland' },
+    { code: 'se', name: 'Swedish Krona (SEK)', country: 'Sweden' },
+    { code: 'no', name: 'Norwegian Krone (NOK)', country: 'Norway' },
+    { code: 'dk', name: 'Danish Krone (DKK)', country: 'Denmark' },
+    { code: 'fi', name: 'Euro (EUR)', country: 'Finland' },
+    { code: 'pl', name: 'Polish Zloty (PLN)', country: 'Poland' },
+    { code: 'cz', name: 'Czech Koruna (CZK)', country: 'Czech Republic' },
+    { code: 'hu', name: 'Hungarian Forint (HUF)', country: 'Hungary' },
+    { code: 'ro', name: 'Romanian Leu (RON)', country: 'Romania' },
+    { code: 'gr', name: 'Euro (EUR)', country: 'Greece' },
+    { code: 'pt', name: 'Euro (EUR)', country: 'Portugal' },
+    { code: 'ie', name: 'Euro (EUR)', country: 'Ireland' },
+    { code: 'ca', name: 'Canadian Dollar (CAD)', country: 'Canada' },
+    { code: 'au', name: 'Australian Dollar (AUD)', country: 'Australia' },
+    { code: 'nz', name: 'New Zealand Dollar (NZD)', country: 'New Zealand' },
+    { code: 'jp', name: 'Japanese Yen (JPY)', country: 'Japan' },
+    { code: 'kr', name: 'South Korean Won (KRW)', country: 'South Korea' },
+    { code: 'cn', name: 'Chinese Yuan (CNY)', country: 'China' },
+    { code: 'in', name: 'Indian Rupee (INR)', country: 'India' },
+    { code: 'br', name: 'Brazilian Real (BRL)', country: 'Brazil' },
+    { code: 'mx', name: 'Mexican Peso (MXN)', country: 'Mexico' },
+    { code: 'ar', name: 'Argentine Peso (ARS)', country: 'Argentina' },
+    { code: 'cl', name: 'Chilean Peso (CLP)', country: 'Chile' },
+    { code: 'co', name: 'Colombian Peso (COP)', country: 'Colombia' },
+    { code: 'pe', name: 'Peruvian Sol (PEN)', country: 'Peru' },
+    { code: 'za', name: 'South African Rand (ZAR)', country: 'South Africa' },
+    { code: 'ae', name: 'UAE Dirham (AED)', country: 'United Arab Emirates' },
+    { code: 'sa', name: 'Saudi Riyal (SAR)', country: 'Saudi Arabia' },
+    { code: 'il', name: 'Israeli Shekel (ILS)', country: 'Israel' },
+    { code: 'ru', name: 'Russian Ruble (RUB)', country: 'Russia' },
+    { code: 'sg', name: 'Singapore Dollar (SGD)', country: 'Singapore' },
+    { code: 'my', name: 'Malaysian Ringgit (MYR)', country: 'Malaysia' },
+    { code: 'th', name: 'Thai Baht (THB)', country: 'Thailand' },
+    { code: 'ph', name: 'Philippine Peso (PHP)', country: 'Philippines' },
+    { code: 'id', name: 'Indonesian Rupiah (IDR)', country: 'Indonesia' },
+    { code: 'vn', name: 'Vietnamese Dong (VND)', country: 'Vietnam' },
+  ]
+  
   // Profil resmi seçenekleri (18 avatar)
   const avatarOptions = [
     '/avatar1.png', '/avatar2.png', '/avatar3.png', '/avatar4.png', '/avatar5.png', '/avatar6.png',
@@ -1539,8 +1855,10 @@ function Profile({ setMode, mode }: { setMode: (m: any) => void, mode: string })
         setProfileImage(data.profileImage || '/default-avatar.png')
         const bannerSetting = data.showAppBanner !== false // Default true, sadece false ise false yap
         setShowAppBanner(bannerSetting)
+        setCurrency(data.currency || 'tr')
         // LocalStorage'a da kaydet
         localStorage.setItem('user-show-app-banner', bannerSetting.toString())
+        localStorage.setItem('user-currency', data.currency || 'tr')
       }
     } catch (error) {
       console.error('Kullanıcı bilgileri alınamadı:', error)
@@ -1641,6 +1959,28 @@ function Profile({ setMode, mode }: { setMode: (m: any) => void, mode: string })
     setMode(newMode)
     localStorage.setItem('theme', newMode)
     show('Tema tercihiniz kaydedildi.', 'success')
+  }
+
+  const handleCurrencyChange = async (newCurrency: string) => {
+    try {
+      const res = await fetch(`${API_URL}/user/currency-setting`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ currency: newCurrency })
+      })
+      if (res.ok) {
+        setCurrency(newCurrency)
+        localStorage.setItem('user-currency', newCurrency)
+        show('Para birimi ayarı güncellendi', 'success')
+      } else {
+        show('Para birimi ayarı güncellenemedi', 'error')
+      }
+    } catch (error) {
+      show('Para birimi ayarı güncellenemedi', 'error')
+    }
   }
 
   const handleAppBannerChange = async (newValue: boolean) => {
@@ -2215,6 +2555,34 @@ function Profile({ setMode, mode }: { setMode: (m: any) => void, mode: string })
         </Box>
       </Box>
 
+      {/* Para Birimi Ayarı */}
+      <Box sx={{ bgcolor: theme.palette.background.paper, borderRadius: 4, boxShadow: 3, p: 2.5, mb: 2, mx: { xs: 1, sm: 0 } }}>
+        <Typography variant="h6" sx={{ fontWeight: 700, mb: 2, fontFamily: '"Bitcount Prop Single", system-ui' }}>Para Birimi Ayarı</Typography>
+        <FormControl fullWidth sx={{ mb: 2 }}>
+          <InputLabel id="currency-select-label">Para Birimi</InputLabel>
+          <Select
+            labelId="currency-select-label"
+            value={currency}
+            label="Para Birimi"
+            onChange={(e) => handleCurrencyChange(e.target.value)}
+            sx={{
+              borderRadius: 2,
+              fontFamily: '"Bitcount Prop Single", system-ui',
+              fontWeight: 600
+            }}
+          >
+            {currencies.map((curr) => (
+              <MenuItem key={curr.code} value={curr.code}>
+                {curr.name} - {curr.country}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+        <Typography variant="body2" color="text.secondary" sx={{ fontSize: 12 }}>
+          Seçtiğiniz para biriminde fiyatlar gösterilecektir.
+        </Typography>
+      </Box>
+
       {/* Uygulama Önerisi Ayarı */}
       <Box sx={{ bgcolor: theme.palette.background.paper, borderRadius: 4, boxShadow: 3, p: 2.5, mb: 2, mx: { xs: 1, sm: 0 } }}>
         <Typography variant="h6" sx={{ fontWeight: 700, mb: 2, fontFamily: '"Bitcount Prop Single", system-ui' }}>Uygulama Önerisi Ayarı</Typography>
@@ -2428,16 +2796,24 @@ function ShareTargetView() {
 
   const fetchGameInfo = async () => {
     try {
+      // Kullanıcının currency'sini al
+      const userCurrency = localStorage.getItem('user-currency') || 'tr'
+      
       const res = await fetch(`${API_URL}/fetch-game-info`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url: sharedUrl })
+        body: JSON.stringify({ url: sharedUrl, currency: userCurrency })
       });
       
+      const data = await res.json();
+      
       if (res.ok) {
-        const data = await res.json();
         setGameInfo(data);
       } else {
+        // 429 hatası için özel mesaj
+        if (res.status === 429) {
+          show('Google Play Store\'dan çok fazla istek yapıldı. Lütfen birkaç dakika sonra tekrar deneyin.', 'error');
+        }
         // Fallback - basit bilgiler
         const gameId = sharedUrl.match(/id=([^&]+)/)?.[1] || '';
         setGameInfo({
@@ -2446,11 +2822,13 @@ function ShareTargetView() {
           imageUrl: `https://play.google.com/store/apps/details?id=${gameId}`,
           developer: 'Bilinmeyen Geliştirici',
           rating: 0,
-          reviewCount: 0
+          reviewCount: 0,
+          price: 'Bilinmiyor'
         });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Oyun bilgileri alınamadı:', error);
+      show(error.message || 'Oyun bilgileri alınamadı', 'error');
       // Fallback
       const gameId = sharedUrl.match(/id=([^&]+)/)?.[1] || '';
       setGameInfo({
@@ -2459,7 +2837,8 @@ function ShareTargetView() {
         imageUrl: `https://play.google.com/store/apps/details?id=${gameId}`,
         developer: 'Bilinmeyen Geliştirici',
         rating: 0,
-        reviewCount: 0
+        reviewCount: 0,
+        price: 'Bilinmiyor'
       });
     }
   };
@@ -2502,11 +2881,14 @@ function ShareTargetView() {
         body: JSON.stringify({ url: sharedUrl })
       });
       
-      if (!gameInfoRes.ok) {
-        throw new Error('Oyun bilgileri alınamadı');
-      }
-      
       const gameData = await gameInfoRes.json();
+      
+      if (!gameInfoRes.ok) {
+        if (gameInfoRes.status === 429) {
+          throw new Error('Google Play Store\'dan çok fazla istek yapıldı. Lütfen birkaç dakika sonra tekrar deneyin.');
+        }
+        throw new Error(gameData.message || 'Oyun bilgileri alınamadı');
+      }
       
       // Listeye ekle
       const res = await fetch(`${API_URL}/lists/${selectedList}/items`, {
@@ -2525,8 +2907,8 @@ function ShareTargetView() {
         const data = await res.json();
         show(data.message || 'Oyun eklenirken hata oluştu', 'error');
       }
-    } catch (error) {
-      show('Bağlantı hatası', 'error');
+    } catch (error: any) {
+      show(error.message || 'Bağlantı hatası', 'error');
     } finally {
       setAdding(false);
     }

@@ -34,12 +34,9 @@
       window.addEventListener('beforeinstallprompt', (e) => {
         // Varsayılan davranışı engelle
         e.preventDefault();
-        // Event'i sakla
+        // Event'i sakla - sadece sakla, otomatik gösterme
         deferredPrompt = e;
-        console.log('PWA yükleme önerisi hazır');
-        
-        // Hemen göster
-        showInstallPrompt();
+        console.log('PWA yükleme önerisi hazır - kullanıcı etkileşimi bekleniyor');
       });
       
       // Uygulama zaten yüklü mü kontrol et
@@ -80,12 +77,7 @@
               console.log('Kullanıcı uygulamayı yüklemeyi reddetti');
               // Global değişkende sakla
               window.installResult = 'rejected';
-              // 5 saniye sonra tekrar dene
-              setTimeout(() => {
-                if (deferredPrompt) {
-                  showInstallPrompt();
-                }
-              }, 5000);
+              // Tekrar otomatik gösterme - kullanıcı butona tıklamalı
             }
             deferredPrompt = null;
           });
@@ -96,18 +88,12 @@
         }
       }
       
-      // Sayfa yüklendiğinde kontrol et
+      // Sayfa yüklendiğinde kontrol et - sadece log, otomatik prompt gösterme
       window.addEventListener('load', () => {
         const isInstalled = checkIfAppInstalled();
         
-        // Eğer uygulama yüklü değilse ve tarayıcıda açıldıysa
-        if (!isInstalled && !window.location.href.includes('localhost')) {
-          console.log('Tarayıcıda açıldı, uygulama yükleme önerisi gösterilebilir');
-          
-          // 2 saniye sonra uygulama yükleme önerisi göster
-          setTimeout(() => {
-            showInstallPrompt();
-          }, 2000);
+        if (!isInstalled && deferredPrompt) {
+          console.log('PWA yükleme önerisi mevcut - kullanıcı butona tıklayarak yükleyebilir');
         }
       });
       
