@@ -22,7 +22,9 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
   // Share target için özel işleme
-  if (event.request.method === 'POST' && url.pathname === '/share-target') {
+  // POST isteği ve /share-target path'i veya share-target içeren path
+  if (event.request.method === 'POST' && (url.pathname === '/share-target' || url.pathname.includes('share-target'))) {
+    console.log('Service Worker: Share target POST isteği yakalandı:', url.pathname);
     event.respondWith(handleShareTarget(event));
     return;
   }
@@ -46,19 +48,52 @@ async function handleShareTarget(event) {
   try {
     const formData = await event.request.formData();
     console.log('Service Worker: Form data alındı');
+    console.log('Service Worker: Form data keys:', Array.from(formData.keys()));
     
     // manifest'te "url" paramı varsa:
-    const sharedUrl = formData.get('url') || formData.get('shared_url') || '';
+    const sharedUrl = formData.get('url') || formData.get('shared_url') || formData.get('text') || '';
     console.log('Service Worker: Shared URL:', sharedUrl);
+    
+    // text alanından URL çıkarmayı dene (bazı tarayıcılar URL'yi text olarak gönderir)
+    let finalUrl = sharedUrl;
+    if (!finalUrl && formData.get('text')) {
+      const text = formData.get('text');
+      // URL pattern'ini ara
+      const urlMatch = text.match(/https?:\/\/[^\s]+/);
+      if (urlMatch) {
+        finalUrl = urlMatch[0];
+        console.log('Service Worker: Text\'ten URL çıkarıldı:', finalUrl);
+      }
+    }
 
-    if (sharedUrl) {
+    if (finalUrl) {
       // Veriyi cache içine yaz
       const cache = await caches.open('shared-data');
-      const response = new Response(sharedUrl, {
+      const response = new Response(finalUrl, {
         headers: { 'Content-Type': 'text/plain' }
       });
       await cache.put('/last-shared-url', response);
-      console.log('Service Worker: URL cache\'e yazıldı');
+      console.log('Service Worker: URL cache\'e yazıldı:', finalUrl);
+      
+      // Client'a mesaj gönder (eğer client hazırsa)
+      try {
+        const clients = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+        clients.forEach(client => {
+          client.postMessage({
+            type: 'SHARED_URL',
+            url: finalUrl
+          });
+          console.log('Service Worker: Client\'a mesaj gönderildi:', finalUrl);
+        });
+      } catch (msgError) {
+        console.warn('Service Worker: Client\'a mesaj gönderilemedi:', msgError);
+      }
+    } else {
+      console.warn('Service Worker: URL bulunamadı! Form data:', {
+        url: formData.get('url'),
+        text: formData.get('text'),
+        title: formData.get('title')
+      });
     }
 
     // Başka sayfaya yönlendir

@@ -2744,47 +2744,157 @@ function ShareTargetView() {
   useEffect(() => {
     console.log('ShareTargetView useEffect çalıştı');
     
+    let retryTimer: NodeJS.Timeout | null = null;
+    let isMounted = true;
+    
+    // Service Worker mesaj handler'ı
+    const messageHandler = (event: MessageEvent) => {
+      console.log('Service Worker mesajı alındı:', event.data);
+      if (event.data && event.data.type === 'SHARED_URL' && event.data.url && isMounted) {
+        console.log('Service Worker\'dan URL alındı:', event.data.url);
+        setSharedUrl(event.data.url);
+        setLoading(false);
+      }
+    };
+    
+    // Service Worker mesajını dinle
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.addEventListener('message', messageHandler);
+    }
+    
     const getSharedUrl = async () => {
       try {
-        // Önce URL parametresinden dene (test için)
+        // 1. Önce URL parametresinden dene (test için)
         const urlParams = new URLSearchParams(window.location.search);
         const sharedUrlParam = urlParams.get('url');
         
-        if (sharedUrlParam) {
+        if (sharedUrlParam && isMounted) {
           console.log('URL parametresinden alındı:', sharedUrlParam);
           setSharedUrl(decodeURIComponent(sharedUrlParam));
           setLoading(false);
           return;
         }
         
-        console.log('Cache\'den alınmaya çalışılıyor...');
-        
-        // Cache'den dene
-        if ('caches' in window) {
-          const cache = await caches.open('shared-data');
-          const response = await cache.match('/last-shared-url');
-          
-          if (response) {
-            const url = await response.text();
-            console.log('Cache\'den alındı:', url);
-            if (url && url.trim()) {
-              setSharedUrl(url.trim());
-              setLoading(false);
-              return;
+        // 2. Chrome için launchQueue API'sini kontrol et
+        if ('launchQueue' in window && typeof (window as any).launchQueue.setConsumer === 'function') {
+          console.log('launchQueue API mevcut, bekleniyor...');
+          (window as any).launchQueue.setConsumer((launchParams: any) => {
+            if (!isMounted) return;
+            console.log('launchQueue consumer çalıştı:', launchParams);
+            if (launchParams && launchParams.targetURL) {
+              const url = new URL(launchParams.targetURL);
+              const sharedUrl = url.searchParams.get('url');
+              if (sharedUrl) {
+                console.log('launchQueue\'dan URL alındı:', sharedUrl);
+                setSharedUrl(decodeURIComponent(sharedUrl));
+                setLoading(false);
+                return;
+              }
             }
-          }
+            if (launchParams && launchParams.files && launchParams.files.length === 0 && launchParams.formData) {
+              const formData = launchParams.formData;
+              const url = formData.get('url') || formData.get('shared_url') || '';
+              if (url) {
+                console.log('launchQueue formData\'dan URL alındı:', url);
+                setSharedUrl(url);
+                setLoading(false);
+                return;
+              }
+            }
+          });
         }
         
-        console.log('Cache\'de URL bulunamadı');
-        setLoading(false);
+        // 3. localStorage'dan dene (fallback)
+        const storedUrl = localStorage.getItem('last-shared-url');
+        if (storedUrl && storedUrl.trim() && isMounted) {
+          console.log('localStorage\'dan URL alındı:', storedUrl);
+          setSharedUrl(storedUrl.trim());
+          setLoading(false);
+          localStorage.removeItem('last-shared-url'); // Tek kullanımlık
+          return;
+        }
+        
+        // 4. Cache'den dene (birkaç kez dene, çünkü service worker asenkron çalışabilir)
+        console.log('Cache\'den alınmaya çalışılıyor...');
+        let retryCount = 0;
+        const maxRetries = 5;
+        const retryInterval = 200; // 200ms
+        
+        const tryReadCache = async (): Promise<string | null> => {
+          if ('caches' in window) {
+            try {
+              const cache = await caches.open('shared-data');
+              const response = await cache.match('/last-shared-url');
+              
+              if (response) {
+                const url = await response.text();
+                console.log('Cache\'den alındı:', url);
+                if (url && url.trim()) {
+                  // Cache'i temizle
+                  await cache.delete('/last-shared-url');
+                  return url.trim();
+                }
+              }
+            } catch (cacheError) {
+              console.error('Cache okuma hatası:', cacheError);
+            }
+          }
+          return null;
+        };
+        
+        // İlk deneme
+        const cachedUrl = await tryReadCache();
+        if (cachedUrl && isMounted) {
+          setSharedUrl(cachedUrl);
+          setLoading(false);
+          return;
+        }
+        
+        // Retry mekanizması
+        retryTimer = setInterval(async () => {
+          if (!isMounted) {
+            if (retryTimer) clearInterval(retryTimer);
+            return;
+          }
+          
+          retryCount++;
+          console.log(`Cache retry ${retryCount}/${maxRetries}`);
+          
+          const url = await tryReadCache();
+          if (url && isMounted) {
+            if (retryTimer) clearInterval(retryTimer);
+            setSharedUrl(url);
+            setLoading(false);
+            return;
+          }
+          
+          if (retryCount >= maxRetries) {
+            if (retryTimer) clearInterval(retryTimer);
+            if (isMounted) {
+              console.log('Paylaşılan URL bulunamadı - tüm yöntemler denendi');
+              setLoading(false);
+            }
+          }
+        }, retryInterval);
         
       } catch (error) {
         console.error('URL alma hatası:', error);
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
     
     getSharedUrl();
+    
+    // Cleanup fonksiyonu
+    return () => {
+      isMounted = false;
+      if (retryTimer) clearInterval(retryTimer);
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.removeEventListener('message', messageHandler);
+      }
+    };
   }, []);
 
   // sharedUrl değiştiğinde oyun bilgilerini al
