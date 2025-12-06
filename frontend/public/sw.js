@@ -50,20 +50,52 @@ async function handleShareTarget(event) {
     console.log('Service Worker: Form data alındı');
     console.log('Service Worker: Form data keys:', Array.from(formData.keys()));
     
+    // Tüm form data değerlerini logla
+    for (const [key, value] of formData.entries()) {
+      console.log(`Service Worker: FormData[${key}] =`, value);
+    }
+    
     // manifest'te "url" paramı varsa:
-    const sharedUrl = formData.get('url') || formData.get('shared_url') || formData.get('text') || '';
-    console.log('Service Worker: Shared URL:', sharedUrl);
+    let sharedUrl = formData.get('url') || formData.get('shared_url') || '';
+    console.log('Service Worker: Direct URL:', sharedUrl);
     
     // text alanından URL çıkarmayı dene (bazı tarayıcılar URL'yi text olarak gönderir)
     let finalUrl = sharedUrl;
-    if (!finalUrl && formData.get('text')) {
-      const text = formData.get('text');
-      // URL pattern'ini ara
-      const urlMatch = text.match(/https?:\/\/[^\s]+/);
-      if (urlMatch) {
-        finalUrl = urlMatch[0];
-        console.log('Service Worker: Text\'ten URL çıkarıldı:', finalUrl);
+    if (!finalUrl) {
+      const text = formData.get('text') || '';
+      const title = formData.get('title') || '';
+      console.log('Service Worker: Text:', text);
+      console.log('Service Worker: Title:', title);
+      
+      // Önce text'te URL ara
+      if (text) {
+        const urlMatch = text.match(/https?:\/\/[^\s\)]+/);
+        if (urlMatch) {
+          finalUrl = urlMatch[0];
+          console.log('Service Worker: Text\'ten URL çıkarıldı:', finalUrl);
+        }
       }
+      
+      // Text'te bulunamazsa title'da ara
+      if (!finalUrl && title) {
+        const urlMatch = title.match(/https?:\/\/[^\s\)]+/);
+        if (urlMatch) {
+          finalUrl = urlMatch[0];
+          console.log('Service Worker: Title\'den URL çıkarıldı:', finalUrl);
+        }
+      }
+      
+      // Hala bulunamazsa, text ve title'ı birleştirip ara
+      if (!finalUrl && (text || title)) {
+        const combined = (text + ' ' + title).trim();
+        const urlMatch = combined.match(/https?:\/\/[^\s\)]+/);
+        if (urlMatch) {
+          finalUrl = urlMatch[0];
+          console.log('Service Worker: Combined text\'ten URL çıkarıldı:', finalUrl);
+        }
+      }
+    } else {
+      finalUrl = sharedUrl;
     }
 
     if (finalUrl) {
