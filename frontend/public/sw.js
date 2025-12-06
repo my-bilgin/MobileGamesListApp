@@ -1,5 +1,6 @@
 // Service Worker for GameShare PWA
-const CACHE_NAME = 'gameshare-v1';
+// VERSION: 2.0 - Enhanced share target handling with detailed logging
+const CACHE_NAME = 'gameshare-v2';
 const urlsToCache = [
   '/',
   '/manifest.json',
@@ -8,13 +9,16 @@ const urlsToCache = [
 
 // Install event
 self.addEventListener('install', (event) => {
+  console.log('Service Worker: Installing - VERSION 2.0');
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
-        console.log('Opened cache');
+        console.log('Service Worker: Opened cache:', CACHE_NAME);
         return cache.addAll(urlsToCache);
       })
   );
+  // Yeni versiyonu hemen aktif et
+  self.skipWaiting();
 });
 
 // Fetch event
@@ -46,33 +50,40 @@ self.addEventListener('fetch', (event) => {
 // Share target handler
 async function handleShareTarget(event) {
   try {
+    console.log('Service Worker: handleShareTarget çağrıldı - VERSION 2.0');
     const formData = await event.request.formData();
     console.log('Service Worker: Form data alındı');
-    console.log('Service Worker: Form data keys:', Array.from(formData.keys()));
     
     // Tüm form data değerlerini logla
-    for (const [key, value] of formData.entries()) {
-      console.log(`Service Worker: FormData[${key}] =`, value);
+    const keys = Array.from(formData.keys());
+    console.log('Service Worker: Form data keys:', keys);
+    
+    // Her key için değeri logla
+    for (const key of keys) {
+      const value = formData.get(key);
+      console.log(`Service Worker: FormData["${key}"] =`, value, `(type: ${typeof value})`);
     }
     
     // manifest'te "url" paramı varsa:
     let sharedUrl = formData.get('url') || formData.get('shared_url') || '';
-    console.log('Service Worker: Direct URL:', sharedUrl);
+    console.log('Service Worker: Direct URL from formData.get("url"):', sharedUrl);
     
     // text alanından URL çıkarmayı dene (bazı tarayıcılar URL'yi text olarak gönderir)
     let finalUrl = sharedUrl;
     if (!finalUrl) {
       const text = formData.get('text') || '';
       const title = formData.get('title') || '';
-      console.log('Service Worker: Text:', text);
-      console.log('Service Worker: Title:', title);
+      console.log('Service Worker: Text value:', text);
+      console.log('Service Worker: Title value:', title);
       
       // Önce text'te URL ara
       if (text) {
         const urlMatch = text.match(/https?:\/\/[^\s\)]+/);
         if (urlMatch) {
           finalUrl = urlMatch[0];
-          console.log('Service Worker: Text\'ten URL çıkarıldı:', finalUrl);
+          console.log('Service Worker: ✅ Text\'ten URL çıkarıldı:', finalUrl);
+        } else {
+          console.log('Service Worker: ❌ Text\'te URL bulunamadı');
         }
       }
       
@@ -81,7 +92,9 @@ async function handleShareTarget(event) {
         const urlMatch = title.match(/https?:\/\/[^\s\)]+/);
         if (urlMatch) {
           finalUrl = urlMatch[0];
-          console.log('Service Worker: Title\'den URL çıkarıldı:', finalUrl);
+          console.log('Service Worker: ✅ Title\'den URL çıkarıldı:', finalUrl);
+        } else {
+          console.log('Service Worker: ❌ Title\'de URL bulunamadı');
         }
       }
       
@@ -91,11 +104,14 @@ async function handleShareTarget(event) {
         const urlMatch = combined.match(/https?:\/\/[^\s\)]+/);
         if (urlMatch) {
           finalUrl = urlMatch[0];
-          console.log('Service Worker: Combined text\'ten URL çıkarıldı:', finalUrl);
+          console.log('Service Worker: ✅ Combined text\'ten URL çıkarıldı:', finalUrl);
+        } else {
+          console.log('Service Worker: ❌ Combined text\'te URL bulunamadı');
         }
       }
     } else {
       finalUrl = sharedUrl;
+      console.log('Service Worker: ✅ Direct URL kullanılıyor:', finalUrl);
     }
 
     if (finalUrl) {
@@ -139,16 +155,20 @@ async function handleShareTarget(event) {
 
 // Activate event
 self.addEventListener('activate', (event) => {
+  console.log('Service Worker: Activating - VERSION 2.0');
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
           if (cacheName !== CACHE_NAME) {
-            console.log('Deleting old cache:', cacheName);
+            console.log('Service Worker: Deleting old cache:', cacheName);
             return caches.delete(cacheName);
           }
         })
       );
+    }).then(() => {
+      // Tüm client'lara kontrolü al
+      return self.clients.claim();
     })
   );
 });
